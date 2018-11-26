@@ -8,7 +8,7 @@ build:pc189:
     - pc189
   artifacts:
     paths:
-      traffic_sim
+      - traffic_sim
   script:
     - source ~/runner_env
     - make
@@ -19,7 +19,7 @@ build:pc205:
     - pc205
   artifacts:
     paths:
-      traffic_sim
+      - traffic_sim
   script:
     - source ~/runner_env
     - make
