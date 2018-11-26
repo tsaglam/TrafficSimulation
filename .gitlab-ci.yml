@@ -10,7 +10,7 @@ build:pc189:
     paths:
       - traffic_sim
   script:
-    - source ~/runner_env
+    - source ~/pdmkp_env
     - make
 
 build:pc205:
@@ -21,7 +21,7 @@ build:pc205:
     paths:
       - traffic_sim
   script:
-    - source ~/runner_env
+    - source ~/pdmkp_env
     - make
 
 
@@ -32,8 +32,8 @@ test:pc189:
   dependencies:
     - build:pc189
   script:
-    - source ~/runner_env
-    - make
+    - source ~/pdmkp_env
+    - traffic_check $PWD/traffic_sim
 
 test:pc205:
   stage: test
@@ -42,5 +42,5 @@ test:pc205:
   dependencies:
     - build:pc205
   script:
-    - source ~/runner_env
-    - make
+    - source ~/pdmkp_env
+    - traffic_check $PWD/traffic_sim
