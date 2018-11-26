@@ -40,6 +40,7 @@ int main()
     }
     for(const auto& car : input["cars"])
     {
+        car["id"];
         car["target_velocity"]; // in km/h
         car["max_acceleration"]; // in m/s²
         car["target_deceleration"]; // in m/s²
