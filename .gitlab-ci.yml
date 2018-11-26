@@ -1,0 +1,46 @@
+stages:
+  - build
+  - test
+
+build:pc189:
+  stage: build
+  tags:
+    - pc189
+  artifacts:
+    paths:
+      traffic_sim
+  script:
+    - source ~/runner_env
+    - make
+
+build:pc205:
+  stage: build
+  tags:
+    - pc205
+  artifacts:
+    paths:
+      traffic_sim
+  script:
+    - source ~/runner_env
+    - make
+
+
+test:pc189:
+  stage: build
+  tags:
+    - pc189
+  dependencies:
+    - build:pc189
+  script:
+    - source ~/runner_env
+    - make
+
+test:pc205:
+  stage: build
+  tags:
+    - pc205
+  dependencies:
+    - build:pc205
+  script:
+    - source ~/runner_env
+    - make
