@@ -1,0 +1,18 @@
+{
+"time_steps" : 5,
+"junctions" : [
+	{"id" : 0, "x" : 0, "y" : 0, "signals" : [{"dir" : 1, "time" : 10}]},
+	{"id" : 1, "x" : 1, "y" : 0, "signals" : [{"dir" : 3, "time" : 10}]}
+	],
+"roads" : [
+	{"junction1" : 0, "junction2" : 1, "lanes" : 2, "limit" : 100}
+],
+"cars" : [
+	{"id" : 0, "target_velocity" : 50, "max_acceleration" : 3, "target_deceleration" : 3, "min_distance" : 3, "target_headway" : 2, "politeness" : 0.3,
+		"start" : {"from" : 0, "to" : 1, "lane" : 0, "distance" : 0},
+		"route" : [0]},
+	{"id" : 1, "target_velocity" : 50, "max_acceleration" : 2, "target_deceleration" : 3, "min_distance" : 3, "target_headway" : 2, "politeness" : 0.3,
+		"start" : {"from" : 0, "to" : 1, "lane" : 0, "distance" : 50},
+		"route" : [0]}
+]
+}
