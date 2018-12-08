@@ -1,4 +1,4 @@
-# Mikrokopische Verkehrssimulation
+# Mikroskopische Verkehrssimulation
 
 PdMKP 2018 Programmierprojekt
 
