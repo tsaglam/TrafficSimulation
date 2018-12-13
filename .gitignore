@@ -1,2 +1,3 @@
 traffic_sim
+**/build/**
 *.DS_Store
