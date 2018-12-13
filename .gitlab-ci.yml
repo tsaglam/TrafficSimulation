@@ -37,6 +37,7 @@ test:pc189:
     - pc189
   only:
     - master
+  when: manual
   dependencies:
     - build:pc189
   script:
@@ -49,6 +50,7 @@ test:pc205:
     - pc205
   only:
     - master
+  when: manual
   dependencies:
     - build:pc205
   script:
