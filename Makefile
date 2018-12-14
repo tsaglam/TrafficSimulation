@@ -19,6 +19,7 @@ all = traffic_sim
 # link all to traffic_sim
 $(BUILD_DIR)/traffic_sim: $(OBJS)
 	$(CXX) $(CPPFLAGS) $(OBJS) -o $@ $(LDFLAGS)
+	ln -sfn $(BUILD_DIR)/traffic_sim traffic_sim # create symlink for pipeline
 
 # compile .cpp source files
 $(BUILD_DIR)/%.cpp.o: %.cpp
@@ -30,6 +31,7 @@ $(BUILD_DIR)/%.cpp.o: %.cpp
 
 clean:
 	$(RM) -r $(BUILD_DIR)
+	$(RM) traffic_sim
 
 -include $(DEPS)
 
