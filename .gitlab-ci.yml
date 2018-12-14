@@ -12,6 +12,7 @@ build:pc189:
   artifacts:
     paths:
       - traffic_sim
+      - build
   script:
     - source ~/pdmkp_env
     - make
@@ -26,6 +27,7 @@ build:pc205:
   artifacts:
     paths:
       - traffic_sim
+      - build
   script:
     - source ~/pdmkp_env
     - make
