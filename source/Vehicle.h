@@ -12,7 +12,7 @@ class Vehicle {
   double minDistance;
   double targetHeadway;
   double politeness;
-  // std::vector<Direction> route; TODO does not compile
+  std::vector<Direction> route;
 
  public:
   Vehicle(unsigned int id, double targetVelocity, double maxAcceleration,
