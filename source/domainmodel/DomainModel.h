@@ -8,12 +8,11 @@
 #include "Vehicle.h"
 
 class DomainModel {
-private:
-
-public:
-  std::vector<Vehicle> vehicles; // TODO make private and use getter
-  std::vector<Street> streets; // TODO make private and use getter
-  std::vector<Junction> junctions; // TODO make private and use getter
+ private:
+ public:
+  std::vector<Vehicle> vehicles;    // TODO make private and use getter
+  std::vector<Street> streets;      // TODO make private and use getter
+  std::vector<Junction> junctions;  // TODO make private and use getter
 
   DomainModel() = default;
   Vehicle& addVehicle(Vehicle& vehicle);
@@ -31,9 +30,10 @@ public:
  *       https://en.cppreference.com/w/cpp/iterator
  */
 class VehicleIterator {
-private:
+ private:
   DomainModel& domainModel;
-public:
+
+ public:
   VehicleIterator(DomainModel& domainModel);
   std::vector<Vehicle>::const_iterator cbegin();
   std::vector<Vehicle>::const_iterator cend();
@@ -42,9 +42,10 @@ public:
 };
 
 class StreetIterator {
-private:
+ private:
   DomainModel& domainModel;
-public:
+
+ public:
   StreetIterator(DomainModel& domainModel);
   std::vector<Street>::const_iterator cbegin();
   std::vector<Street>::const_iterator cend();
@@ -53,9 +54,10 @@ public:
 };
 
 class JunctionIterator {
-private:
+ private:
   DomainModel& domainModel;
-public:
+
+ public:
   JunctionIterator(DomainModel& domainModel);
   std::vector<Junction>::const_iterator cbegin();
   std::vector<Junction>::const_iterator cend();
