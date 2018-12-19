@@ -6,20 +6,21 @@
 #include "Street.h"
 
 class Vehicle {
-private:
+ private:
   friend class DomainModel;
 
-public:
+ public:
   class Position {
-  private:
+   private:
     Street* street;
     unsigned int lane;
     double distance;
-  public:
+
+   public:
     Position(Street& street, unsigned int lane, double distance);
   };
 
-private:
+ private:
   id_type id;
   int externalId;
   double targetVelocity;
@@ -30,14 +31,26 @@ private:
   double politeness;
   std::vector<TurnDirection> route;
   Position position;
+  int directionIndex;
 
  public:
   Vehicle(id_type id, int externalId, double targetVelocity,
-          double maxAcceleration, double targetDeceleration,
-          double minDistance, double targetHeadway, double politeness,
+          double maxAcceleration, double targetDeceleration, double minDistance,
+          double targetHeadway, double politeness,
           std::vector<TurnDirection>& route, Position& position);
   void setPosition(Position& position);
   void setPosition(Street& street, unsigned int lane, double distance);
+
+  id_type getId();
+  int getExternalId();
+  double getTargetVelocity();
+  double getMaxAcceleration();
+  double getTargetDeceleration();
+  double getMinDistance();
+  double getTargetHeadway();
+  double getPoliteness();
+  TurnDirection getNextDirection();
+  Position& getPosition();
 };
 
 #endif
