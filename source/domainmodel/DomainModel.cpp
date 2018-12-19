@@ -17,3 +17,15 @@ Junction& DomainModel::addJunction(Junction& junction) {
   junctions.back().id = junctions.size() - 1;
   return junctions.back();
 }
+
+Vehicle& DomainModel::getVehicle(id_type id) {
+	return vehicles.at(id);
+}
+
+Street& DomainModel::getStreet(id_type id) {
+	return streets.at(id);
+}
+
+Junction& DomainModel::getJunction(id_type id) {
+	return junctions.at(id);
+}

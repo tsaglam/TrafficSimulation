@@ -2,6 +2,7 @@
 #define DOMAINMODEL_H
 
 #include <vector>
+#include "DomainModelCommon.h"
 #include "Junction.h"
 #include "Street.h"
 #include "Vehicle.h"
@@ -17,6 +18,10 @@ public:
   Vehicle& addVehicle(Vehicle& vehicle);
   Street& addStreet(Street& street);
   Junction& addJunction(Junction& junction);
+
+  Vehicle& getVehicle(id_type id);
+  Street& getStreet(id_type id);
+  Junction& getJunction(id_type id);
 };
 
 /**
