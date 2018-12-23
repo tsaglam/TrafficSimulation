@@ -1,7 +1,9 @@
 #ifndef DOMAINMODEL_H
 #define DOMAINMODEL_H
 
+#include <memory>
 #include <vector>
+
 #include "DomainModelCommon.h"
 #include "Junction.h"
 #include "Street.h"
@@ -10,9 +12,9 @@
 class DomainModel {
  private:
  public:
-  std::vector<Vehicle> vehicles;    // TODO make private and use getter
-  std::vector<Street> streets;      // TODO make private and use getter
-  std::vector<Junction> junctions;  // TODO make private and use getter
+  std::vector<std::unique_ptr<Vehicle>> vehicles;   // TODO make private and use getter
+  std::vector<std::unique_ptr<Street>> streets;     // TODO make private and use getter
+  std::vector<std::unique_ptr<Junction>> junctions; // TODO make private and use getter
 
   DomainModel() = default;
   Vehicle& addVehicle(const Vehicle& vehicle);
@@ -35,10 +37,10 @@ class VehicleIterator {
 
  public:
   VehicleIterator(DomainModel& domainModel);
-  std::vector<Vehicle>::const_iterator cbegin();
-  std::vector<Vehicle>::const_iterator cend();
-  std::vector<Vehicle>::iterator begin();
-  std::vector<Vehicle>::iterator end();
+  std::vector<std::unique_ptr<Vehicle>>::const_iterator cbegin();
+  std::vector<std::unique_ptr<Vehicle>>::const_iterator cend();
+  std::vector<std::unique_ptr<Vehicle>>::iterator begin();
+  std::vector<std::unique_ptr<Vehicle>>::iterator end();
 };
 
 class StreetIterator {
@@ -47,10 +49,10 @@ class StreetIterator {
 
  public:
   StreetIterator(DomainModel& domainModel);
-  std::vector<Street>::const_iterator cbegin();
-  std::vector<Street>::const_iterator cend();
-  std::vector<Street>::iterator begin();
-  std::vector<Street>::iterator end();
+  std::vector<std::unique_ptr<Street>>::const_iterator cbegin();
+  std::vector<std::unique_ptr<Street>>::const_iterator cend();
+  std::vector<std::unique_ptr<Street>>::iterator begin();
+  std::vector<std::unique_ptr<Street>>::iterator end();
 };
 
 class JunctionIterator {
@@ -59,10 +61,10 @@ class JunctionIterator {
 
  public:
   JunctionIterator(DomainModel& domainModel);
-  std::vector<Junction>::const_iterator cbegin();
-  std::vector<Junction>::const_iterator cend();
-  std::vector<Junction>::iterator begin();
-  std::vector<Junction>::iterator end();
+  std::vector<std::unique_ptr<Junction>>::const_iterator cbegin();
+  std::vector<std::unique_ptr<Junction>>::const_iterator cend();
+  std::vector<std::unique_ptr<Junction>>::iterator begin();
+  std::vector<std::unique_ptr<Junction>>::iterator end();
 };
 
 #endif
