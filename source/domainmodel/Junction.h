@@ -1,8 +1,9 @@
 #ifndef JUNCTION_H
 #define JUNCTION_H
 
-#include <vector>
 #include <array>
+#include <vector>
+
 #include "DomainModelCommon.h"
 #include "Street.h"
 
@@ -17,7 +18,9 @@ public:
   private:
     CardinalDirection direction;
     unsigned int time;
+
   public:
+    Signal() = default;
     Signal(CardinalDirection direction, unsigned int time);
   };
 
@@ -64,7 +67,9 @@ private:
 
  public:
   Junction(id_type id, int externalId, int x, int y,
-           std::vector<Signal>& signals);
+           const std::vector<Signal>& signals);
+  Junction(id_type id, int externalId, int x, int y,
+           std::vector<Signal>&& signals);
   void addIncomingStreet(Street& street, CardinalDirection direction);
   void addOutgoingStreet(Street& street, CardinalDirection direction);
 };
