@@ -31,8 +31,8 @@ public:
   Car removeCar(const_iterator carIt);
 
   // Update a cars position on the street while retaining the consistency of the underlying
-  // StreetDataStructure. TODO: how to move car to new street if the end of this street is
-  // reached (i.e. how does this street know which is the next street?)
+  // StreetDataStructure. Does not check, whether the end of the street is reached. Use removeCar
+  // to move it to the next street in that case.
   void updateCarPosition(iterator carIt);
   void updateCarPosition(const_iterator carIt);
 
