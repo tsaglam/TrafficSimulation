@@ -8,7 +8,11 @@ Junction::ConnectedStreet::ConnectedStreet(bool _isConnected, Street* _street,
   : isConnected(_isConnected), street(_street), direction(_direction) {}
 
 Junction::Junction(id_type _id, int _externalId, int _x, int _y,
-                   std::vector<Signal>& _signals)
+                   const std::vector<Signal>& _signals)
+  : id(_id), externalId(_externalId), x(_x), y(_y), signals(_signals) {}
+
+Junction::Junction(id_type _id, int _externalId, int _x, int _y,
+                   std::vector<Signal>&& _signals)
   : id(_id), externalId(_externalId), x(_x), y(_y), signals(_signals) {}
 
 void Junction::addIncomingStreet(Street& _street,

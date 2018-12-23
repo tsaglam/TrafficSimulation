@@ -2,6 +2,7 @@
 #define VEHICLE_H
 
 #include <vector>
+
 #include "DomainModelCommon.h"
 #include "Street.h"
 
@@ -37,8 +38,12 @@ class Vehicle {
   Vehicle(id_type id, int externalId, double targetVelocity,
           double maxAcceleration, double targetDeceleration, double minDistance,
           double targetHeadway, double politeness,
-          std::vector<TurnDirection>& route, Position& position);
-  void setPosition(Position& position);
+          const std::vector<TurnDirection>& route, const Position& position);
+  Vehicle(id_type id, int externalId, double targetVelocity,
+          double maxAcceleration, double targetDeceleration, double minDistance,
+          double targetHeadway, double politeness,
+          std::vector<TurnDirection> &&route, const Position &position);
+  void setPosition(const Position& position);
   void setPosition(Street& street, unsigned int lane, double distance);
 
   id_type getId();
