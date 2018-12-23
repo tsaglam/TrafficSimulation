@@ -15,9 +15,9 @@ class DomainModel {
   std::vector<Junction> junctions;  // TODO make private and use getter
 
   DomainModel() = default;
-  Vehicle& addVehicle(Vehicle& vehicle);
-  Street& addStreet(Street& street);
-  Junction& addJunction(Junction& junction);
+  Vehicle& addVehicle(const Vehicle& vehicle);
+  Street& addStreet(const Street& street);
+  Junction& addJunction(const Junction& junction);
 
   Vehicle& getVehicle(id_type id);
   Street& getStreet(id_type id);
