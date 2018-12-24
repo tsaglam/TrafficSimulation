@@ -6,8 +6,8 @@ Vehicle::Position::Position(Street& _street, unsigned int _lane,
 
 Vehicle::Vehicle(id_type _id, int _externalId, double _targetVelocity,
                  double _maxAcceleration, double _targetDeceleration,
-                 double _minDistance, double _targetHeadway,
-                 double _politeness, const std::vector<TurnDirection>& _route,
+                 double _minDistance, double _targetHeadway, double _politeness,
+                 const std::vector<TurnDirection>& _route,
                  const Position& _position)
     : id(_id),
       externalId(_externalId),
@@ -22,9 +22,8 @@ Vehicle::Vehicle(id_type _id, int _externalId, double _targetVelocity,
 
 Vehicle::Vehicle(id_type _id, int _externalId, double _targetVelocity,
                  double _maxAcceleration, double _targetDeceleration,
-                 double _minDistance, double _targetHeadway,
-                 double _politeness, std::vector<TurnDirection>&& _route,
-                 const Position& _position)
+                 double _minDistance, double _targetHeadway, double _politeness,
+                 std::vector<TurnDirection>&& _route, const Position& _position)
     : id(_id),
       externalId(_externalId),
       targetVelocity(_targetVelocity),
@@ -49,12 +48,12 @@ TurnDirection Vehicle::getNextDirection() {
   return next;
 }
 
-id_type Vehicle::getId() { return id; }
-int Vehicle::getExternalId() { return externalId; }
-double Vehicle::getTargetVelocity() { return targetVelocity; }
-double Vehicle::getMaxAcceleration() { return maxAcceleration; }
-double Vehicle::getTargetDeceleration() { return targetDeceleration; }
-double Vehicle::getMinDistance() { return minDistance; }
-double Vehicle::getTargetHeadway() { return targetHeadway; }
-double Vehicle::getPoliteness() { return politeness; }
-Vehicle::Position& Vehicle::getPosition() { return position; }
+id_type Vehicle::getId() const { return id; }
+int Vehicle::getExternalId() const { return externalId; }
+double Vehicle::getTargetVelocity() const { return targetVelocity; }
+double Vehicle::getMaxAcceleration() const { return maxAcceleration; }
+double Vehicle::getTargetDeceleration() const { return targetDeceleration; }
+double Vehicle::getMinDistance() const { return minDistance; }
+double Vehicle::getTargetHeadway() const { return targetHeadway; }
+double Vehicle::getPoliteness() const { return politeness; }
+const Vehicle::Position& Vehicle::getPosition() const { return position; }
