@@ -6,8 +6,8 @@
 Junction::Signal::Signal(CardinalDirection _direction, unsigned int _time)
     : direction(_direction), time(_time) {}
 
-CardinalDirection Junction::Signal::getDirection() { return direction; }
-unsigned int Junction::Signal::getTime() { return time; }
+CardinalDirection Junction::Signal::getDirection() const { return direction; }
+unsigned int Junction::Signal::getTime() const { return time; }
 
 /*
  * Class ConnectedStreet:
@@ -16,9 +16,9 @@ Junction::ConnectedStreet::ConnectedStreet(bool _connected, Street* _street,
                                            CardinalDirection _direction)
     : connected(_connected), street(_street), direction(_direction) {}
 
-bool Junction::ConnectedStreet::isConnected() { return connected; }
-Street* Junction::ConnectedStreet::getStreet() { return street; }
-CardinalDirection Junction::ConnectedStreet::getDirection() {
+bool Junction::ConnectedStreet::isConnected() const { return connected; }
+Street* Junction::ConnectedStreet::getStreet() const { return street; }
+CardinalDirection Junction::ConnectedStreet::getDirection() const {
   return direction;
 }
 
@@ -46,16 +46,16 @@ void Junction::addOutgoingStreet(Street& _street,
 }
 
 // Access methods:
-id_type Junction::getId() { return id; }
-int Junction::getExternalId() { return externalId; }
-int Junction::getX() { return x; }
-int Junction::getY() { return y; }
-std::vector<Junction::Signal> Junction::getSignals() { return signals; }
+id_type Junction::getId() const { return id; }
+int Junction::getExternalId() const { return externalId; }
+int Junction::getX() const { return x; }
+int Junction::getY() const { return y; }
+std::vector<Junction::Signal> Junction::getSignals() const { return signals; }
 const Junction::ConnectedStreet& Junction::getIncomingStreet(
-    CardinalDirection direction) {
+    CardinalDirection direction) const {
   return incomingStreets[direction];
 }
 const Junction::ConnectedStreet& Junction::getOutgoingStreet(
-    CardinalDirection direction) {
+    CardinalDirection direction) const {
   return outgoingStreets[direction];
 }
