@@ -12,14 +12,20 @@
 class DomainModel {
  private:
  public:
-  std::vector<std::unique_ptr<Vehicle>> vehicles;   // TODO make private and use getter
-  std::vector<std::unique_ptr<Street>> streets;     // TODO make private and use getter
-  std::vector<std::unique_ptr<Junction>> junctions; // TODO make private and use getter
+  std::vector<std::unique_ptr<Vehicle>>
+      vehicles;  // TODO make private and use getter
+  std::vector<std::unique_ptr<Street>>
+      streets;  // TODO make private and use getter
+  std::vector<std::unique_ptr<Junction>>
+      junctions;  // TODO make private and use getter
 
   DomainModel() = default;
   Vehicle& addVehicle(const Vehicle& vehicle);
   Street& addStreet(const Street& street);
   Junction& addJunction(const Junction& junction);
+  Vehicle& addVehicle(Vehicle&& vehicle);
+  Street& addStreet(Street&& street);
+  Junction& addJunction(Junction&& junction);
 
   Vehicle& getVehicle(id_type id);
   Street& getStreet(id_type id);
@@ -37,10 +43,10 @@ class VehicleIterator {
 
  public:
   VehicleIterator(DomainModel& domainModel);
-  std::vector<std::unique_ptr<Vehicle>>::const_iterator cbegin();
-  std::vector<std::unique_ptr<Vehicle>>::const_iterator cend();
-  std::vector<std::unique_ptr<Vehicle>>::iterator begin();
-  std::vector<std::unique_ptr<Vehicle>>::iterator end();
+  const std::vector<std::unique_ptr<Vehicle>>::const_iterator cbegin();
+  const std::vector<std::unique_ptr<Vehicle>>::const_iterator cend();
+  const std::vector<std::unique_ptr<Vehicle>>::iterator begin();
+  const std::vector<std::unique_ptr<Vehicle>>::iterator end();
 };
 
 class StreetIterator {
@@ -49,10 +55,10 @@ class StreetIterator {
 
  public:
   StreetIterator(DomainModel& domainModel);
-  std::vector<std::unique_ptr<Street>>::const_iterator cbegin();
-  std::vector<std::unique_ptr<Street>>::const_iterator cend();
-  std::vector<std::unique_ptr<Street>>::iterator begin();
-  std::vector<std::unique_ptr<Street>>::iterator end();
+  const std::vector<std::unique_ptr<Street>>::const_iterator cbegin();
+  const std::vector<std::unique_ptr<Street>>::const_iterator cend();
+  const std::vector<std::unique_ptr<Street>>::iterator begin();
+  const std::vector<std::unique_ptr<Street>>::iterator end();
 };
 
 class JunctionIterator {
@@ -61,10 +67,10 @@ class JunctionIterator {
 
  public:
   JunctionIterator(DomainModel& domainModel);
-  std::vector<std::unique_ptr<Junction>>::const_iterator cbegin();
-  std::vector<std::unique_ptr<Junction>>::const_iterator cend();
-  std::vector<std::unique_ptr<Junction>>::iterator begin();
-  std::vector<std::unique_ptr<Junction>>::iterator end();
+  const std::vector<std::unique_ptr<Junction>>::const_iterator cbegin();
+  const std::vector<std::unique_ptr<Junction>>::const_iterator cend();
+  const std::vector<std::unique_ptr<Junction>>::iterator begin();
+  const std::vector<std::unique_ptr<Junction>>::iterator end();
 };
 
 #endif

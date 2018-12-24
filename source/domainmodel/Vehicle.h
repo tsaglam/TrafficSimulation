@@ -55,7 +55,7 @@ class Vehicle {
   double getTargetHeadway();
   double getPoliteness();
   TurnDirection getNextDirection();
-  Position& getPosition();
+  const Position& getPosition();
 };
 
 #endif

@@ -57,4 +57,4 @@ double Vehicle::getTargetDeceleration() { return targetDeceleration; }
 double Vehicle::getMinDistance() { return minDistance; }
 double Vehicle::getTargetHeadway() { return targetHeadway; }
 double Vehicle::getPoliteness() { return politeness; }
-Vehicle::Position& Vehicle::getPosition() { return position; }
+const Vehicle::Position& Vehicle::getPosition() { return position; }
