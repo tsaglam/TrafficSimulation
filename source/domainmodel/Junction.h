@@ -22,6 +22,8 @@ class Junction {
    public:
     Signal() = default;
     Signal(CardinalDirection direction, unsigned int time);
+    CardinalDirection getDirection();
+    unsigned int getTime();
   };
 
  private:
@@ -29,7 +31,7 @@ class Junction {
    private:
     friend class Junction;
 
-    bool isConnected;
+    bool connected;
     Street* street;
     /**
      * @TODO: Could be omitted, depends on implementation of signaling.
@@ -38,8 +40,11 @@ class Junction {
 
    public:
     ConnectedStreet() = default;
-    ConnectedStreet(bool isConnected, Street* street,
+    ConnectedStreet(bool connected, Street* street,
                     CardinalDirection direction);
+    bool isConnected();
+    Street* getStreet();
+    CardinalDirection getDirection();
   };
 
  private:
