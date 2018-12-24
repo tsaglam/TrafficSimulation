@@ -22,6 +22,8 @@ class Junction {
    public:
     Signal() = default;
     Signal(CardinalDirection direction, unsigned int time);
+    CardinalDirection getDirection() const;
+    unsigned int getTime() const;
   };
 
  private:
@@ -29,7 +31,7 @@ class Junction {
    private:
     friend class Junction;
 
-    bool isConnected;
+    bool connected;
     Street* street;
     /**
      * @TODO: Could be omitted, depends on implementation of signaling.
@@ -38,8 +40,11 @@ class Junction {
 
    public:
     ConnectedStreet() = default;
-    ConnectedStreet(bool isConnected, Street* street,
+    ConnectedStreet(bool connected, Street* street,
                     CardinalDirection direction);
+    bool isConnected() const;
+    Street* getStreet() const;
+    CardinalDirection getDirection() const;
   };
 
  private:
@@ -71,13 +76,13 @@ class Junction {
   void addIncomingStreet(Street& street, CardinalDirection direction);
   void addOutgoingStreet(Street& street, CardinalDirection direction);
 
-  id_type getId();
-  int getExternalId();
-  int getX();
-  int getY();
-  std::vector<Signal> getSignals();
-  const ConnectedStreet& getIncomingStreet(CardinalDirection direction);
-  const ConnectedStreet& getOutgoingStreet(CardinalDirection direction);
+  id_type getId() const;
+  int getExternalId() const;
+  int getX() const;
+  int getY() const;
+  std::vector<Signal> getSignals() const;
+  const ConnectedStreet& getIncomingStreet(CardinalDirection direction) const;
+  const ConnectedStreet& getOutgoingStreet(CardinalDirection direction) const;
 };
 
 #endif
