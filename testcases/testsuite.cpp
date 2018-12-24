@@ -3,7 +3,7 @@
 
 #define RUN(funk) run(& funk, #funk)
 
-int failedTests;
+int numberOfFailedTests;
 
 // Example code for one basic test case, import and add other test classes
 // instead of adding methods here
@@ -16,21 +16,20 @@ void run(bool (*fun_ptr)(), std::string name) {
     std::cout << " + Test " << name << " passed" << std::endl;
   } else {
     std::cout << " - Test " << name << " failed" << std::endl;
-    failedTests += 1;  // and increase fail count
+    numberOfFailedTests += 1;  // and increase fail count
   }
 }
 
 int main() {
   /*
-   * ADD TESTS HERE WITH DESCRIPTION:
+   * RUN TEST CASES HERE, USE ONLY THE METHOD NAME as parameter:
    */
   RUN(someComponentTest);
   RUN(someFailingTest);
-
-  if (failedTests == 0) {
+  if (numberOfFailedTests == 0) {
     std::cout << "ALL TESTS PASSED!" << std::endl;
   } else {
-    std::cout << "ERROR: " << failedTests << " tests failed!" << std::endl;
+    std::cout << "ERROR: " << numberOfFailedTests << " tests failed!" << std::endl;
   }
   return 0;
 }
