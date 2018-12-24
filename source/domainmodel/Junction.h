@@ -10,23 +10,23 @@
 class Street;
 
 class Junction {
-private:
+ private:
   friend class DomainModel;
 
-public:
+ public:
   class Signal {
-  private:
+   private:
     CardinalDirection direction;
     unsigned int time;
 
-  public:
+   public:
     Signal() = default;
     Signal(CardinalDirection direction, unsigned int time);
   };
 
-private:
+ private:
   class ConnectedStreet {
-  private:
+   private:
     friend class Junction;
 
     bool isConnected;
@@ -36,30 +36,28 @@ private:
      */
     CardinalDirection direction;
 
-  public:
+   public:
     ConnectedStreet() = default;
     ConnectedStreet(bool isConnected, Street* street,
                     CardinalDirection direction);
   };
 
-private:
+ private:
   id_type id;
   int externalId;
   int x;
   int y;
   std::vector<Signal> signals;
-  std::array<ConnectedStreet, 4> incomingStreets = {{
-      ConnectedStreet(false, nullptr, NORTH),
-      ConnectedStreet(false, nullptr, EAST),
-      ConnectedStreet(false, nullptr, SOUTH),
-      ConnectedStreet(false, nullptr, WEST)
-    }};
-  std::array<ConnectedStreet, 4> outgoingStreets = {{
-    ConnectedStreet(false, nullptr, NORTH),
-    ConnectedStreet(false, nullptr, EAST),
-    ConnectedStreet(false, nullptr, SOUTH),
-    ConnectedStreet(false, nullptr, WEST)
-  }};
+  std::array<ConnectedStreet, 4> incomingStreets = {
+      {ConnectedStreet(false, nullptr, NORTH),
+       ConnectedStreet(false, nullptr, EAST),
+       ConnectedStreet(false, nullptr, SOUTH),
+       ConnectedStreet(false, nullptr, WEST)}};
+  std::array<ConnectedStreet, 4> outgoingStreets = {
+      {ConnectedStreet(false, nullptr, NORTH),
+       ConnectedStreet(false, nullptr, EAST),
+       ConnectedStreet(false, nullptr, SOUTH),
+       ConnectedStreet(false, nullptr, WEST)}};
   /**
    * @TODO: Track current signaling state here?
    */
@@ -72,6 +70,14 @@ private:
            std::vector<Signal>&& signals);
   void addIncomingStreet(Street& street, CardinalDirection direction);
   void addOutgoingStreet(Street& street, CardinalDirection direction);
+
+  id_type getId();
+  int getExternalId();
+  int getX();
+  int getY();
+  std::vector<Signal> getSignals();
+  ConnectedStreet getIncomingStreet(CardinalDirection direction);
+  ConnectedStreet getOutgoingStreet(CardinalDirection direction);
 };
 
 #endif
