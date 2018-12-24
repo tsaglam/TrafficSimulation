@@ -22,12 +22,12 @@ class Street {
   Street(id_type id, unsigned int lanes, double speedLimit, double length,
          Junction& from, Junction& to);
 
-  id_type getId();
-  unsigned int getLanes();
-  double getSpeedLimit();
-  double getLength();
-  const Junction& getTargetJunction();
-  const Junction& getSourceJunction();
+  id_type getId() const;
+  unsigned int getLanes() const;
+  double getSpeedLimit() const;
+  double getLength() const;
+  Junction& getTargetJunction() const;
+  Junction& getSourceJunction() const;
 };
 
 #endif
