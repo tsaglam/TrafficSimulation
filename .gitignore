@@ -2,3 +2,4 @@ traffic_sim
 traffic_sim.dbg
 **/build/**
 *.DS_Store
+/source.zip
