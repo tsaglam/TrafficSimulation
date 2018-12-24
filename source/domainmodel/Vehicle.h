@@ -42,20 +42,21 @@ class Vehicle {
   Vehicle(id_type id, int externalId, double targetVelocity,
           double maxAcceleration, double targetDeceleration, double minDistance,
           double targetHeadway, double politeness,
-          std::vector<TurnDirection> &&route, const Position &position);
+          std::vector<TurnDirection>&& route, const Position& position);
   void setPosition(const Position& position);
   void setPosition(Street& street, unsigned int lane, double distance);
 
-  id_type getId();
-  int getExternalId();
-  double getTargetVelocity();
-  double getMaxAcceleration();
-  double getTargetDeceleration();
-  double getMinDistance();
-  double getTargetHeadway();
-  double getPoliteness();
   TurnDirection getNextDirection();
-  Position& getPosition();
+
+  id_type getId() const;
+  int getExternalId() const;
+  double getTargetVelocity() const;
+  double getMaxAcceleration() const;
+  double getTargetDeceleration() const;
+  double getMinDistance() const;
+  double getTargetHeadway() const;
+  double getPoliteness() const;
+  const Position& getPosition() const;
 };
 
 #endif
