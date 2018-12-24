@@ -32,9 +32,11 @@ int Junction::getExternalId() { return externalId; }
 int Junction::getX() { return x; }
 int Junction::getY() { return y; }
 std::vector<Junction::Signal> Junction::getSignals() { return signals; }
-Junction::ConnectedStreet Junction::getIncomingStreet(CardinalDirection direction) {
+const Junction::ConnectedStreet& Junction::getIncomingStreet(
+    CardinalDirection direction) {
   return incomingStreets[direction];
 }
-Junction::ConnectedStreet Junction::getOutgoingStreet(CardinalDirection direction) {
+const Junction::ConnectedStreet& Junction::getOutgoingStreet(
+    CardinalDirection direction) {
   return outgoingStreets[direction];
 }

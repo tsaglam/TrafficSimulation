@@ -26,8 +26,8 @@ class Street {
   unsigned int getLanes();
   double getSpeedLimit();
   double getLength();
-  Junction& getTargetJunction();
-  Junction& getSourceJunction();
+  const Junction& getTargetJunction();
+  const Junction& getSourceJunction();
 };
 
 #endif

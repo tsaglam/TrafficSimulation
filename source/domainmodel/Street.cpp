@@ -13,5 +13,5 @@ id_type Street::getId() { return id; }
 unsigned int Street::getLanes() { return lanes; }
 double Street::getSpeedLimit() { return speedLimit; }
 double Street::getLength() { return length; }
-Junction& Street::getTargetJunction() { return to; }
-Junction& Street::getSourceJunction() { return from; }
+const Junction& Street::getTargetJunction() { return to; }
+const Junction& Street::getSourceJunction() { return from; }

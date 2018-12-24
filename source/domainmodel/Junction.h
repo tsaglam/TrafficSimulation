@@ -76,8 +76,8 @@ class Junction {
   int getX();
   int getY();
   std::vector<Signal> getSignals();
-  ConnectedStreet getIncomingStreet(CardinalDirection direction);
-  ConnectedStreet getOutgoingStreet(CardinalDirection direction);
+  const ConnectedStreet& getIncomingStreet(CardinalDirection direction);
+  const ConnectedStreet& getOutgoingStreet(CardinalDirection direction);
 };
 
 #endif
