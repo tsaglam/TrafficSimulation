@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <iostream>
 
+#define RUN(funk) run(& funk, #funk)
+
 int failedTests;
 
 // Example code for one basic test case, import and add other test classes
@@ -11,9 +13,9 @@ bool someFailingTest() { return 5 / 2 == 2; }
 // Run methods, which is responsible for prining the test results
 void run(bool (*fun_ptr)(), std::string name) {
   if ((*fun_ptr)()) {  // run test
-    std::cout << name << " passed" << std::endl;
+    std::cout << " + Test " << name << " passed" << std::endl;
   } else {
-    std::cout << name << " failed" << std::endl;
+    std::cout << " - Test " << name << " failed" << std::endl;
     failedTests += 1;  // and increase fail count
   }
 }
@@ -22,8 +24,8 @@ int main() {
   /*
    * ADD TESTS HERE WITH DESCRIPTION:
    */
-  run(&someComponentTest, "someComponentTest");
-  run(&someFailingTest, "someFailingTest");
+  RUN(someComponentTest);
+  RUN(someFailingTest);
 
   if (failedTests == 0) {
     std::cout << "ALL TESTS PASSED!" << std::endl;
