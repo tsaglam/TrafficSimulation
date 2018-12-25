@@ -1,5 +1,32 @@
 #include "Bucketlist.h"
 
+
+template <class Car, class Bucket>
+typename Bucketlist<Car, Bucket>::iterator Bucketlist<Car, Bucket>::_begin() {
+  return iterator(&buckets[0]);
+}
+template <class Car, class Bucket>
+typename Bucketlist<Car, Bucket>::iterator Bucketlist<Car, Bucket>::_end() {
+  return iterator(&lastBucket, lastBucket->end());
+}
+template <class Car, class Bucket>
+typename Bucketlist<Car, Bucket>::const_iterator Bucketlist<Car, Bucket>::_begin() const {
+  return const_iterator(&buckets[0]);
+}
+template <class Car, class Bucket>
+typename Bucketlist<Car, Bucket>::const_iterator Bucketlist<Car, Bucket>::_end() const {
+  return const_iterator(&lastBucket, lastBucket->end());
+}
+
+template <class Car, class Bucket>
+typename Bucketlist<Car, Bucket>::const_iterator Bucketlist<Car, Bucket>::_cbegin() const {
+  return const_iterator(&buckets[0]);
+}
+template <class Car, class Bucket>
+typename Bucketlist<Car, Bucket>::const_iterator Bucketlist<Car, Bucket>::_cend() const {
+  return const_iterator(&lastBucket, lastBucket->end());
+}
+
 // ---- Iterators ----
 
 template <class Car, class Bucket>

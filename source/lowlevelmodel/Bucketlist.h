@@ -10,6 +10,7 @@ private:
 
   // a vector of buckets containing all the buckets of all lanes
   std::vector<Bucket> buckets;
+  Bucket *lastBucket; // utility pointer to the last bucket
 
   // retrieve the bucket index from car position (given as the distance traveled on the current street)
   inline size_t distanceToBucket(const size_t distanceOnStreet) const { return distanceOnStreet / bucketLength; }
