@@ -33,28 +33,21 @@ void LowLevelStreet<Car, StreetDataStructure>::insertCar(Car &&car) {
 }
 
 template <class Car, class StreetDataStructure>
-Car LowLevelStreet<Car, StreetDataStructure>::removeCar(LowLevelStreet<Car, StreetDataStructure>::iterator carIt) {
+void LowLevelStreet<Car, StreetDataStructure>::incorporateAddedCars() {
   StreetDataStructure &derived = static_cast<StreetDataStructure &>(*this);
-  return derived._removeCar(carIt);
-}
-template <class Car, class StreetDataStructure>
-Car LowLevelStreet<Car, StreetDataStructure>::removeCar(
-    LowLevelStreet<Car, StreetDataStructure>::const_iterator carIt) {
-  StreetDataStructure &derived = static_cast<StreetDataStructure &>(*this);
-  return derived._removeCar(carIt);
+  return derived._incorporateAddedCars();
 }
 
 template <class Car, class StreetDataStructure>
-void LowLevelStreet<Car, StreetDataStructure>::updateCarPosition(
-    LowLevelStreet<Car, StreetDataStructure>::iterator carIt) {
+void LowLevelStreet<Car, StreetDataStructure>::applyUpdates() {
   StreetDataStructure &derived = static_cast<StreetDataStructure &>(*this);
-  return derived._updateCarPosition(carIt);
+  return derived._applyUpdates();
 }
+
 template <class Car, class StreetDataStructure>
-void LowLevelStreet<Car, StreetDataStructure>::updateCarPosition(
-    LowLevelStreet<Car, StreetDataStructure>::const_iterator carIt) {
+std::vector<Car>& LowLevelStreet<Car, StreetDataStructure>::getDepartedCars() {
   StreetDataStructure &derived = static_cast<StreetDataStructure &>(*this);
-  return derived._updateCarPosition(carIt);
+  return derived._getDepartedCars();
 }
 
 template <class Car, class StreetDataStructure>
