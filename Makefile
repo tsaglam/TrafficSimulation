@@ -6,11 +6,12 @@ TEST_DIRS ?= ./testcases
 
 SRCS := $(shell find $(SRC_DIRS) -name "*.cpp")
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
+DEPS := $(OBJS:.o=.d)
 
 TEST_SRCS := $(shell find $(TEST_DIRS) -name "*.cpp")
 TEST_OBJS := $(OBJS) $(TEST_SRCS:%=$(BUILD_DIR)/%.o)
 
-DEPS := $(TEST_OBJS:.o=.d)
+TEST_DEPS := $(TEST_OBJS:.o=.d)
 
 DBGOBJS := $(SRCS:%=$(BUILD_DIR)/%.dbg.o)
 DBGDEPS := $(DBGOBJS:.o=.d)
@@ -64,8 +65,8 @@ testsuite: $(BUILD_DIR)/testsuite
 # link all to traffic_sim
 $(BUILD_DIR)/testsuite: $(TEST_OBJS)
 	$(CXX) $(CPPFLAGS) $(TEST_OBJS) -o $@ $(LDFLAGS)
+-include $(DEPS) $(DBGDEPS) $(TEST_DEPS)
 
--include $(DEPS) $(DBGDEPS)
 
 .PHONY: all debug clean test
 
