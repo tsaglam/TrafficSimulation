@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <iostream>
+#include "domainmodel/VehicleTest.h"
 
 #define RUN(funk) run(& funk, #funk)
 
@@ -26,6 +27,7 @@ int main() {
    */
   RUN(someComponentTest);
   RUN(someFailingTest);
+  RUN(nextDirectionTest);
   if (numberOfFailedTests == 0) {
     std::cout << "ALL TESTS PASSED!" << std::endl;
   } else {
