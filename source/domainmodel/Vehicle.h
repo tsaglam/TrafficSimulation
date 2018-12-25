@@ -7,24 +7,24 @@
 #include "Street.h"
 
 class Vehicle {
- private:
+private:
   friend class DomainModel;
 
- public:
+public:
   class Position {
-   private:
-    Street* street;
+  private:
+    Street *street;
     unsigned int lane;
     double distance;
 
-   public:
-    Position(Street& street, unsigned int lane, double distance);
-    Street* getStreet() const;
+  public:
+    Position(Street &street, unsigned int lane, double distance);
+    Street *getStreet() const;
     unsigned int getLane() const;
     double getDistance() const;
   };
 
- private:
+private:
   id_type id;
   int externalId;
   double targetVelocity;
@@ -37,17 +37,15 @@ class Vehicle {
   Position position;
   int directionIndex;
 
- public:
-  Vehicle(id_type id, int externalId, double targetVelocity,
-          double maxAcceleration, double targetDeceleration, double minDistance,
-          double targetHeadway, double politeness,
-          const std::vector<TurnDirection>& route, const Position& position);
-  Vehicle(id_type id, int externalId, double targetVelocity,
-          double maxAcceleration, double targetDeceleration, double minDistance,
-          double targetHeadway, double politeness,
-          std::vector<TurnDirection>&& route, const Position& position);
-  void setPosition(const Position& position);
-  void setPosition(Street& street, unsigned int lane, double distance);
+public:
+  Vehicle(id_type id, int externalId, double targetVelocity, double maxAcceleration, double targetDeceleration,
+      double minDistance, double targetHeadway, double politeness, const std::vector<TurnDirection> &route,
+      const Position &position);
+  Vehicle(id_type id, int externalId, double targetVelocity, double maxAcceleration, double targetDeceleration,
+      double minDistance, double targetHeadway, double politeness, std::vector<TurnDirection> &&route,
+      const Position &position);
+  void setPosition(const Position &position);
+  void setPosition(Street &street, unsigned int lane, double distance);
 
   TurnDirection getNextDirection();
 
@@ -59,7 +57,7 @@ class Vehicle {
   double getMinDistance() const;
   double getTargetHeadway() const;
   double getPoliteness() const;
-  const Position& getPosition() const;
+  const Position &getPosition() const;
 };
 
 #endif

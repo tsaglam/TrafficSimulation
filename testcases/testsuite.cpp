@@ -1,8 +1,8 @@
-#include <stdio.h>
-#include <iostream>
 #include "domainmodel/VehicleTest.h"
+#include <iostream>
+#include <stdio.h>
 
-#define RUN(funk) run(& funk, #funk)
+#define RUN(funk) run(&funk, #funk)
 
 int numberOfFailedTests;
 
@@ -13,11 +13,11 @@ bool someFailingTest() { return 5 / 2 == 2; }
 
 // Run methods, which is responsible for prining the test results
 void run(bool (*fun_ptr)(), std::string name) {
-  if ((*fun_ptr)()) {  // run test
+  if ((*fun_ptr)()) { // run test
     std::cout << " + Test " << name << " passed" << std::endl;
   } else {
     std::cout << " - Test " << name << " failed" << std::endl;
-    numberOfFailedTests += 1;  // and increase fail count
+    numberOfFailedTests += 1; // and increase fail count
   }
 }
 
