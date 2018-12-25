@@ -1,5 +1,6 @@
 traffic_sim
 traffic_sim.dbg
+testsuite
 **/build/**
 *.DS_Store
 /source.zip
