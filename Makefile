@@ -13,6 +13,7 @@ TEST_OBJS := $(OBJS) $(TEST_SRCS:%=$(BUILD_DIR)/%.o)
 DEPS := $(TEST_OBJS:.o=.d)
 
 DBGOBJS := $(SRCS:%=$(BUILD_DIR)/%.dbg.o)
+DBGDEPS := $(DBGOBJS:.o=.d)
 
 INC_DIRS := $(shell find $(SRC_DIRS) -type d)
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
@@ -36,8 +37,6 @@ $(BUILD_DIR)/traffic_sim: $(OBJS)
 $(BUILD_DIR)/%.cpp.o: %.cpp
 	$(MKDIR_P) $(dir $@)
 	$(CXX) $(CPPFLAGS) -c $< -o $@
-
--include $(DEPS)
 
 # Rules regarding the debug executable
 
@@ -65,6 +64,8 @@ testsuite: $(BUILD_DIR)/testsuite
 # link all to traffic_sim
 $(BUILD_DIR)/testsuite: $(TEST_OBJS)
 	$(CXX) $(CPPFLAGS) $(TEST_OBJS) -o $@ $(LDFLAGS)
+
+-include $(DEPS) $(DBGDEPS)
 
 .PHONY: all debug clean test
 
