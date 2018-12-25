@@ -12,16 +12,16 @@ TEST_SRCS := $(shell find $(TEST_DIRS) -name "*.cpp") $(shell find $(SRC_DIRS) -
 TEST_OBJS := $(filter-out ./build/./source/main.cpp.test.o, $(TEST_SRCS:%=$(BUILD_DIR)/%.test.o))
 TEST_DEPS := $(TEST_OBJS:.o=.d)
 
-DBGOBJS := $(SRCS:%=$(BUILD_DIR)/%.dbg.o)
-DBGDEPS := $(DBGOBJS:.o=.d)
+DBG_OBJS := $(SRCS:%=$(BUILD_DIR)/%.dbg.o)
+DBG_DEPS := $(DBG_OBJS:.o=.d)
 
 INC_DIRS := $(shell find $(SRC_DIRS) -type d)
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
 CPPFLAGS ?= $(CXXFLAGS) $(INC_FLAGS) -MMD -MP -std=c++17 -O3 -Wall -Wextra
 
-DBGCPPFLAGS ?= $(CXXFLAGS) $(INC_FLAGS) -MMD -MP -std=c++17 -O0 -fno-omit-frame-pointer -g -fsanitize=address -Wall -Wextra
-TEST_CPPFLAGS ?= $(DBGCPPFLAGS)
+DBG_CPPFLAGS ?= $(CXXFLAGS) $(INC_FLAGS) -MMD -MP -std=c++17 -O0 -fno-omit-frame-pointer -g -fsanitize=address -Wall -Wextra
+TEST_CPPFLAGS ?= $(DBG_CPPFLAGS)
 
 # Rules regarding the primary executable
 
@@ -47,13 +47,13 @@ traffic_sim.dbg: $(BUILD_DIR)/traffic_sim.dbg
 	ln -sfn $< $@ # create symlink
 
 # link all to traffic_sim
-$(BUILD_DIR)/traffic_sim.dbg: $(DBGOBJS)
-	$(CXX) $(DBGCPPFLAGS) $(DBGOBJS) -o $@ $(LDFLAGS)
+$(BUILD_DIR)/traffic_sim.dbg: $(DBG_OBJS)
+	$(CXX) $(DBG_CPPFLAGS) $(DBG_OBJS) -o $@ $(LDFLAGS)
 
 # compile .cpp source files
 $(BUILD_DIR)/%.cpp.dbg.o: %.cpp
 	$(MKDIR_P) $(dir $@)
-	$(CXX) $(DBGCPPFLAGS) -c $< -o $@
+	$(CXX) $(DBG_CPPFLAGS) -c $< -o $@
 
 # Rules regarding the test executable
 
@@ -71,9 +71,9 @@ $(BUILD_DIR)/%.cpp.test.o: %.cpp
 	$(MKDIR_P) $(dir $@)
 	$(CXX) $(TEST_CPPFLAGS) -c $< -o $@
 
--include $(DEPS) $(DBGDEPS) $(TEST_DEPS)
 
 .PHONY: all debug clean test FORCE
+-include $(DEPS) $(DBG_DEPS) $(TEST_DEPS)
 
 FORCE:
 
