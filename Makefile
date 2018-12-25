@@ -8,9 +8,8 @@ SRCS := $(shell find $(SRC_DIRS) -name "*.cpp")
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
 DEPS := $(OBJS:.o=.d)
 
-TEST_SRCS := $(shell find $(TEST_DIRS) -name "*.cpp")
-TEST_OBJS := $(OBJS) $(TEST_SRCS:%=$(BUILD_DIR)/%.o)
-
+TEST_SRCS := $(shell find $(TEST_DIRS) -name "*.cpp") $(shell find $(SRC_DIRS) -name "*.cpp")
+TEST_OBJS := $(filter-out ./build/./source/main.cpp.test.o, $(TEST_SRCS:%=$(BUILD_DIR)/%.test.o))
 TEST_DEPS := $(TEST_OBJS:.o=.d)
 
 DBGOBJS := $(SRCS:%=$(BUILD_DIR)/%.dbg.o)
@@ -22,6 +21,7 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 CPPFLAGS ?= $(CXXFLAGS) $(INC_FLAGS) -MMD -MP -std=c++17 -O3 -Wall -Wextra
 
 DBGCPPFLAGS ?= $(CXXFLAGS) $(INC_FLAGS) -MMD -MP -std=c++17 -O0 -fno-omit-frame-pointer -g -fsanitize=address -Wall -Wextra
+TEST_CPPFLAGS ?= $(DBGCPPFLAGS)
 
 # Rules regarding the primary executable
 
@@ -64,7 +64,13 @@ testsuite: $(BUILD_DIR)/testsuite
 
 # link all to traffic_sim
 $(BUILD_DIR)/testsuite: $(TEST_OBJS)
-	$(CXX) $(CPPFLAGS) $(TEST_OBJS) -o $@ $(LDFLAGS)
+	$(CXX) $(TEST_CPPFLAGS) $(TEST_OBJS) -o $@ $(LDFLAGS)
+
+# compile .cpp source files
+$(BUILD_DIR)/%.cpp.test.o: %.cpp
+	$(MKDIR_P) $(dir $@)
+	$(CXX) $(TEST_CPPFLAGS) -c $< -o $@
+
 -include $(DEPS) $(DBGDEPS) $(TEST_DEPS)
 
 
