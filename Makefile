@@ -2,7 +2,7 @@
 
 BUILD_DIR ?= ./build
 SRC_DIRS ?= ./source
-TEST_DIRS ?= ./test
+TEST_DIRS ?= ./testcases
 
 SRCS := $(shell find $(SRC_DIRS) -name "*.cpp")
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
