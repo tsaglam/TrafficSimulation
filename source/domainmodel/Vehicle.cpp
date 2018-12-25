@@ -4,6 +4,10 @@ Vehicle::Position::Position(Street& _street, unsigned int _lane,
                             double _distance)
     : street(&_street), lane(_lane), distance(_distance) {}
 
+Street* Vehicle::Position::getStreet() const { return street; }
+unsigned int Vehicle::Position::getLane() const { return lane; }
+double Vehicle::Position::getDistance() const { return distance; }
+
 Vehicle::Vehicle(id_type _id, int _externalId, double _targetVelocity,
                  double _maxAcceleration, double _targetDeceleration,
                  double _minDistance, double _targetHeadway, double _politeness,

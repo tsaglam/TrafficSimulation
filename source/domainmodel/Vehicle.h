@@ -19,6 +19,9 @@ class Vehicle {
 
    public:
     Position(Street& street, unsigned int lane, double distance);
+    Street* getStreet() const;
+    unsigned int getLane() const;
+    double getDistance() const;
   };
 
  private:
