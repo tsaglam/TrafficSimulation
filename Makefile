@@ -59,8 +59,8 @@ $(BUILD_DIR)/%.cpp.dbg.o: %.cpp
 
 test: testsuite
 
-testsuite: $(BUILD_DIR)/testsuite
-	ln -sfn $< $@ # create symlink
+testsuite: $(BUILD_DIR)/testsuite FORCE
+	$(BUILD_DIR)/testsuite
 
 # link all to traffic_sim
 $(BUILD_DIR)/testsuite: $(TEST_OBJS)
@@ -73,8 +73,9 @@ $(BUILD_DIR)/%.cpp.test.o: %.cpp
 
 -include $(DEPS) $(DBGDEPS) $(TEST_DEPS)
 
+.PHONY: all debug clean test FORCE
 
-.PHONY: all debug clean test
+FORCE:
 
 clean:
 	$(RM) -r $(BUILD_DIR)
