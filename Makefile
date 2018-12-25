@@ -57,9 +57,7 @@ $(BUILD_DIR)/%.cpp.dbg.o: %.cpp
 
 # Rules regarding the test executable
 
-test: testsuite
-
-testsuite: $(BUILD_DIR)/testsuite FORCE
+test: $(BUILD_DIR)/testsuite
 	$(BUILD_DIR)/testsuite
 
 # link all to traffic_sim
@@ -71,11 +69,9 @@ $(BUILD_DIR)/%.cpp.test.o: %.cpp
 	$(MKDIR_P) $(dir $@)
 	$(CXX) $(TEST_CPPFLAGS) -c $< -o $@
 
-
-.PHONY: all debug clean test FORCE
 -include $(DEPS) $(DBG_DEPS) $(TEST_DEPS)
 
-FORCE:
+.PHONY: all debug clean test
 
 clean:
 	$(RM) -r $(BUILD_DIR)
