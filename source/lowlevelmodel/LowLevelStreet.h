@@ -1,144 +1,95 @@
 #ifndef LOW_LEVEL_STREET_H
 #define LOW_LEVEL_STREET_H
 
+#include "TrafficLightSignaler.h"
+
 /**
- * @brief      Class for the low level street, handles access to the actual underlying data structure storing the cars.
+ * Class for the low level street, wraps the actual underlying data structure storing cars as well as a
+ * TrafficLightSignaler.
  *
- * @tparam     Car                  class of a LowLevelCar stored in the underlying StreetDataStructure
- * @tparam     UnderlyingStreetDataStructure  underlying data structure storing the cars on the street
+ * @tparam RfbStructure  Underlying data structure storing the cars on the street
  */
-template <typename Car, template <typename> class UnderlyingStreetDataStructure>
+template <template <typename Vehicle> RfbStructure>
 class LowLevelStreet {
-  using StreetDataStructure = UnderlyingStreetDataStructure<Car>;
+private:
+  using ConcreteRfbStructure = typename RfbStructure<LowLevelCar>;
 
 private:
   /**
-   * Internal street id.
-   * Corresponds to the id of the corresponding street in the domain model.
+   * Internal id of the street.
+   * This corresponds to the id of the corresponding street in the domain model.
    */
-  const unsigned int id;
+  unsigned int id;
+
+private:
+  /*
+   * All this information is required for the position computation, i.e. needs to be copied to the GPU.
+   */
 
   /**
    * Speed limit of the represented street.
    */
-  const double speedLimit;
-
-  /**
-   * Underlying storage of the cars on the street in the data structure specified by the template parameter
-   * StreetDataStructure.
-   */
-  StreetDataStructure streetData;
-
+  double speedLimit;
   /**
    * Signaler used to switch the traffic light at the end of this street.
-   * The getNextCar functions are forwarded to this signaler to allow returning the traffic light car
-   * if the signal is red.
+   * The getNextCarInFront() / getNextCarBehind() functions are forwarded to this signaler to allow returning the
+   * traffic light car if the signal is red. All functions accessing the all iterable are forwarded as well, the
+   * signaler performs iterator wrapping.
    */
-  // TrafficLightSignaler<StreetDataStructure> signaler;
+  TrafficLightSignaler<RfbStructure> signaler;
+  /**
+   * Underlying storage of the cars on the street in the data structure specified by the template parameter
+   * RfbStructure.
+   */
+  ConcreteRfbStructure rfb;
 
 public:
-  // ------- Iterator & Iterable type defs -------
-  using CarIterator      = typename StreetDataStructure::CarIterator;
-  using ConstCarIterator = typename StreetDataStructure::ConstCarIterator;
-
-  using AllCarIterable          = typename StreetDataStructure::AllCarIterable;
-  using ConstAllCarIterable     = typename StreetDataStructure::ConstAllCarIterable;
-  using BeyondsCarIterable      = typename StreetDataStructure::BeyondsCarIterable;
-  using ConstBeyondsCarIterable = typename StreetDataStructure::ConstBeyondsCarIterable;
-
-  // ------- Constructor -------
-
   /**
-   * @brief      Default constructor. Valid, but results in unspecified behavior.
+   * Default constructor. Valid, but results in unspecified behavior.
    */
   LowLevelStreet() = default;
   /**
-   * @brief      Proper constructor, initializes a new instance with specified parameters.
-   * Constructs the low level street and initializes the underlying data storage. (TODO: and the traffic
-   * light signaler?)
-   * TODO: init StreetDataStructure
-   * TODO: init signaler if used
+   * Proper constructor, initializes a new instance with specified parameters.
+   * Constructs the low level street and initializes the underlying data storage and the traffic light signaler.
    *
-   * @param[in]  streetId            The internal street id
-   * @param[in]  laneCount           The number of lanes on the street in the direction represented by this instance.
-   * @param[in]  streetLength        The street length
-   * @param[in]  speedLimit          The speed limit on this street.
-   * @param[in]  trafficLightOffset  The position of the traffic light as distance from the end of the street.
+   * @param[in]  _id            The internal street id
+   * @param[in]  _lanes           The number of lanes on the street in the direction represented by this instance.
+   * @param[in]  _length        The street length
+   * @param[in]  _speedLimit          The speed limit on this street.
+   * @param[in]  _trafficLightOffset  The position of the traffic light as distance from the end of the street.
    */
-  LowLevelStreet(
-      unsigned int streetId, unsigned int laneCount, double streetLength, double speedLimit, double trafficLightOffset)
-      : id(streetId), speedLimit(speedLimit), streetData(laneCount, streetLength) {}
 
-  // ------- Getter -------
+  LowLevelStreet(unsigned int _id, unsigned int _lanes, double _length, double _speedLimit, double _trafficLightOffset)
+      : id(_id), speedLimit(_speedLimit), signaler(rfb, _length, TODO, _trafficLightOffset), rfb(_lanes, _length) {}
 
   /**
-   * @brief      Gets the internal street id.
+   * Gets the internal street id.
    *
    * @return     The internal street.
    */
-  inline unsigned int getId() const { return id; }
+  unsigned int getId() const { return id; }
 
   /**
-   * @brief      Gets the speed limit of this street.
+   * Gets the speed limit of this street.
    *
    * @return     The speed limit.
    */
-  inline double getSpeedLimit() const { return speedLimit; }
+  double getSpeedLimit() const { return speedLimit; }
 
-  /**
-   * @brief      Gets the number of lanes on the street (in the current direction).
-   * Is forwarded to the underlying street data structure.
-   *
-   * @return     The number of lanes.
+  /*
+   * Signaling methods which forward to signaler.
    */
-  inline unsigned int getLaneCount() const { return streetData.getLaneCount(); }
 
-  /**
-   * @brief      Gets the length of the street.
-   * Is forwarded to the underlying street data structure.
-   *
-   * @return     The street length.
+  bool isSignalRed() { return signaler.isSignalRed(); }
+  void setSignalRed(bool signalRed) { signaler.setSignalRed(signalRed); }
+  void switchSignal() { signaler.switchSignal(); }
+
+  /*
+   * RfbStructure accessors which forward to signaler.
    */
-  inline double getLength() const { return streetData.getLength(); }
 
   /**
-   * @brief      Gets the number cars on this street (in the current direction).
-   * Is forwarded to the underlying street data structure.
-   * Cars which were added by insertCar() but not yet integrated into the data structure by a call to
-   * incorporateInsertedCars() and cars that left this street and are accessable by the beyondsIterable may or may not
-   * be considered for the total car count. Usually this function should only be called on a consistent street, in which
-   * case there are no such uncertain cars. Independent of the implementation, the number of cars in the allIterable is
-   * equal to the number returned by this function.
-   *
-   * @return     The number cars on this street.
-   */
-  inline unsigned int getCarCount() const { return streetData.getCarCount(); }
-
-  // ------- Traffic Light Signaling -------
-
-  /**
-   * @brief      Retrieves the current signal of the traffic light at the end of the street.
-   *
-   * @return     The traffic light signal, either Red or Green.
-   */
-  // inline Signal getSignal() const { return signaler.getSignal(); }
-
-  /**
-   * @brief      Sets the signal of the traffic light at the end of the street to the given signal.
-   *
-   * @param[in]  signal  The traffic light signal, either Red or Green.
-   */
-  // inline void setSignal(const Signal signal) { signaler.setSignal(signal); }
-
-  /**
-   * @brief      Flip the signal of the traffic light at the end of the street from red to green or green to red.
-   */
-  // inline void switchSignal() { signaler.switchSignal(); }
-
-  // ------- Access to Neighboring Cars -------
-
-  /**
-   * @brief      Find the next car in front of the current car on the current or neighboring lane.
+   * Find the next car in front of the current car on the current or neighboring lane.
    * The lane is determined by the laneOffset.
    * If the traffic light is red, the traffic light car might be returned instead of an actual car.
    * All cars are represented by iterators.
@@ -148,15 +99,15 @@ public:
    *
    * @return     The car in front represented by an iterator.
    */
-  inline CarIterator getNextCarInFront(CarIterator currentCarIt, const int laneOffset = 0) {
-    return streetData.getNextCarInFront(currentCarIt, laneOffset);
+  LowLevelCar &getPrevCar(iterator currentCarIt, const int laneOffset = 0) {
+    return signaler.getPrevCar(currentCarIt, laneOffset);
   }
-  inline ConstCarIterator getNextCarInFront(ConstCarIterator currentCarIt, const int laneOffset = 0) const {
-    return streetData.getNextCarInFront(currentCarIt, laneOffset);
+  const LowLevelCar &getPrevCar(const_iterator currentCarIt, const int laneOffset = 0) const {
+    return signaler.getPrevCar(currentCarIt, laneOffset);
   }
 
   /**
-   * @brief      Find the next car behind the current car on the current or neighboring lane.
+   * Find the next car behind the current car on the current or neighboring lane.
    * The lane is determined by the laneOffset.
    * The return value is not affected by the traffic light.
    * All cars are represented by iterators.
@@ -166,80 +117,44 @@ public:
    *
    * @return     The car behind the current car represented by an iterator.
    */
-  inline CarIterator getNextCarBehind(CarIterator currentCarIt, const int laneOffset = 0) {
-    return streetData.getNextCarBehind(currentCarIt, laneOffset);
+  LowLevelCar &getNextCar(iterator currentCarIt, const int laneOffset = 0) {
+    return signaler.getNextCar(currentCarIt, laneOffset);
   }
-  inline ConstCarIterator getNextCarBehind(ConstCarIterator currentCarIt, const int laneOffset = 0) const {
-    return streetData.getNextCarBehind(currentCarIt, laneOffset);
+  const LowLevelCar &getNextCar(const_iterator currentCarIt, const int laneOffset = 0) const {
+    return signaler.getNextCar(currentCarIt, laneOffset);
   }
 
-  /**
-   * @brief      Add a new car to the street using move semantics.
-   * The car is inserted into the underlying DevisedRfbStructure, however, the data structure may be inconsistent until
-   * incorporateInsertedCars() has been called.
-   *
-   * @param      car   The car to be inserted.
+  /*
+   * Data structure / representation operations which forward to rfb.
    */
-  inline void insertCar(Car &&car) { return streetData.insertCar(car); }
 
-  /**
-   * @brief      Add a new car to the street using copy semantics.
-   * The car is inserted into the underlying DevisedRfbStructure, however, the data structure may be inconsistent until
-   * incorporateInsertedCars() has been called.
-   *
-   * @param      car   The car to be inserted.
-   */
-  inline void insertCar(const Car &car) { return streetData.insertCar(car); }
+  unsigned int getLanes() const { return rfb.getLanes(); }
 
-  /**
-   * @brief      Incorporates all new cars into the underlying data structure while retaining its consistency.
-   * Incorporates all cars that were added to the street via insertCar() after the last call to incorporateInsertedCars.
-   * The consistency of the data structure after the function call is ensured. Calls update() on all incorporated
-   * cars.
-   */
-  inline void incorporateInsertedCars() { return streetData.incorporateInsertedCars(); }
+  double getLength() const { return rfb.getLength(); }
 
-  //
+  unsigned int getNumCars() const { return rfb.getNumCars(); }
 
-  /**
-   * @brief      Update the position of all cars on this street in the underlying data structure while retaining its
-   * consistency. Cars are moved to the correct new position in the underlying data structure. Updates are applied to
-   * the cars by calling update() on each car. Cars that reached the end of this street are collected internally
-   * and can accessed via the getDepartedCars function.
-   */
-  inline void updateCarsAndRestoreConsistency() { return streetData.updateCarsAndRestoreConsistency(); }
+  void insertCar(const Vehicle &car) { rfb.insertCar(car); }
 
-  /**
-   * @brief      Iterable for iterating over all cars.
-   * Usually, cars are iterated in order of increasing distance from the start of the street, but no specific order is
-   * guaranteed.
-   * Cars which were added by insertCar() but not yet integrated into the data structure by a call to
-   * incorporateInsertedCars() and cars that left this street and are accessable by the beyondsIterable may or may not
-   * be considered by the allIterable. Usually the allIterable should only be called on a consistent street, in which
-   * case there are no such uncertain cars. Independent of the implementation, the number of cars in the allIterable is
-   * equal to the number returned by getCarCount().
-   *
-   * @return     An iterable object for all cars on this street.
-   */
-  inline AllCarIterable allIterable() { return streetData.allIterable(); }
-  inline ConstAllCarIterable allIterable() const { return streetData.allIterable(); }
-  inline ConstAllCarIterable constAllIterable() const { return streetData.constAllIterable(); }
+  void insertCar(Vehicle &&car) { rfb.insertCar(car); }
 
-  /**
-   * @brief      Iterable for iterating over cars which are currently "beyond the street".
-   *Cars are beyond the street if their distance is greater than the length of the street.
-   *
-   * @return     An iterable object for all cars beyond this street.
-   */
-  inline BeyondsCarIterable beyondsIterable() { return streetData.beyondsCarIterable(); }
-  inline ConstBeyondsCarIterable beyondsIterable() const { return streetData.bonstBeyondsCarIterable(); }
-  inline ConstBeyondsCarIterable constBeyondsIterable() const { return streetData.constBeyondsCarIterable(); }
+  void incorporateInsertedCars() { rfb.incorporateInsertedCars(); }
 
-  /**
-   * @brief      Removes all cars which are currently "beyond the street".
-   * Cars are beyond the street if their distance is greater than the length of the street.
-   */
-  inline void removeBeyonds() { return streetData.removeBeyonds(); }
+  void applyUpdates() { rfb.applyUpdates(); }
+
+  CarIterable allIterable() { return rfb.allIterable(); }
+
+  ConstCarIterable allIterable() const { return rfb.allIterable(); }
+
+  ConstCarIterable constAllIterable() const { return rfb.constAllIterable(); }
+
+  CarIterable beyondsIterable() { return rfb.beyondsIterable(); }
+
+  ConstCarIterable beyondsIterable() const { return rfb.beyondsIterable(); }
+
+  ConstCarIterable constBeyondsIterable() const { return rfb.constBeyondsIterable(); }
+
+  void removeBeyonds() { rfb.removeBeyonds(); }
 };
 
 #endif

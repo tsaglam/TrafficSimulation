@@ -6,6 +6,15 @@ PdMKP 2018 Programmierprojekt
 
 Zum automatischen Testen wird das mitgelieferte Makefile verwendet. Im Projekt kann ein weiteres beliebiges Build-System genutzt werden, allerdings muss die Makefile aktuell und funktionsfähig gehalten werden.
 
+## C++
+
+ * <https://www.geeksforgeeks.org/bidirectional-iterators-in-cpp/>
+ * <https://software.intel.com/en-us/articles/coding-for-performance-data-alignment-and-structures>
+
+## CUDA
+
+ * <https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html>
+
 ## Testdateien
 
 Die mitgelieferten Testfälle decken einzelne Bereiche der Implementierung ab. Die Musterlösungen sind als JSON-Dump in den zugehörigen .sol Dateien zu finden.
