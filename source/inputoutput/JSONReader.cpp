@@ -155,10 +155,10 @@ Vehicle JSONReader::readVehicle(const json &inputVehicle, const std::map<int, Ju
   bool found = false;
   Street *street;
   for (const auto &connectedStreet : fromJunction->getOutgoingStreets()) {
-    if (!connectedStreet.getIsConnected()) continue;
+    if (!connectedStreet.isConnected()) continue;
 
     street = connectedStreet.getStreet();
-    if (street->getSourceJunction().getExternalId() == toJunctionId) {
+    if (street->getTargetJunction().getExternalId() == toJunctionId) {
       found = true;
       break;
     }
