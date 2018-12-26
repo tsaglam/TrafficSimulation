@@ -37,6 +37,9 @@ void Junction::addOutgoingStreet(Street &_street, CardinalDirection _direction) 
   outgoingStreets[_direction].street    = &_street;
 }
 
+const std::array<Junction::ConnectedStreet, 4> &Junction::getIncomingStreets() const { return incomingStreets; }
+const std::array<Junction::ConnectedStreet, 4> &Junction::getOutgoingStreets() const { return outgoingStreets; }
+
 // Access methods:
 id_type Junction::getId() const { return id; }
 int Junction::getExternalId() const { return externalId; }
