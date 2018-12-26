@@ -28,6 +28,7 @@ int main() {
   RUN(someComponentTest);
   RUN(someFailingTest);
   RUN(nextDirectionTest);
+  RUN(setPositionTest);
   if (numberOfFailedTests == 0) {
     std::cout << "ALL TESTS PASSED!" << std::endl;
   } else {
