@@ -66,9 +66,11 @@ private:
 public:
   Junction(id_type id, int externalId, int x, int y, const std::vector<Signal> &signals);
   Junction(id_type id, int externalId, int x, int y, std::vector<Signal> &&signals);
+
   void addIncomingStreet(Street &street, CardinalDirection direction);
   void addOutgoingStreet(Street &street, CardinalDirection direction);
 
+  // access methods:
   id_type getId() const;
   int getExternalId() const;
   int getX() const;
@@ -76,6 +78,8 @@ public:
   std::vector<Signal> getSignals() const;
   const ConnectedStreet &getIncomingStreet(CardinalDirection direction) const;
   const ConnectedStreet &getOutgoingStreet(CardinalDirection direction) const;
+  const std::array<ConnectedStreet, 4> &getIncomingStreets() const;
+  const std::array<ConnectedStreet, 4> &getOutgoingStreets() const;
 };
 
 #endif
