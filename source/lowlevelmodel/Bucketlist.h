@@ -24,7 +24,7 @@ public:
   public:
     using reference         = Car &;
     using pointer           = Car *;
-    using iterator_category = std::random_access_iterator_tag; // or another tag
+    using iterator_category = std::random_access_iterator_tag;
 
     iterator();
     iterator(Bucket *);
@@ -40,6 +40,9 @@ public:
 
     reference operator*() const;
     pointer operator->() const;
+
+    // Access the bucket in which the iterator is currently located
+    Bucket* getBucket() const;
   };
 
   class const_iterator {
@@ -50,7 +53,7 @@ public:
   public:
     using reference         = const Car &;
     using pointer           = const Car *;
-    using iterator_category = std::random_access_iterator_tag; // or another tag
+    using iterator_category = std::random_access_iterator_tag;
 
     const_iterator();
     const_iterator(const Bucket *);
@@ -67,6 +70,9 @@ public:
 
     reference operator*() const;
     pointer operator->() const;
+
+    // Access the bucket in which the iterator is currently located
+    Bucket* getBucket() const;
   };
 
   friend iterator;

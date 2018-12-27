@@ -81,6 +81,11 @@ typename Bucketlist<Car, Bucket>::iterator::pointer Bucketlist<Car, Bucket>::ite
 }
 
 template <class Car, class Bucket>
+Bucket* Bucketlist<Car, Bucket>::iterator::getBucket() const {
+  return currentBucket;
+}
+
+template <class Car, class Bucket>
 Bucketlist<Car, Bucket>::const_iterator::const_iterator() {}
 
 template <class Car, class Bucket>
@@ -133,4 +138,9 @@ typename Bucketlist<Car, Bucket>::const_iterator::reference Bucketlist<Car, Buck
 template <class Car, class Bucket>
 typename Bucketlist<Car, Bucket>::const_iterator::pointer Bucketlist<Car, Bucket>::const_iterator::operator->() const {
   return currentBucketIterator.operator->();
+}
+
+template <class Car, class Bucket>
+Bucket* Bucketlist<Car, Bucket>::const_iterator::getBucket() const {
+  return currentBucket;
 }
