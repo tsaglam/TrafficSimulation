@@ -70,9 +70,7 @@ public:
   void addIncomingStreet(Street &street, CardinalDirection direction);
   void addOutgoingStreet(Street &street, CardinalDirection direction);
 
-  const std::array<ConnectedStreet, 4> &getIncomingStreets() const;
-  const std::array<ConnectedStreet, 4> &getOutgoingStreets() const;
-
+  // access methods:
   id_type getId() const;
   int getExternalId() const;
   int getX() const;
@@ -80,6 +78,8 @@ public:
   std::vector<Signal> getSignals() const;
   const ConnectedStreet &getIncomingStreet(CardinalDirection direction) const;
   const ConnectedStreet &getOutgoingStreet(CardinalDirection direction) const;
+  const std::array<ConnectedStreet, 4> &getIncomingStreets() const;
+  const std::array<ConnectedStreet, 4> &getOutgoingStreets() const;
 };
 
 #endif

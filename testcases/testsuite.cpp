@@ -1,4 +1,5 @@
 #include "domainmodel/VehicleTest.h"
+#include "domainmodel/JunctionTest.h"
 #include <iostream>
 #include <stdio.h>
 
@@ -8,8 +9,7 @@ int numberOfFailedTests;
 
 // Example code for one basic test case, import and add other test classes
 // instead of adding methods here
-bool someComponentTest() { return 5 / 2 == 2.5; }
-bool someFailingTest() { return 5 / 2 == 2; }
+bool someComponentTest() { return 6 / 2 == 3; }
 
 // Run methods, which is responsible for prining the test results
 void run(bool (*fun_ptr)(), std::string name) {
@@ -26,9 +26,12 @@ int main() {
    * RUN TEST CASES HERE, USE ONLY THE METHOD NAME as parameter:
    */
   RUN(someComponentTest);
-  RUN(someFailingTest);
+  // Vehicle:
   RUN(nextDirectionTest);
   RUN(setPositionTest);
+  // Junction:
+  RUN(testJunctionCreation);
+
   if (numberOfFailedTests == 0) {
     std::cout << "ALL TESTS PASSED!" << std::endl;
   } else {
