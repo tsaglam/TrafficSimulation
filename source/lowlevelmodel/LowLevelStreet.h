@@ -3,39 +3,67 @@
 
 #include <vector>
 
-// Base class for all low level street implementations. Uses CRTP for inheritance without virtual functions.
 template <class Car, class StreetDataStructure>
+/**
+ * @brief      Class for the low level street, handles access to the actual underlying data structure storing the cars.
+ *
+ * @tparam     Car                  class of a LowLevelCar stored in the underlying StreetDataStructure
+ * @tparam     StreetDataStructure  underlying data structure storing the cars on the street
+ */
 class LowLevelStreet {
 public:
   // use iterator types provided by the underlying StreetDataStructure
   using iterator       = typename StreetDataStructure::iterator;
   using const_iterator = typename StreetDataStructure::const_iterator;
 
-  // Find the next car in front of the current car on the current lane (if laneOffset == 0)
-  // or the next lane to the left (-1) / right (+1) of the current lane.
-  // All cars are represented by iterators.
+  // ------- Access to Neighboring Cars -------
+  // TODO: naming of prev and next might be confusing
+
+  /**
+   * @brief      Find the next car in front of the current car on the current or neighboring lane.
+   * The lane is determined by the laneOffset.
+   * If the traffic light is red, the traffic light car might be returned instead of an actual car.
+   * All cars are represented by iterators.
+   *
+   * @param[in]  currentCarIt  The current car represented by an iterator.
+   * @param[in]  laneOffset    The lane offset determining which lane to search on. Own lane: 0, Left: -1, Right: +1.
+   *
+   * @return     The car in front represented by an iterator.
+   */
   iterator getPrevCar(iterator currentCarIt, const int laneOffset = 0);
   iterator getPrevCar(const_iterator currentCarIt, const int laneOffset = 0);
 
-  // Find the next car in behind the current car on the current lane (if laneOffset == 0)
-  // or the next lane to the left (-1) / right (+1) of the current lane.
-  // All cars are represented by iterators.
+  /**
+   * @brief      Find the next car behind the current car on the current or neighboring lane.
+   * The lane is determined by the laneOffset.
+   * The return value is not affected by the traffic light.
+   * All cars are represented by iterators.
+   *
+   * @param[in]  currentCarIt  The current car represented by an iterator.
+   * @param[in]  laneOffset    The lane offset determining which lane to search on. Own lane: 0, Left: -1, Right: +1.
+   *
+   * @return     The car behind the current car represented by an iterator.
+   */
   iterator getNextCar(iterator currentCarIt, const int laneOffset = 0);
   iterator getNextCar(const_iterator currentCarIt, const int laneOffset = 0);
 
-  // Add a new car to the street using move semantics. The inserted cars are initially collected
-  // internally and only inserted into the underlying StreetDataStructure once the
-  // incorporateAddedCars function is called.
+  /**
+   * @brief      Add a new car to the street using move semantics.
+   * The car is inserted into the underlying DevisedRfbStructure, however, the data structure may be inconsistent until
+   * incorporateInsertedCars() has been called.
+   *
+   * @param      car   The car to be inserted.
+   */
   void insertCar(Car &&car);
 
-  // Insert all cars into the underlying StreetDataStructure that were inserted after the last call
-  // to incorporateAddedCars. The consistency of the data structure after the function call is ensured.
   void incorporateAddedCars();
 
-  // Update the position of **all** cars on this street while retaining the consistency of the
-  // underlying StreetDataStructure. Cars that reached the end of this street are collected
-  // internally in a vector which can be accessed via the getDepartedCars function.
-  void applyUpdates();
+  /**
+   * @brief      Incorporates all new cars into the underlying data structure while retaining its consistency.
+   * Incorporates all cars that were added to the street via insertCar() after the last call to incorporateInsertedCars.
+   * The consistency of the data structure after the function call is ensured. Calls applyUpdates() on all incorporated
+   * cars.
+   */
 
   // Access the cars which left the current street (as determined by the applyUpdates function).
   std::vector<Car>& getDepartedCars();
@@ -46,6 +74,13 @@ public:
   iterator end();
   const_iterator begin() const;
   const_iterator end() const;
+  /**
+   * @brief      Update the position of all cars on this street in the underlying data structure while retaining its
+   * consistency. Cars are moved to the correct new position in the underlying data structure. Updates are applied to
+   * the cars by calling applyUpdates() on each car. Cars that reached the end of this street are collected internally
+   * and can accessed via the getDepartedCars function.
+   */
+  void applyUpdates();
 
   const_iterator cbegin() const;
   const_iterator cend() const;
