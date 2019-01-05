@@ -2,7 +2,7 @@
 #include <vector>
 
 template <class Car, class Bucket>
-class Bucketlist : public LowLevelStreet<Car, Bucketlist<Car, Bucket>> {
+class Bucketlist {
 private:
   size_t bucketLength; // the distance covered by a single bucket
   // total street length / bucketLength = number of buckets
