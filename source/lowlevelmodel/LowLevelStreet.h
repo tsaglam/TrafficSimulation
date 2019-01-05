@@ -168,6 +168,14 @@ public:
    */
   void insertCar(Car &&car);
 
+  /**
+   * @brief      Add a new car to the street using copy semantics.
+   * The car is inserted into the underlying DevisedRfbStructure, however, the data structure may be inconsistent until
+   * incorporateInsertedCars() has been called.
+   *
+   * @param      car   The car to be inserted.
+   */
+  void insertCar(const Car &car);
 
   /**
    * @brief      Incorporates all new cars into the underlying data structure while retaining its consistency.
