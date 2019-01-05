@@ -1,21 +1,5 @@
-#include "Junction.h"
-#include "Street.h"
+#include "DomainModelTestFactory.h"
 #include "Vehicle.h"
-
-/*
- * Creates a test vehicle with somewhat realistic data:
- */
-Vehicle createTestVehicle() {
-  // prepare objects needed to initialize test car
-  const std::vector<Junction::Signal> signals;
-  Junction from                    = Junction(0, 0, 10, 15, signals);
-  Junction to                      = Junction(1, 1, 10, 20, signals);
-  Street street                    = Street(0, 1, 50.0, 100.0, from, to);
-  const Vehicle::Position position = Vehicle::Position(street, 1, 33.3);
-  // create test route and test vehicle:
-  const std::vector<TurnDirection> route{TurnDirection::RIGHT, TurnDirection::UTURN, TurnDirection::STRAIGHT};
-  return Vehicle(0, 0, 45.0, 1.0, 1.0, 10.0, 5.0, 0.5, route, position);
-}
 
 /*
  * Tests if vehicle cycles through its route correctly.

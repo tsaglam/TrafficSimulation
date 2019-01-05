@@ -1,5 +1,6 @@
-#include "domainmodel/VehicleTest.h"
+#include "domainmodel/DomainModelTest.h"
 #include "domainmodel/JunctionTest.h"
+#include "domainmodel/VehicleTest.h"
 #include <iostream>
 #include <stdio.h>
 
@@ -30,7 +31,9 @@ int main() {
   RUN(nextDirectionTest);
   RUN(setPositionTest);
   // Junction:
-  RUN(testJunctionCreation);
+  RUN(junctionCreationTest);
+  // DomainModel:
+  RUN(modelCreationTest);
 
   if (numberOfFailedTests == 0) {
     std::cout << "ALL TESTS PASSED!" << std::endl;
