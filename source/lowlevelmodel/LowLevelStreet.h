@@ -16,7 +16,7 @@ private:
    * Internal street id.
    * Corresponds to the id of the corresponding street in the domain model.
    */
-  const size_t id;
+  const unsigned int id;
 
   /**
    * Speed limit of the represented street.
@@ -65,7 +65,7 @@ public:
    * @param[in]  speedLimit          The speed limit on this street.
    * @param[in]  trafficLightOffset  The position of the traffic light as distance from the end of the street.
    */
-  LowLevelStreet(size_t streetId, size_t laneCount, double streetLength, double speedLimit, double trafficLightOffset)
+  LowLevelStreet(unsigned int streetId, unsigned int laneCount, double streetLength, double speedLimit, double trafficLightOffset)
       : id(streetId), speedLimit(speedLimit) {}
 
   // ------- Getter -------
@@ -75,7 +75,7 @@ public:
    *
    * @return     The internal street.
    */
-  inline size_t getId() const { return id; }
+  inline unsigned int getId() const { return id; }
 
   /**
    * @brief      Gets the speed limit of this street.
@@ -90,7 +90,7 @@ public:
    *
    * @return     The number of lanes.
    */
-  inline size_t getLaneCount() const { return streetData.getLaneCount(); }
+  inline unsigned int getLaneCount() const { return streetData.getLaneCount(); }
 
   /**
    * @brief      Gets the length of the street.
@@ -107,7 +107,7 @@ public:
    *
    * @return     The number cars on this street.
    */
-  inline size_t getNumCars() const { return streetData.getNumCars(); }
+  inline unsigned int getNumCars() const { return streetData.getNumCars(); }
 
   // ------- Traffic Light Signaling -------
 
