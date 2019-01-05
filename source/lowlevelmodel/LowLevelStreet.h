@@ -39,9 +39,13 @@ private:
   // TrafficLightSignaler<StreetDataStructure> signaler;
 
 public:
-  // use iterator types provided by the underlying StreetDataStructure
   using iterator       = typename StreetDataStructure::iterator;
   using const_iterator = typename StreetDataStructure::const_iterator;
+  // ------- Iterator & Iterable type defs -------
+
+  using AllCarIterable          = typename StreetDataStructure::AllCarIterable;
+  using ConstAllCarIterable     = typename StreetDataStructure::ConstAllCarIterable;
+
   // ------- Constructor -------
 
   /**
@@ -194,12 +198,6 @@ public:
   // Access the cars which left the current street (as determined by the applyUpdates function).
   std::vector<Car>& getDepartedCars();
 
-  // Begin and end iterators to iterate over all cars on this street. Usually in order of
-  // increasing distance from the start of the street, but no specific order is guaranteed.
-  iterator begin();
-  iterator end();
-  const_iterator begin() const;
-  const_iterator end() const;
   /**
    * @brief      Update the position of all cars on this street in the underlying data structure while retaining its
    * consistency. Cars are moved to the correct new position in the underlying data structure. Updates are applied to
@@ -208,8 +206,18 @@ public:
    */
   void applyUpdates();
 
-  const_iterator cbegin() const;
-  const_iterator cend() const;
+  /**
+   * @brief      Iterable for iterating over all cars.
+   * Usually, cars are iterated in order of increasing distance from the start of the street, but no specific order is
+   * guaranteed.
+   * Cars which were added by insertCar() but not yet integrated into the data structure by a call to
+   * incorporateInsertedCars() may or may not be considered by the iterable.
+   *
+   * @return     An iterable object for all cars on this street.
+   */
+  AllCarIterable allIterable();
+  ConstAllCarIterable allIterable() const;
+  ConstAllCarIterable constAllIterable() const;
 
 };
 
