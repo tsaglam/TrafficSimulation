@@ -45,6 +45,8 @@ public:
 
   using AllCarIterable          = typename StreetDataStructure::AllCarIterable;
   using ConstAllCarIterable     = typename StreetDataStructure::ConstAllCarIterable;
+  using BeyondsCarIterable      = typename StreetDataStructure::BeyondsCarIterable;
+  using ConstBeyondsCarIterable = typename StreetDataStructure::ConstBeyondsCarIterable;
 
   // ------- Constructor -------
 
@@ -195,8 +197,7 @@ public:
    */
   void incorporateInsertedCars();
 
-  // Access the cars which left the current street (as determined by the applyUpdates function).
-  std::vector<Car>& getDepartedCars();
+  //
 
   /**
    * @brief      Update the position of all cars on this street in the underlying data structure while retaining its
@@ -219,6 +220,21 @@ public:
   ConstAllCarIterable allIterable() const;
   ConstAllCarIterable constAllIterable() const;
 
+  /**
+   * @brief      Iterable for iterating over cars which are currently "beyond the street".
+   *Cars are beyond the street if their distance is greater than the length of the street.
+   *
+   * @return     An iterable object for all cars beyond this street.
+   */
+  BeyondsCarIterable beyondsIterable();
+  ConstBeyondsCarIterable beyondsIterable() const;
+  ConstBeyondsCarIterable constBeyondsIterable() const;
+
+  /**
+   * @brief      Removes all cars which are currently "beyond the street".
+   * Cars are beyond the street if their distance is greater than the length of the street.
+   */
+  void removeBeyonds();
 };
 
 #endif
