@@ -65,8 +65,9 @@ public:
    * @param[in]  speedLimit          The speed limit on this street.
    * @param[in]  trafficLightOffset  The position of the traffic light as distance from the end of the street.
    */
-  LowLevelStreet(unsigned int streetId, unsigned int laneCount, double streetLength, double speedLimit, double trafficLightOffset)
-      : id(streetId), speedLimit(speedLimit) {}
+  LowLevelStreet(
+      unsigned int streetId, unsigned int laneCount, double streetLength, double speedLimit, double trafficLightOffset)
+      : id(streetId), speedLimit(speedLimit), streetData(laneCount, streetLength) {}
 
   // ------- Getter -------
 
