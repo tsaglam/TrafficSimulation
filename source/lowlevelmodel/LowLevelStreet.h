@@ -150,9 +150,15 @@ public:
    *
    * @return     The car in front represented by an iterator.
    */
-  CarIterator getPrevCar(CarIterator currentCarIt, const int laneOffset = 0);
-  CarIterator getPrevCar(ConstCarIterator currentCarIt, const int laneOffset = 0);
-  ConstCarIterator getPrevCar(ConstCarIterator currentCarIt, const int laneOffset = 0) const;
+  inline CarIterator getPrevCar(CarIterator currentCarIt, const int laneOffset = 0) {
+    return streetData.getPrevCar(currentCarIt, laneOffset);
+  }
+  inline CarIterator getPrevCar(ConstCarIterator currentCarIt, const int laneOffset = 0) {
+    return streetData.getPrevCar(currentCarIt, laneOffset);
+  }
+  inline ConstCarIterator getPrevCar(ConstCarIterator currentCarIt, const int laneOffset = 0) const {
+    return streetData.getPrevCar(currentCarIt, laneOffset);
+  }
 
   /**
    * @brief      Find the next car behind the current car on the current or neighboring lane.
@@ -165,9 +171,15 @@ public:
    *
    * @return     The car behind the current car represented by an iterator.
    */
-  CarIterator getNextCar(CarIterator currentCarIt, const int laneOffset = 0);
-  CarIterator getNextCar(ConstCarIterator currentCarIt, const int laneOffset = 0);
-  ConstCarIterator getNextCar(ConstCarIterator currentCarIt, const int laneOffset = 0) const;
+  inline CarIterator getNextCar(CarIterator currentCarIt, const int laneOffset = 0) {
+    return streetData.getNextCar(currentCarIt, laneOffset);
+  }
+  inline CarIterator getNextCar(ConstCarIterator currentCarIt, const int laneOffset = 0) {
+    return streetData.getNextCar(currentCarIt, laneOffset);
+  }
+  inline ConstCarIterator getNextCar(ConstCarIterator currentCarIt, const int laneOffset = 0) const {
+    return streetData.getNextCar(currentCarIt, laneOffset);
+  }
 
   /**
    * @brief      Add a new car to the street using move semantics.
@@ -176,7 +188,7 @@ public:
    *
    * @param      car   The car to be inserted.
    */
-  void insertCar(Car &&car);
+  inline void insertCar(Car &&car) { return streetData.insertCar(car); }
 
   /**
    * @brief      Add a new car to the street using copy semantics.
@@ -185,7 +197,7 @@ public:
    *
    * @param      car   The car to be inserted.
    */
-  void insertCar(const Car &car);
+  inline void insertCar(const Car &car) { return streetData.insertCar(car); }
 
   /**
    * @brief      Incorporates all new cars into the underlying data structure while retaining its consistency.
@@ -193,7 +205,7 @@ public:
    * The consistency of the data structure after the function call is ensured. Calls applyUpdates() on all incorporated
    * cars.
    */
-  void incorporateInsertedCars();
+  inline void incorporateInsertedCars() { return streetData.incorporateInsertedCars(); }
 
   //
 
@@ -203,7 +215,7 @@ public:
    * the cars by calling applyUpdates() on each car. Cars that reached the end of this street are collected internally
    * and can accessed via the getDepartedCars function.
    */
-  void applyUpdates();
+  inline void applyUpdates() { return streetData.applyUpdates(); }
 
   /**
    * @brief      Iterable for iterating over all cars.
@@ -214,9 +226,9 @@ public:
    *
    * @return     An iterable object for all cars on this street.
    */
-  AllCarIterable allIterable();
-  ConstAllCarIterable allIterable() const;
-  ConstAllCarIterable constAllIterable() const;
+  inline AllCarIterable allIterable() { return streetData.allIterable(); }
+  inline ConstAllCarIterable allIterable() const { return streetData.allIterable(); }
+  inline ConstAllCarIterable constAllIterable() const { return streetData.constAllIterable(); }
 
   /**
    * @brief      Iterable for iterating over cars which are currently "beyond the street".
@@ -224,15 +236,15 @@ public:
    *
    * @return     An iterable object for all cars beyond this street.
    */
-  BeyondsCarIterable beyondsIterable();
-  ConstBeyondsCarIterable beyondsIterable() const;
-  ConstBeyondsCarIterable constBeyondsIterable() const;
+  inline BeyondsCarIterable beyondsIterable() { return streetData.beyondsCarIterable(); }
+  inline ConstBeyondsCarIterable beyondsIterable() const { return streetData.bonstBeyondsCarIterable(); }
+  inline ConstBeyondsCarIterable constBeyondsIterable() const { return streetData.constBeyondsCarIterable(); }
 
   /**
    * @brief      Removes all cars which are currently "beyond the street".
    * Cars are beyond the street if their distance is greater than the length of the street.
    */
-  void removeBeyonds();
+  inline void removeBeyonds() { return streetData.removeBeyonds(); }
 };
 
 #endif
