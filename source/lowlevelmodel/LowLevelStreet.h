@@ -1,8 +1,6 @@
 #ifndef LOW_LEVEL_STREET_H
 #define LOW_LEVEL_STREET_H
 
-#include <vector>
-
 /**
  * @brief      Class for the low level street, handles access to the actual underlying data structure storing the cars.
  *
