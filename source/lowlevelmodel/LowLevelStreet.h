@@ -39,9 +39,9 @@ private:
   // TrafficLightSignaler<StreetDataStructure> signaler;
 
 public:
-  using iterator       = typename StreetDataStructure::iterator;
-  using const_iterator = typename StreetDataStructure::const_iterator;
   // ------- Iterator & Iterable type defs -------
+  using CarIterator      = typename StreetDataStructure::CarIterator;
+  using ConstCarIterator = typename StreetDataStructure::ConstCarIterator;
 
   using AllCarIterable          = typename StreetDataStructure::AllCarIterable;
   using ConstAllCarIterable     = typename StreetDataStructure::ConstAllCarIterable;
@@ -152,9 +152,9 @@ public:
    *
    * @return     The car in front represented by an iterator.
    */
-  iterator getPrevCar(iterator currentCarIt, const int laneOffset = 0);
-  iterator getPrevCar(const_iterator currentCarIt, const int laneOffset = 0);
-  const_iterator getPrevCar(const_iterator currentCarIt, const int laneOffset = 0) const;
+  CarIterator getPrevCar(CarIterator currentCarIt, const int laneOffset = 0);
+  CarIterator getPrevCar(ConstCarIterator currentCarIt, const int laneOffset = 0);
+  ConstCarIterator getPrevCar(ConstCarIterator currentCarIt, const int laneOffset = 0) const;
 
   /**
    * @brief      Find the next car behind the current car on the current or neighboring lane.
@@ -167,9 +167,9 @@ public:
    *
    * @return     The car behind the current car represented by an iterator.
    */
-  iterator getNextCar(iterator currentCarIt, const int laneOffset = 0);
-  iterator getNextCar(const_iterator currentCarIt, const int laneOffset = 0);
-  const_iterator getNextCar(const_iterator currentCarIt, const int laneOffset = 0) const;
+  CarIterator getNextCar(CarIterator currentCarIt, const int laneOffset = 0);
+  CarIterator getNextCar(ConstCarIterator currentCarIt, const int laneOffset = 0);
+  ConstCarIterator getNextCar(ConstCarIterator currentCarIt, const int laneOffset = 0) const;
 
   /**
    * @brief      Add a new car to the street using move semantics.
