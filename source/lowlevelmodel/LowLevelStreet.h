@@ -26,6 +26,12 @@ private:
   const double speedLimit;
 
   /**
+   * Underlying storage of the cars on the street in the data structure specified by the template parameter
+   * StreetDataStructure.
+   */
+  StreetDataStructure streetData;
+
+  /**
    * Signaler used to switch the traffic light at the end of this street.
    * TODO: does the lowlevelstreet really need a signaler or should it rather have a bool denoting the current traffic
    * light status which is switched externally?
