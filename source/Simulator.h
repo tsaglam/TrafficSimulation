@@ -7,9 +7,7 @@
 #include "LowLevelCar.h"
 #include "LowLevelStreet.h"
 #include "ModelSyncer.h"
-
-template <typename RfbStructure>
-class ModelSyncer;
+#include "SimulationData.h"
 
 /**
  * C++20 ComputionRoutine concept, must be fulfilled in order for a class to be valid as a SignalingRoutine, IDMRoutine
@@ -20,7 +18,7 @@ class ModelSyncer;
 // template <typename T>
 // concept ComputationRoutine = requires(T a) {
 //   { T() };
-//   { T(Simulator<...>::Accessor()) };
+//   { T(SimulationData<...>()) };
 //   { a.perform() }
 // };
 
@@ -33,51 +31,28 @@ class ModelSyncer;
  * The computation routine template parameters must be classes implementing the following methods:
  *
  *     Constructor();
- *     Constructor(Simulator<RfbStructure>::Accessor accessor);
+ *     Constructor(SimulationData<RfbStructure> data);
  *     void perform();
  */
 template <typename RfbStructure, typename SignalingRoutine, typename IDMRoutine, typename ConsistencyRoutine>
 class Simulator {
-public:
-  typedef LowLevelCar Car;
-  typedef typename LowLevelStreet<RfbStructure> Street;
-  typedef typename RfbStructure<Car> ConcreteRfbStructure;
-
-public:
-  /**
-   * The Accessor class serves as the downward-facing API of the Simulator.
-   * Computation routines should exclusively use Accessor to operate on domain model as well as low level
-   * representation.
-   */
-  class Accessor {
-  private:
-    Simulator &simulator;
-    Accessor(Simulator &_simulator) : simulator(_simulator) {}
-
-  public:
-    Street &getStreet(unsigned int id) const { return simulator.streets.at(id); }
-    std::vector<Street> &getStreets() const { return simulator.streets; }
-    DomainModel &getDomainModel() const { return simulator.domainModel; }
-  };
-
 private:
-  friend class Accessor;
+  SimulationData data;
 
-  DomainModel &domainModel;
   bool lowLevelInitialised;
+
   SignalingRoutine signalingRoutine;
   IDMRoutine idmRoutine;
   ConsistencyRoutine consistencyRoutine;
-  std::vector<Street> streets;
 
 private:
   void initialiseLowLevel() {
-    ModelSyncer(Accessor(*this)).buildFreshLowLevel();
+    ModelSyncer(data).buildFreshLowLevel();
 
     lowLevelInitialised = true;
   }
 
-  void writeChangesToDomainModel() { ModelSyncer(Accessor(*this)).writeVehiclePositionToDomainModel(); }
+  void writeChangesToDomainModel() { ModelSyncer(data).writeVehiclePositionToDomainModel(); }
 
   void computeStep() {
     signalingRoutine.perform();
@@ -87,8 +62,8 @@ private:
 
 public:
   Simulator(DomainModel &_domainModel)
-      : domainModel(_domainModel), lowLevelInitialised(false), signalingRoutine(Accessor(*this)),
-        idmRoutine(Accessor(*this)), consistencyRoutine(Accessor(*this)) {}
+      : data(_domainModel), lowLevelInitialised(false), signalingRoutine(data), idmRoutine(data),
+        consistencyRoutine(data) {}
 
   void performStep() {
     if (!lowLevelInitialised) initialiseLowLevel();
