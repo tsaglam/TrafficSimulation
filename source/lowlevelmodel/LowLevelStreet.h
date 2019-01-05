@@ -11,6 +11,19 @@ template <class Car, class StreetDataStructure>
  * @tparam     StreetDataStructure  underlying data structure storing the cars on the street
  */
 class LowLevelStreet {
+
+private:
+  /**
+   * Internal street id.
+   * Corresponds to the id of the corresponding street in the domain model.
+   */
+  const size_t id;
+
+  /**
+   * Speed limit of the represented street.
+   */
+  const double speedLimit;
+
 public:
   // use iterator types provided by the underlying StreetDataStructure
   using iterator       = typename StreetDataStructure::iterator;
@@ -37,6 +50,21 @@ public:
   LowLevelStreet(size_t streetId, size_t laneCount, double streetLength, double speedLimit, double trafficLightOffset)
       : id(streetId), speedLimit(speedLimit) {}
 
+  // ------- Getter -------
+
+  /**
+   * @brief      Gets the internal street id.
+   *
+   * @return     The internal street.
+   */
+  inline size_t getId() const { return id; }
+
+  /**
+   * @brief      Gets the speed limit of this street.
+   *
+   * @return     The speed limit.
+   */
+  inline double getSpeedLimit() const { return speedLimit; }
 
   // ------- Access to Neighboring Cars -------
   // TODO: naming of prev and next might be confusing
