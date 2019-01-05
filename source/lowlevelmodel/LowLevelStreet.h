@@ -5,11 +5,11 @@
  * @brief      Class for the low level street, handles access to the actual underlying data structure storing the cars.
  *
  * @tparam     Car                  class of a LowLevelCar stored in the underlying StreetDataStructure
- * @tparam     StreetDataStructure  underlying data structure storing the cars on the street
+ * @tparam     UnderlyingStreetDataStructure  underlying data structure storing the cars on the street
  */
-template <class Car, class UnderlyingStreetDataStructure>
+template <typename Car, template <typename> class UnderlyingStreetDataStructure>
 class LowLevelStreet {
-  using StreetDataStructure = typename UnderlyingStreetDataStructure<Car>;
+  using StreetDataStructure = UnderlyingStreetDataStructure<Car>;
 
 private:
   /**
