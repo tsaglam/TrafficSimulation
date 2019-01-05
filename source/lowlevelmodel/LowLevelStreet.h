@@ -15,6 +15,28 @@ public:
   // use iterator types provided by the underlying StreetDataStructure
   using iterator       = typename StreetDataStructure::iterator;
   using const_iterator = typename StreetDataStructure::const_iterator;
+  // ------- Constructor -------
+
+  /**
+   * @brief      Default constructor. Valid, but results in unspecified behavior.
+   */
+  LowLevelStreet() = default;
+  /**
+   * @brief      Proper constructor, initializes a new instance with specified parameters.
+   * Constructs the low level street and initializes the underlying data storage. (TODO: and the traffic
+   * light signaler?)
+   * TODO: init StreetDataStructure
+   * TODO: init signaler if used
+   *
+   * @param[in]  streetId            The internal street id
+   * @param[in]  laneCount           The number of lanes on the street in the direction represented by this instance.
+   * @param[in]  streetLength        The street length
+   * @param[in]  speedLimit          The speed limit on this street.
+   * @param[in]  trafficLightOffset  The position of the traffic light as distance from the end of the street.
+   */
+  LowLevelStreet(size_t streetId, size_t laneCount, double streetLength, double speedLimit, double trafficLightOffset)
+      : id(streetId), speedLimit(speedLimit) {}
+
 
   // ------- Access to Neighboring Cars -------
   // TODO: naming of prev and next might be confusing
@@ -85,9 +107,6 @@ public:
   const_iterator cbegin() const;
   const_iterator cend() const;
 
-private:
-  LowLevelStreet(){};
-  friend StreetDataStructure;
 };
 
 #endif
