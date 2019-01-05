@@ -66,6 +66,30 @@ public:
    */
   inline double getSpeedLimit() const { return speedLimit; }
 
+  /**
+   * @brief      Gets the number of lanes on the street (in the current direction).
+   * Is forwarded to the underlying street data structure.
+   *
+   * @return     The number of lanes.
+   */
+  inline size_t getLaneCount() const { return streetData.getLaneCount(); }
+
+  /**
+   * @brief      Gets the length of the street.
+   * Is forwarded to the underlying street data structure.
+   *
+   * @return     The street length.
+   */
+  inline double getLength() const { return streetData.getLength(); }
+
+  /**
+   * @brief      Gets the number cars on this street (in the current direction).
+   * Is forwarded to the underlying street data structure.
+   * TODO: what about cars that left the current street, what about those that were just inserted?
+   *
+   * @return     The number cars on this street.
+   */
+  inline size_t getNumCars() const { return streetData.getNumCars(); }
   // ------- Access to Neighboring Cars -------
   // TODO: naming of prev and next might be confusing
 
