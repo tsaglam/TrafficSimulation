@@ -17,49 +17,54 @@
  * Low level data structure for storing vehicles on a one-directional street.
  * This type provides efficient access and modify operations.
  *
+ * This is an interface specification only.
+ *
  * The Vehicle template parameter must be a class implementing the following methods:
  *
  *     unsigned int getLane() const;
  *     double getDistance() const;
  *     void applyUpdates();
+ *
+ * Vehicles are modeled as points, there is no concept of length of a vehicle. The getPrevCar() and the getNextCar()
+ * method only considers the distance of vehicles. This works in the expected way when all vehicles have the same
+ * length.
  */
 template <class Vehicle>
 class RfbStructure {
 public:
   /**
-   * Type definition for iterators providing access to mutable, contained Vehicles.
+   * Type definition for iterators providing access to mutable, contained Vehicles retrieved via the "all" iterables
+   * (AllCarIterable and AllConstCarIterable).
    */
   typedef typename std::vector<Vehicle>::iterator iterator;
   /**
-   * Type definition for iterators providing access to immutable, contained Vehicles.
+   * Type definition for iterators providing access to immutable, contained Vehicles retrieved via the "all" iterables
+   * (AllCarIterable and AllConstCarIterable).
    */
   typedef typename std::vector<Vehicle>::const_iterator const_iterator;
 
-public:
-  /*
-   * Sensible Iterable types are hard to design.
-   *
-   * This should probably either be a virtual class or simply be implemented by a completely independent sub type of
-   * DevisedRfbStructure.
-   *
-   * Alternatively, AllCarIterable and BeyondsCarIterable could be distinguished and be implemented here by calling
-   * private methods of devised (allBegin, allEnd, allCbegin, allCend, beyondsBegin, beyondsEnd, beyondsCbegin,
-   * beyondsCend).
-   *
-   * By using type erasure, the iterables could be exposed and stored as a single type at the cost of an additional
-   * pointer.
-   */
-
   /**
-   * Utility type for iterating over Cars.
+   * Type definition for iterators providing access to mutable, contained Vehicles retrieved via the
+   * "beyonds" iterables (BeyondsCarIterable and BeyondsConstCarIterable).
+   */
+  typedef typename std::vector<Vehicle>::iterator beyonds_iterator;
+  /**
+   * Type definition for iterators providing access to immutable, contained Vehicles retrieved via the
+   * "beyonds" iterables (BeyondsCarIterable and BeyondsConstCarIterable).
+   */
+  typedef typename std::vector<Vehicle>::const_iterator const_beyonds_iterator;
+
+public:
+  /**
+   * Utility type providing iterators for retrieving all vehicles on the street.
    *
-   * Interface only class? Seems to be complicated to use this specific class for all implementations.
+   * This is an interface specification only.
    *
    * May be used like this:
    *
-   *     for (const auto& car : rfb.someIterable()) { car... }
+   *     for (const auto& vehicle : rfb.allIterable()) { vehicle... }
    */
-  class CarIterable {
+  class AllCarIterable {
   public:
     iterator begin() const;
     iterator end() const;
@@ -70,14 +75,16 @@ public:
     const_iterator cend() const;
 
   private:
-    friend class DevisedRfbStructure;
+    /* May be implemented like this: */
 
-    // &DevisedRfbStructure devised;
+    // friend class RfbStructure;
     //
-    // CarIterable(&DevisedRfbStructure _devised) devised(_devised) {}
+    // RfbStructure &rfb;
+    //
+    // AllCarIterable(RfbStructure &_rfb) rfb(_rfb) {}
   };
 
-  class ConstCarIterable {
+  class ConstAllCarIterable {
   public:
     const_iterator begin() const;
     const_iterator end() const;
@@ -86,11 +93,61 @@ public:
     const_iterator cend() const;
 
   private:
-    friend class DevisedRfbStructure;
+    /* May be implemented like this: */
 
-    // &DevisedRfbStructure devised;
+    // friend class RfbStructure;
     //
-    // CarIterable(&DevisedRfbStructure _devised) devised(_devised) {}
+    // const RfbStructure &rfb;
+    //
+    // ConstAllCarIterable(const RfbStructure &_rfb) rfb(_rfb) {}
+  };
+
+  /**
+   * Utility type providing iterators for retrieving the vehicles "beyond the street" the street, i.e. vehicles with a
+   * distance greater than the length of the street represented by this instance.
+   *
+   * This is an interface specification only.
+   *
+   * May be used like this:
+   *
+   *     for (const auto& vehicle : rfb.beyondsIterable()) { vehicle... }
+   */
+  class BeyondsCarIterable {
+  public:
+    beyonds_iterator begin() const;
+    beyonds_iterator end() const;
+    const_beyonds_iterator begin() const;
+    const_beyonds_iterator end() const;
+
+    const_beyonds_iterator cbegin() const;
+    const_beyonds_iterator cend() const;
+
+  private:
+    /* May be implemented like this: */
+
+    // friend class RfbStructure;
+    //
+    // RfbStructure &rfb;
+    //
+    // BeyondsCarIterable(RfbStructure &_rfb) rfb(_rfb) {}
+  };
+
+  class ConstBeyondsCarIterable {
+  public:
+    const_beyonds_iterator begin() const;
+    const_beyonds_iterator end() const;
+
+    const_beyonds_iterator cbegin() const;
+    const_beyonds_iterator cend() const;
+
+  private:
+    /* May be implemented like this: */
+
+    // friend class RfbStructure;
+    //
+    // const RfbStructure &rfb;
+    //
+    // ConstBeyondsCarIterable(const RfbStructure &_rfb) rfb(_rfb) {}
   };
 
 protected:
@@ -108,66 +165,65 @@ public:
   double getLength() const;
 
   /**
-   * Returns the number of cars on the street represented by the instance.
+   * Returns the number of vehicles tracked by the instance.
+   * This includes vehicles on the street as well as beyond the street.
    */
   unsigned int getNumCars() const;
 
   /**
-   * Finds the next car in front of the current car.
-   * The method returns the next car on the current lane (if laneOffset == 0) or the next lane to the left (-1) / right
-   * (+1) of the current lane.
+   * Finds the next vehicle in front of the current vehicle.
+   * The method returns the next vehicle on the current lane (if laneOffset == 0) or the next lane to the left (-1) /
+   * right (+1) of the current lane.
    *
-   * All cars are represented by iterators.
+   * All vehicles are represented by iterators.
    */
   iterator getPrevCar(iterator currentCarIt, const int laneOffset = 0);
   const_iterator getPrevCar(const_iterator currentCarIt, const int laneOffset = 0) const;
 
   /**
-   * Finds the next car behind the current car.
-   * The method returns the next car on the current lane (if laneOffset == 0) or the next lane to the left (-1) / right
-   * (+1) of the current lane.
+   * Finds the next vehicle behind the current vehicle.
+   * The method returns the next vehicle on the current lane (if laneOffset == 0) or the next lane to the left (-1) /
+   * right (+1) of the current lane.
    *
-   * All cars are represented by iterators.
+   * All vehicles are represented by iterators.
    */
   iterator getNextCar(iterator currentCarIt, const int laneOffset = 0);
   const_iterator getNextCar(const_iterator currentCarIt, const int laneOffset = 0) const;
 
   /**
-   * Add a new car to the street using copy semantics.
-   * The car is inserted into the underlying DevisedRfbStructure, however, the data structure may be inconsistent until
+   * Add a new vehicle to the street using copy semantics.
+   * The vehicle is inserted into the underlying data structure, however, the data structure may be inconsistent until
    * incorporateInsertedCars() has been called.
    */
   void insertCar(const Vehicle &car);
   /**
-   * Add a new car to the street using move semantics.
-   * The car is inserted into the underlying DevisedRfbStructure, however, the data structure may be inconsistent until
+   * Add a new vehicle to the street using move semantics.
+   * The vehicle is inserted into the underlying data structure, however, the data structure may be inconsistent until
    * incorporateInsertedCars() has been called.
    */
   void insertCar(Vehicle &&car);
 
   /**
-   * Incorporates cars newly added to the street via insertCar() into the representation and ensures consistency of the
-   * data structure.
-   *
-   * Does this method call applyUpdates() on the cars? This would result in a a more consistent API, all writers only
-   * need to update the next* fields of cars. There seems to be no particular advantages for either alternative.
+   * Incorporates vehicles newly added to the street via insertCar() into the representation and ensures consistency of
+   * the data structure.
    */
   void incorporateInsertedCars();
 
   /**
-   * Applies updates on all cars and ensures continued consistency of the data structure.
+   * Applies updates on all vehicles and ensures continued consistency of the data structure.
    *
-   * Updates are applied by calling applyUpdates() on each car. applyUpdates() should never be called directly on cars.
+   * Updates are applied by calling applyUpdates() on each vehicle. applyUpdates() should never be called directly on
+   * vehicles.
    */
   void applyUpdates();
 
   /**
-   * Iterable for iterating over all cars.
+   * Iterable for iterating over all vehicles.
    *
-   * Usually, cars are iterated in order of increasing distance from the start of the street, but no specific order is
-   * guaranteed.
+   * Usually, vehicles are iterated in order of increasing distance from the start of the street, but no specific order
+   * is guaranteed.
    *
-   * Cars which were added by insertCar() but not yet integrated into the data structure by a call to
+   * Vehicles which were added by insertCar() but not yet integrated into the data structure by a call to
    * incorporateInsertedCars() may or may not be considered by the iterable.
    */
   CarIterable allIterable();
@@ -177,18 +233,18 @@ public:
   ConstCarIterable constAllIterable() const;
 
   /**
-   * Iterable for iterating over cars which are currently "beyond the street", i.e. cars with a distance greater than
-   * the length of the street represented by this instance.
+   * Iterable for iterating over vehicles which are currently "beyond the street", i.e. vehicles with a distance greater
+   * than the length of the street represented by this instance.
    */
-  CarIterable beyondsIterable();
+  BeyondsCarIterable beyondsIterable();
 
-  ConstCarIterable beyondsIterable() const;
+  ConstBeyondsCarIterable beyondsIterable() const;
 
-  ConstCarIterable constBeyondsIterable() const;
+  ConstBeyondsCarIterable constBeyondsIterable() const;
 
   /**
-   * Removes all cars which are currently "beyond the street", i.e. cars with a distance greater than the length of the
-   * street represented by this instance.
+   * Removes all vehicles which are currently "beyond the street", i.e. vehicles with a distance greater than the length
+   * of the street represented by this instance.
    */
   void removeBeyonds();
 
