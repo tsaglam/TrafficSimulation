@@ -142,6 +142,7 @@ public:
    */
   iterator getPrevCar(iterator currentCarIt, const int laneOffset = 0);
   iterator getPrevCar(const_iterator currentCarIt, const int laneOffset = 0);
+  const_iterator getPrevCar(const_iterator currentCarIt, const int laneOffset = 0) const;
 
   /**
    * @brief      Find the next car behind the current car on the current or neighboring lane.
@@ -156,6 +157,7 @@ public:
    */
   iterator getNextCar(iterator currentCarIt, const int laneOffset = 0);
   iterator getNextCar(const_iterator currentCarIt, const int laneOffset = 0);
+  const_iterator getNextCar(const_iterator currentCarIt, const int laneOffset = 0) const;
 
   /**
    * @brief      Add a new car to the street using move semantics.
