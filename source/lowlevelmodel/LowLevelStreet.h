@@ -168,7 +168,6 @@ public:
    */
   void insertCar(Car &&car);
 
-  void incorporateAddedCars();
 
   /**
    * @brief      Incorporates all new cars into the underlying data structure while retaining its consistency.
@@ -176,6 +175,7 @@ public:
    * The consistency of the data structure after the function call is ensured. Calls applyUpdates() on all incorporated
    * cars.
    */
+  void incorporateInsertedCars();
 
   // Access the cars which left the current street (as determined by the applyUpdates function).
   std::vector<Car>& getDepartedCars();
