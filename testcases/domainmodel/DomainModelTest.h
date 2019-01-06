@@ -1,11 +1,16 @@
 #include "DomainModel.h"
 #include "DomainModelTestFactory.h"
 #include "Vehicle.h"
+#include <../../snowhouse/snowhouse.h>
 
-bool modelCreationTest() {
+using namespace snowhouse;
+
+void modelCreationTest() {
   DomainModel model = DomainModel();
   model.addVehicle(createTestVehicle());
   model.addJunction(createTestJunction());
   model.addStreet(createTestStreet());
-  return model.getVehicles().size() == 1 && model.getStreets().size() == 1 && model.getJunctions().size() == 1;
+  AssertThat(model.getVehicles().size(), Is().EqualTo((unsigned int)1));
+  AssertThat(model.getStreets().size(), Is().EqualTo((unsigned int)1));
+  AssertThat(model.getJunctions().size(), Is().EqualTo((unsigned int)1));
 }
