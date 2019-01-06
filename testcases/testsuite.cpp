@@ -43,6 +43,7 @@ int main() {
   RUN(junctionCreationTest);
   // DomainModel:
   RUN(modelCreationTest);
+  RUN(modelCreationTest2);
 
   // Prints the test results and the number of failed tests:
   if (numberOfFailedTests == 0) {
