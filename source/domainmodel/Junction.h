@@ -26,6 +26,7 @@ public:
     Signal() = default;
     Signal(CardinalDirection direction, unsigned int time);
     CardinalDirection getDirection() const;
+    void setTime(unsigned int newTime);
     unsigned int getTime() const;
   };
 

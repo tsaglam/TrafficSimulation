@@ -6,6 +6,7 @@
 Junction::Signal::Signal(CardinalDirection _direction, unsigned int _time) : direction(_direction), time(_time) {}
 
 CardinalDirection Junction::Signal::getDirection() const { return direction; }
+void setTime(unsigned int newTime) { time = newTime; }
 unsigned int Junction::Signal::getTime() const { return time; }
 
 /*
