@@ -48,7 +48,9 @@ int main() {
   // Prints the test results and the number of failed tests:
   if (numberOfFailedTests == 0) {
     std::cout << ANSIgreen << "ALL TESTS PASSED!" << ANSIreset << std::endl;
+    return 0;
   } else {
     std::cout << ANSIred << "ERROR: " << numberOfFailedTests << " tests failed!" << ANSIreset << std::endl;
+    return 1;
   }
 }
