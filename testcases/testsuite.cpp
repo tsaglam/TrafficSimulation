@@ -1,32 +1,41 @@
 #include "domainmodel/DomainModelTest.h"
 #include "domainmodel/JunctionTest.h"
 #include "domainmodel/VehicleTest.h"
+#include <../../snowhouse/snowhouse.h>
 #include <iostream>
+#include <regex>
 #include <stdio.h>
+
+using namespace snowhouse;
 
 #define RUN(funk) run(&funk, #funk)
 
+const std::string ANSIred   = "\033[1;31m";
+const std::string ANSIgreen = "\033[1;32m";
+const std::string ANSIreset = "\033[0m";
+
 int numberOfFailedTests;
 
-// Example code for one basic test case, import and add other test classes
-// instead of adding methods here
-bool someComponentTest() { return 6 / 2 == 3; }
+// indents and returns every line of a multi-line AssertionException message.
+std::string indentMessage(AssertionException exc) {
+  std::string result = regex_replace(exc.GetMessage(), std::regex("Expected"), "\tExpected");
+  return regex_replace(result, std::regex("Actual"), "\tActual");
+}
 
 // Run methods, which is responsible for prining the test results
-void run(bool (*fun_ptr)(), std::string name) {
-  if ((*fun_ptr)()) { // run test
-    std::cout << " + Test " << name << " passed" << std::endl;
-  } else {
-    std::cout << " - Test " << name << " failed" << std::endl;
+void run(void (*fun_ptr)(), std::string name) {
+  try {
+    (*fun_ptr)();
+    std::cout << ANSIgreen << " + Test " << name << " passed" << ANSIreset << std::endl;
+  } catch (const AssertionException &exception) {
+    std::cout << ANSIred << " - Test " << name << " failed: " << ANSIreset << std::endl;
+    std::cout << ANSIred << indentMessage(exception) << ANSIreset;
     numberOfFailedTests += 1; // and increase fail count
   }
 }
 
+// RUN TEST CASES HERE, USE ONLY THE METHOD NAME AS PARAMETER:
 int main() {
-  /*
-   * RUN TEST CASES HERE, USE ONLY THE METHOD NAME as parameter:
-   */
-  RUN(someComponentTest);
   // Vehicle:
   RUN(nextDirectionTest);
   RUN(setPositionTest);
@@ -34,11 +43,14 @@ int main() {
   RUN(junctionCreationTest);
   // DomainModel:
   RUN(modelCreationTest);
+  RUN(modelCreationTest2);
 
+  // Prints the test results and the number of failed tests:
   if (numberOfFailedTests == 0) {
-    std::cout << "ALL TESTS PASSED!" << std::endl;
+    std::cout << ANSIgreen << "ALL TESTS PASSED!" << ANSIreset << std::endl;
+    return 0;
   } else {
-    std::cout << "ERROR: " << numberOfFailedTests << " tests failed!" << std::endl;
+    std::cout << ANSIred << "ERROR: " << numberOfFailedTests << " tests failed!" << ANSIreset << std::endl;
+    return 1;
   }
-  return 0;
 }

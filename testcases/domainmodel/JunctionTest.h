@@ -1,6 +1,9 @@
 #include "DomainModelTestFactory.h"
 #include "Junction.h"
 #include "Street.h"
+#include <../../snowhouse/snowhouse.h>
+
+using namespace snowhouse;
 
 /*
  * adds four incoming and four outgoing streets to a junction.
@@ -20,15 +23,13 @@ void addStreets(Junction &junction) {
 /*
  * Tries to add streets and checks whether they are connected.
  */
-bool junctionCreationTest() {
+void junctionCreationTest() {
   Junction testJunction = createTestJunction();
   addStreets(testJunction);
-  bool correct = true;
   // clang-format off
   for (CardinalDirection dir = CardinalDirection::NORTH; dir < CardinalDirection::WEST;
        dir = CardinalDirection(dir + 1)) { // clang-format on
-    correct &= testJunction.getIncomingStreet(dir).isConnected() == true;
-    correct &= testJunction.getOutgoingStreet(dir).isConnected() == true;
+    AssertThat(testJunction.getIncomingStreet(dir).isConnected(), Is().EqualTo(true));
+    AssertThat(testJunction.getOutgoingStreet(dir).isConnected(), Is().EqualTo(true));
   }
-  return true;
 }
