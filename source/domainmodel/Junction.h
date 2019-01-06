@@ -14,6 +14,9 @@ private:
   friend class DomainModel;
 
 public:
+  /**
+   * @brief      Represents a traffic light for one of the directions of the junction.
+   */
   class Signal {
   private:
     CardinalDirection direction;
@@ -67,7 +70,18 @@ public:
   Junction(id_type id, int externalId, int x, int y, const std::vector<Signal> &signals);
   Junction(id_type id, int externalId, int x, int y, std::vector<Signal> &&signals);
 
+  /**
+   * @brief      Adds an incoming street for a specific direction and marks it internally as connected.
+   * @param      street     The incoming street to add.
+   * @param[in]  direction  The cardinal direction from where the street is coming in.
+   */
   void addIncomingStreet(Street &street, CardinalDirection direction);
+
+  /**
+   * @brief      Adds an outgoing street for a specific direction and marks it internally as connected.
+   * @param      street     The outgoing street to add.
+   * @param[in]  direction  The cardinal direction from where the street is going out.
+   */
   void addOutgoingStreet(Street &street, CardinalDirection direction);
 
   // access methods:
