@@ -21,6 +21,7 @@ private:
 public:
   Street(id_type id, unsigned int lanes, double speedLimit, double length, Junction &from, Junction &to);
 
+  // access methods:
   id_type getId() const;
   unsigned int getLanes() const;
   double getSpeedLimit() const;

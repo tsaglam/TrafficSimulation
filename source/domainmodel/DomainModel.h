@@ -17,6 +17,8 @@ private:
 
 public:
   DomainModel() = default;
+
+  // methods for building the domain model:
   Vehicle &addVehicle(const Vehicle &vehicle);
   Street &addStreet(const Street &street);
   Junction &addJunction(const Junction &junction);
@@ -24,10 +26,12 @@ public:
   Street &addStreet(Street &&street);
   Junction &addJunction(Junction &&junction);
 
+  // access methods for the unique elements:
   Vehicle &getVehicle(id_type id) const;
   Street &getStreet(id_type id) const;
   Junction &getJunction(id_type id) const;
 
+  // access methods for the full sets:
   const std::vector<std::unique_ptr<Vehicle>> &getVehicles() const;
   const std::vector<std::unique_ptr<Street>> &getStreets() const;
   const std::vector<std::unique_ptr<Junction>> &getJunctions() const;
