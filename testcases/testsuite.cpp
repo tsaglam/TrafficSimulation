@@ -10,11 +10,11 @@ using namespace snowhouse;
 
 #define RUN(funk) run(&funk, #funk)
 
-int numberOfFailedTests;
+const std::string ANSIred   = "\033[1;31m";
+const std::string ANSIgreen = "\033[1;32m";
+const std::string ANSIreset = "\033[0m";
 
-// Example code for one basic test case, import and add other test classes
-// instead of adding methods here. Dont forget to include snowhouse and to use the namespace snowhouse.
-void someComponentTest() { AssertThat(6 / 2, Equals(3)); }
+int numberOfFailedTests;
 
 // indents and returns every line of a multi-line AssertionException message.
 std::string indentMessage(AssertionException exc) {
@@ -26,25 +26,16 @@ std::string indentMessage(AssertionException exc) {
 void run(void (*fun_ptr)(), std::string name) {
   try {
     (*fun_ptr)();
-    std::cout << " + Test " << name << " passed" << std::endl;
+    std::cout << ANSIgreen << " + Test " << name << " passed" << ANSIreset << std::endl;
   } catch (const AssertionException &exception) {
-    std::cout << " - Test " << name << " failed: " << std::endl;
-    std::cout << indentMessage(exception) << std::endl;
+    std::cout << ANSIred << " - Test " << name << " failed: " << ANSIreset << std::endl;
+    std::cout << ANSIred << indentMessage(exception) << ANSIreset;
     numberOfFailedTests += 1; // and increase fail count
   }
-  // if ((*fun_ptr)()) { // run test
-  //   std::cout << " + Test " << name << " passed" << std::endl;
-  // } else {
-  //   std::cout << " - Test " << name << " failed" << std::endl;
-  //   numberOfFailedTests += 1; // and increase fail count
-  // }
 }
 
+// RUN TEST CASES HERE, USE ONLY THE METHOD NAME AS PARAMETER:
 int main() {
-  /*
-   * RUN TEST CASES HERE, USE ONLY THE METHOD NAME as parameter:
-   */
-  RUN(someComponentTest);
   // Vehicle:
   RUN(nextDirectionTest);
   RUN(setPositionTest);
@@ -53,10 +44,10 @@ int main() {
   // DomainModel:
   RUN(modelCreationTest);
 
+  // Prints the test results and the number of failed tests:
   if (numberOfFailedTests == 0) {
-    std::cout << "ALL TESTS PASSED!" << std::endl;
+    std::cout << ANSIgreen << "ALL TESTS PASSED!" << ANSIreset << std::endl;
   } else {
-    std::cout << "ERROR: " << numberOfFailedTests << " tests failed!" << std::endl;
+    std::cout << ANSIred << "ERROR: " << numberOfFailedTests << " tests failed!" << ANSIreset << std::endl;
   }
-  return 0;
 }
