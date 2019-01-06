@@ -29,7 +29,7 @@ void junctionCreationTest() {
   // clang-format off
   for (CardinalDirection dir = CardinalDirection::NORTH; dir < CardinalDirection::WEST;
        dir = CardinalDirection(dir + 1)) { // clang-format on
-    AssertThat(testJunction.getIncomingStreet(dir).isConnected(), Equals(true));
-    AssertThat(testJunction.getOutgoingStreet(dir).isConnected(), Equals(true));
+    AssertThat(testJunction.getIncomingStreet(dir).isConnected(), Is().EqualTo(true));
+    AssertThat(testJunction.getOutgoingStreet(dir).isConnected(), Is().EqualTo(true));
   }
 }
