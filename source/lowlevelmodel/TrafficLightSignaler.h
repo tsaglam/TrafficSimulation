@@ -5,6 +5,8 @@
 
 #include "LowLevelCar.h"
 
+enum Signal : bool { Red = true, Green = false };
+
 template <typename RfbStructure>
 class TrafficLightSignaler {
 private:
@@ -14,23 +16,23 @@ private:
 
 private:
   ConcreteRfbStructure &rfb;
-  bool signalRed;
+  Signal signal;
   LowLevelCar trafficLightCar;
 
 public:
   TrafficLightSignaler(ConcreteRfbStructure &_rfb, double _streetLength, const LowLevelCar &_trafficLightCar,
-      double _trafficLightOffset, unsigned int _lane = 0, double _velocity = 0.0, bool _signalRed = false)
-      : rfb(_rfb), trafficLightCar(_trafficLightCar) signalRed(_signalRed) {
+      double _trafficLightOffset, unsigned int _lane = 0, double _velocity = 0.0, Signal _signal = Green)
+      : rfb(_rfb), trafficLightCar(_trafficLightCar), signal(_signal) {
     trafficLightCar.setPosition(_lane, _streetLength - _trafficLightOffset, _velocity);
   }
   TrafficLightSignaler(ConcreteRfbStructure &_rfb, const LowLevelCar &_trafficLightCar, double _trafficLightOffset,
-      unsigned int _lane = 0, double _velocity = 0.0, bool _signalRed = false)
+      unsigned int _lane = 0, double _velocity = 0.0, Signal _signal = Green)
       : TrafficLightSignaler(
-            _rfb, _rfb.getLength(), _trafficLightCar, _trafficLightOffset, _lane, _velocity, _signalRed){};
+            _rfb, _rfb.getLength(), _trafficLightCar, _trafficLightOffset, _lane, _velocity, _signal){};
 
-  bool isSignalRed() { return signalRed; }
-  void setSignalRed(bool _signalRed) { signalRed = _signalRed; }
-  void switchSignal() { signalRed = !signalRed; }
+  inline Signal getSignal() const { return signalRed; }
+  inline void setSignal(const Signal _signal) { signal = _signal; }
+  inline void switchSignal() { signal = !signal; }
 
   /**
    * Finds the next car in front of the current car.
@@ -58,7 +60,7 @@ public:
     iterator nextCarIt   = rfb.getNextCar(currentCarIt, laneOffset);
     LowLevelCar &nextCar = *nextCarIt;
 
-    if (signalRed) {
+    if (signal == Red) {
       // Logic logic...
 
       return trafficLightCar;
@@ -70,7 +72,7 @@ public:
     const_iterator nextCarIt   = rfb.getNextCar(currentCarIt, laneOffset);
     const LowLevelCar &nextCar = *nextCarIt;
 
-    if (signalRed) {
+    if (signal == Red) {
       // Logic logic...
 
       return trafficLightCar;
