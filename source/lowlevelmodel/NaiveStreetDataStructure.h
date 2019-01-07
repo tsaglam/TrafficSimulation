@@ -116,7 +116,7 @@ public:
    *
    * @return     The number cars on this street.
    */
-  inline unsigned int getNumCars() const { return carsOnStreet.size(); }
+  inline unsigned int getCarCount() const { return carsOnStreet.size(); }
 
   // ------- Access to Neighboring Cars -------
 

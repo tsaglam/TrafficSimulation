@@ -104,11 +104,15 @@ public:
   /**
    * @brief      Gets the number cars on this street (in the current direction).
    * Is forwarded to the underlying street data structure.
-   * TODO: what about cars that left the current street, what about those that were just inserted?
+   * Cars which were added by insertCar() but not yet integrated into the data structure by a call to
+   * incorporateInsertedCars() and cars that left this street and are accessable by the beyondsIterable may or may not
+   * be considered for the total car count. Usually this function should only be called on a consistent street, in which
+   * case there are no such uncertain cars. Independent of the implementation, the number of cars in the allIterable is
+   * equal to the number returned by this function.
    *
    * @return     The number cars on this street.
    */
-  inline unsigned int getNumCars() const { return streetData.getNumCars(); }
+  inline unsigned int getCarCount() const { return streetData.getCarCount(); }
 
   // ------- Traffic Light Signaling -------
 
@@ -219,7 +223,7 @@ public:
    * incorporateInsertedCars() and cars that left this street and are accessable by the beyondsIterable may or may not
    * be considered by the allIterable. Usually the allIterable should only be called on a consistent street, in which
    * case there are no such uncertain cars. Independent of the implementation, the number of cars in the allIterable is
-   * equal to the number returned by getNumCars().
+   * equal to the number returned by getCarCount().
    *
    * @return     An iterable object for all cars on this street.
    */
