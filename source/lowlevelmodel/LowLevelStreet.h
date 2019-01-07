@@ -216,7 +216,10 @@ public:
    * Usually, cars are iterated in order of increasing distance from the start of the street, but no specific order is
    * guaranteed.
    * Cars which were added by insertCar() but not yet integrated into the data structure by a call to
-   * incorporateInsertedCars() may or may not be considered by the iterable.
+   * incorporateInsertedCars() and cars that left this street and are accessable by the beyondsIterable may or may not
+   * be considered by the allIterable. Usually the allIterable should only be called on a consistent street, in which
+   * case there are no such uncertain cars. Independent of the implementation, the number of cars in the allIterable is
+   * equal to the number returned by getNumCars().
    *
    * @return     An iterable object for all cars on this street.
    */

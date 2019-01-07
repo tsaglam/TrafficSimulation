@@ -184,10 +184,11 @@ public:
 
   /**
    * @brief      Iterable for iterating over all cars.
-   * Usually, cars are iterated in order of increasing distance from the start of the street, but no specific order is
-   * guaranteed.
+   * Cars are iterated in order of increasing distance from the start of the street, car with equal distance are
+   * ordered by their id. The lanes are not considered for the sorting.
    * Cars which were added by insertCar() but not yet integrated into the data structure by a call to
-   * incorporateInsertedCars() may or may not be considered by the iterable.
+   * incorporateInsertedCars() and cars that left this street and are accessable by the beyondsIterable are not
+   * considered by the allIterable in this implementation.
    *
    * @return     An iterable object for all cars on this street.
    */
@@ -197,7 +198,7 @@ public:
 
   /**
    * @brief      Iterable for iterating over cars which are currently "beyond the street".
-   *Cars are beyond the street if their distance is greater than the length of the street.
+   * Cars are beyond the street if their distance is greater than the length of the street.
    *
    * @return     An iterable object for all cars beyond this street.
    */
