@@ -153,9 +153,6 @@ public:
   inline CarIterator getNextCarInFront(CarIterator currentCarIt, const int laneOffset = 0) {
     return streetData.getNextCarInFront(currentCarIt, laneOffset);
   }
-  inline CarIterator getNextCarInFront(ConstCarIterator currentCarIt, const int laneOffset = 0) {
-    return streetData.getNextCarInFront(currentCarIt, laneOffset);
-  }
   inline ConstCarIterator getNextCarInFront(ConstCarIterator currentCarIt, const int laneOffset = 0) const {
     return streetData.getNextCarInFront(currentCarIt, laneOffset);
   }
@@ -172,9 +169,6 @@ public:
    * @return     The car behind the current car represented by an iterator.
    */
   inline CarIterator getNextCarBehind(CarIterator currentCarIt, const int laneOffset = 0) {
-    return streetData.getNextCarBehind(currentCarIt, laneOffset);
-  }
-  inline CarIterator getNextCarBehind(ConstCarIterator currentCarIt, const int laneOffset = 0) {
     return streetData.getNextCarBehind(currentCarIt, laneOffset);
   }
   inline ConstCarIterator getNextCarBehind(ConstCarIterator currentCarIt, const int laneOffset = 0) const {
