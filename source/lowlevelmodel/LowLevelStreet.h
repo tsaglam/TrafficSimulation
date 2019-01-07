@@ -31,8 +31,8 @@ private:
 
   /**
    * Signaler used to switch the traffic light at the end of this street.
-   * TODO: does the lowlevelstreet really need a signaler or should it rather have a bool denoting the current traffic
-   * light status which is switched externally?
+   * The getNextCar functions are forwarded to this signaler to allow returning the traffic light car
+   * if the signal is red.
    */
   // TrafficLightSignaler<StreetDataStructure> signaler;
 
@@ -117,29 +117,23 @@ public:
   // ------- Traffic Light Signaling -------
 
   /**
-   * @brief      Determines if the traffic light at the end of the street is red.
+   * @brief      Retrieves the current signal of the traffic light at the end of the street.
    *
-   * @return     True if signal red, False otherwise.
+   * @return     The traffic light signal, either Red or Green.
    */
-  // bool isSignalRed() const { return signaler.isSignalRed(); }
-
-  // // TODO: define this in TrafficLightSignaler?
-  // enum Signal : bool {
-  //   red = true,
-  //   green = false,
-  // };
+  // inline Signal getSignal() const { return signaler.getSignal(); }
 
   /**
    * @brief      Sets the signal of the traffic light at the end of the street to the given signal.
    *
-   * @param[in]  signal  The traffic light signal, can be red or green.
+   * @param[in]  signal  The traffic light signal, either Red or Green.
    */
-  // void setSignal(Signal signal) { signaler.setSignalRed(signal); }
+  // inline void setSignal(const Signal signal) { signaler.setSignal(signal); }
 
   /**
    * @brief      Flip the signal of the traffic light at the end of the street from red to green or green to red.
    */
-  // void switchSignal() { signaler.switchSignal(); }
+  // inline void switchSignal() { signaler.switchSignal(); }
 
   // ------- Access to Neighboring Cars -------
 
