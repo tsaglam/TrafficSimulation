@@ -119,7 +119,6 @@ public:
   inline unsigned int getNumCars() const { return carsOnStreet.size(); }
 
   // ------- Access to Neighboring Cars -------
-  // TODO: naming of prev and next might be confusing
 
   /**
    * @brief      Find the next car in front of the current car on the current or neighboring lane.
@@ -132,8 +131,8 @@ public:
    *
    * @return     The car in front represented by an iterator.
    */
-  CarIterator getPrevCar(const CarIterator currentCarIt, const int laneOffset = 0);
-  ConstCarIterator getPrevCar(const ConstCarIterator currentCarIt, const int laneOffset = 0) const;
+  CarIterator getNextCarInFront(const CarIterator currentCarIt, const int laneOffset = 0);
+  ConstCarIterator getNextCarInFront(const ConstCarIterator currentCarIt, const int laneOffset = 0) const;
 
   /**
    * @brief      Find the next car behind the current car on the current or neighboring lane.
@@ -146,8 +145,8 @@ public:
    *
    * @return     The car behind the current car represented by an iterator.
    */
-  CarIterator getNextCar(const CarIterator currentCarIt, const int laneOffset = 0);
-  ConstCarIterator getNextCar(const ConstCarIterator currentCarIt, const int laneOffset = 0) const;
+  CarIterator getNextCarBehind(const CarIterator currentCarIt, const int laneOffset = 0);
+  ConstCarIterator getNextCarBehind(const ConstCarIterator currentCarIt, const int laneOffset = 0) const;
 
   /**
    * @brief      Add a new car to the street using move semantics.

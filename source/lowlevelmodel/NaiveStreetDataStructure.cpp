@@ -8,7 +8,7 @@ NaiveStreetDataStructure<Car>::NaiveStreetDataStructure(unsigned int laneCount, 
     : laneCount(laneCount), length(length) {}
 
 template <class Car>
-typename NaiveStreetDataStructure<Car>::CarIterator NaiveStreetDataStructure<Car>::getPrevCar(
+typename NaiveStreetDataStructure<Car>::CarIterator NaiveStreetDataStructure<Car>::getNextCarInFront(
     const NaiveStreetDataStructure<Car>::CarIterator currentCarIt, const int laneOffset) {
   const unsigned int lane = currentCarIt->getLane() + laneOffset;
   // iterate all cars in front of the current car (on all lanes) return first car on the specified lane
@@ -19,7 +19,7 @@ typename NaiveStreetDataStructure<Car>::CarIterator NaiveStreetDataStructure<Car
 }
 
 template <class Car>
-typename NaiveStreetDataStructure<Car>::ConstCarIterator NaiveStreetDataStructure<Car>::getPrevCar(
+typename NaiveStreetDataStructure<Car>::ConstCarIterator NaiveStreetDataStructure<Car>::getNextCarInFront(
     const NaiveStreetDataStructure<Car>::ConstCarIterator currentCarIt, const int laneOffset) const {
   const unsigned int lane = currentCarIt->getLane() + laneOffset;
   // iterate all cars in front of the current car (on all lanes) return first car on the specified lane
@@ -30,7 +30,7 @@ typename NaiveStreetDataStructure<Car>::ConstCarIterator NaiveStreetDataStructur
 }
 
 template <class Car>
-typename NaiveStreetDataStructure<Car>::CarIterator NaiveStreetDataStructure<Car>::getNextCar(
+typename NaiveStreetDataStructure<Car>::CarIterator NaiveStreetDataStructure<Car>::getNextCarBehind(
     const NaiveStreetDataStructure<Car>::CarIterator currentCarIt, const int laneOffset) {
   const unsigned int lane = currentCarIt->getLane() + laneOffset;
   // iterate all cars behind the current car (on all lanes) return first car on the specified lane
@@ -41,7 +41,7 @@ typename NaiveStreetDataStructure<Car>::CarIterator NaiveStreetDataStructure<Car
 }
 
 template <class Car>
-typename NaiveStreetDataStructure<Car>::ConstCarIterator NaiveStreetDataStructure<Car>::getNextCar(
+typename NaiveStreetDataStructure<Car>::ConstCarIterator NaiveStreetDataStructure<Car>::getNextCarBehind(
     const NaiveStreetDataStructure<Car>::ConstCarIterator currentCarIt, const int laneOffset) const {
   const unsigned int lane = currentCarIt->getLane() + laneOffset;
   // iterate all cars behind the current car (on all lanes) return first car on the specified lane

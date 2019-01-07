@@ -138,7 +138,6 @@ public:
   // void switchSignal() { signaler.switchSignal(); }
 
   // ------- Access to Neighboring Cars -------
-  // TODO: naming of prev and next might be confusing
 
   /**
    * @brief      Find the next car in front of the current car on the current or neighboring lane.
@@ -151,14 +150,14 @@ public:
    *
    * @return     The car in front represented by an iterator.
    */
-  inline CarIterator getPrevCar(CarIterator currentCarIt, const int laneOffset = 0) {
-    return streetData.getPrevCar(currentCarIt, laneOffset);
+  inline CarIterator getNextCarInFront(CarIterator currentCarIt, const int laneOffset = 0) {
+    return streetData.getNextCarInFront(currentCarIt, laneOffset);
   }
-  inline CarIterator getPrevCar(ConstCarIterator currentCarIt, const int laneOffset = 0) {
-    return streetData.getPrevCar(currentCarIt, laneOffset);
+  inline CarIterator getNextCarInFront(ConstCarIterator currentCarIt, const int laneOffset = 0) {
+    return streetData.getNextCarInFront(currentCarIt, laneOffset);
   }
-  inline ConstCarIterator getPrevCar(ConstCarIterator currentCarIt, const int laneOffset = 0) const {
-    return streetData.getPrevCar(currentCarIt, laneOffset);
+  inline ConstCarIterator getNextCarInFront(ConstCarIterator currentCarIt, const int laneOffset = 0) const {
+    return streetData.getNextCarInFront(currentCarIt, laneOffset);
   }
 
   /**
@@ -172,14 +171,14 @@ public:
    *
    * @return     The car behind the current car represented by an iterator.
    */
-  inline CarIterator getNextCar(CarIterator currentCarIt, const int laneOffset = 0) {
-    return streetData.getNextCar(currentCarIt, laneOffset);
+  inline CarIterator getNextCarBehind(CarIterator currentCarIt, const int laneOffset = 0) {
+    return streetData.getNextCarBehind(currentCarIt, laneOffset);
   }
-  inline CarIterator getNextCar(ConstCarIterator currentCarIt, const int laneOffset = 0) {
-    return streetData.getNextCar(currentCarIt, laneOffset);
+  inline CarIterator getNextCarBehind(ConstCarIterator currentCarIt, const int laneOffset = 0) {
+    return streetData.getNextCarBehind(currentCarIt, laneOffset);
   }
-  inline ConstCarIterator getNextCar(ConstCarIterator currentCarIt, const int laneOffset = 0) const {
-    return streetData.getNextCar(currentCarIt, laneOffset);
+  inline ConstCarIterator getNextCarBehind(ConstCarIterator currentCarIt, const int laneOffset = 0) const {
+    return streetData.getNextCarBehind(currentCarIt, laneOffset);
   }
 
   /**
