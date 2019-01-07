@@ -60,6 +60,7 @@ void NaiveStreetDataStructure<Car>::incorporateInsertedCars() {
 
 template <class Car>
 void NaiveStreetDataStructure<Car>::updateCarsAndRestoreConsistency() {
+  // TODO remove departed cars
   for (auto car : carsOnStreet) { car.update(); }                // update all cars
   sort(carsOnStreet.begin(), carsOnStreet.end(), carComperator); // restore car order (sorted by distance)
 }

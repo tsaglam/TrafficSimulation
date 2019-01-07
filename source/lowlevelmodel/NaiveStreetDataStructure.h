@@ -34,6 +34,7 @@ private:
 
   /**
    * @brief      Compare two cars by their distance from the start of this street.
+   * TODO: compare by id if distance is equal
    *
    * @param[in]  a     The first car to compare.
    * @param[in]  b     The second car to compare.
@@ -50,7 +51,7 @@ public:
   NaiveStreetDataStructure();
 
   /**
-   * @brief      Proper constructor, initialises a new instance with specified parameters.
+   * @brief      Proper constructor, initializes a new instance with specified parameters.
    *
    * @param[in]  laneCount  The number of lanes on the street (in the current direction).
    * @param[in]  length     The length of the street.
@@ -122,9 +123,7 @@ public:
 
   /**
    * @brief      Find the next car in front of the current car on the current or neighboring lane.
-   * The lane is determined by the laneOffset.
-   * If the traffic light is red, the traffic light car might be returned instead of an actual car.
-   * All cars are represented by iterators.
+   * The lane is determined by the laneOffset. All cars are represented by iterators.
    *
    * @param[in]  currentCarIt  The current car represented by an iterator.
    * @param[in]  laneOffset    The lane offset determining which lane to search on. Own lane: 0, Left: -1, Right: +1.
@@ -136,9 +135,7 @@ public:
 
   /**
    * @brief      Find the next car behind the current car on the current or neighboring lane.
-   * The lane is determined by the laneOffset.
-   * The return value is not affected by the traffic light.
-   * All cars are represented by iterators.
+   * The lane is determined by the laneOffset. All cars are represented by iterators.
    *
    * @param[in]  currentCarIt  The current car represented by an iterator.
    * @param[in]  laneOffset    The lane offset determining which lane to search on. Own lane: 0, Left: -1, Right: +1.
@@ -150,8 +147,8 @@ public:
 
   /**
    * @brief      Add a new car to the street using move semantics.
-   * The car is inserted into the underlying DevisedRfbStructure, however, the data structure may be inconsistent until
-   * incorporateInsertedCars() has been called.
+   * The car is inserted into newCars vector. It is inserted into the carsOnStreet vector together with all other new
+   * cars by a call to incorporateInsertedCars().
    *
    * @param      car   The car to be inserted.
    */
@@ -159,8 +156,8 @@ public:
 
   /**
    * @brief      Add a new car to the street using copy semantics.
-   * The car is inserted into the underlying DevisedRfbStructure, however, the data structure may be inconsistent until
-   * incorporateInsertedCars() has been called.
+   * The car is inserted into newCars vector. It is inserted into the carsOnStreet vector together with all other new
+   * cars by a call to incorporateInsertedCars().
    *
    * @param      car   The car to be inserted.
    */
@@ -168,17 +165,17 @@ public:
 
   /**
    * @brief      Incorporates all new cars into the underlying data structure while retaining its consistency.
-   * Incorporates all cars that were added to the street via insertCar() after the last call to incorporateInsertedCars.
-   * The consistency of the data structure after the function call is ensured. Calls update() on all incorporated
-   * cars.
+   * Incorporates all cars that were added to the street via insertCar() and are stored in the newCars vector.
+   * The cars are appended to the carsOnStreet vector and updated by calling the update() function on each new car.
+   * The consistency is restored by sorting carsOnStreet.
    */
   void incorporateInsertedCars();
 
   /**
    * @brief      Update the position of all cars on this street in the underlying data structure while retaining its
-   * consistency. Cars are moved to the correct new position in the underlying data structure. Updates are applied to
-   * the cars by calling update() on each car. Cars that reached the end of this street are collected internally
-   * and can accessed via the getDepartedCars function.
+   * consistency.
+   * All cars in carsOnStreet are updated by calling their update() function. The restore the consistency carsOnStreet
+   * is sorted. Cars that reached the end of this street are removed from carsOnStreet and moved to departedCars.
    */
   void updateCarsAndRestoreConsistency();
 
@@ -187,7 +184,7 @@ public:
    * Cars are iterated in order of increasing distance from the start of the street, car with equal distance are
    * ordered by their id. The lanes are not considered for the sorting.
    * Cars which were added by insertCar() but not yet integrated into the data structure by a call to
-   * incorporateInsertedCars() and cars that left this street and are accessable by the beyondsIterable are not
+   * incorporateInsertedCars() and cars that left this street and are accessible by the beyondsIterable are not
    * considered by the allIterable in this implementation.
    *
    * @return     An iterable object for all cars on this street.
