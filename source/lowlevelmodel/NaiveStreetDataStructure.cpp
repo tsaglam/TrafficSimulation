@@ -53,13 +53,13 @@ typename NaiveStreetDataStructure<Car>::ConstCarIterator NaiveStreetDataStructur
 
 template <class Car>
 void NaiveStreetDataStructure<Car>::incorporateInsertedCars() {
-  for (auto newCar : newCars) { newCar.applyUpdates(); }                   // update all new cars
+  for (auto newCar : newCars) { newCar.update(); }                         // update all new cars
   carsOnStreet.insert(carsOnStreet.end(), newCars.begin(), newCars.end()); // append all new cars to carsOnStreet
   sort(carsOnStreet.begin(), carsOnStreet.end(), carComperator);           // restore car order (sorted by distance)
 }
 
 template <class Car>
-void NaiveStreetDataStructure<Car>::applyUpdates() {
-  for (auto car : carsOnStreet) { car.applyUpdates(); }          // update all cars
+void NaiveStreetDataStructure<Car>::updateCarsAndRestoreConsistency() {
+  for (auto car : carsOnStreet) { car.update(); }                // update all cars
   sort(carsOnStreet.begin(), carsOnStreet.end(), carComperator); // restore car order (sorted by distance)
 }

@@ -196,7 +196,7 @@ public:
   /**
    * @brief      Incorporates all new cars into the underlying data structure while retaining its consistency.
    * Incorporates all cars that were added to the street via insertCar() after the last call to incorporateInsertedCars.
-   * The consistency of the data structure after the function call is ensured. Calls applyUpdates() on all incorporated
+   * The consistency of the data structure after the function call is ensured. Calls update() on all incorporated
    * cars.
    */
   inline void incorporateInsertedCars() { return streetData.incorporateInsertedCars(); }
@@ -206,10 +206,10 @@ public:
   /**
    * @brief      Update the position of all cars on this street in the underlying data structure while retaining its
    * consistency. Cars are moved to the correct new position in the underlying data structure. Updates are applied to
-   * the cars by calling applyUpdates() on each car. Cars that reached the end of this street are collected internally
+   * the cars by calling update() on each car. Cars that reached the end of this street are collected internally
    * and can accessed via the getDepartedCars function.
    */
-  inline void applyUpdates() { return streetData.applyUpdates(); }
+  inline void updateCarsAndRestoreConsistency() { return streetData.updateCarsAndRestoreConsistency(); }
 
   /**
    * @brief      Iterable for iterating over all cars.
