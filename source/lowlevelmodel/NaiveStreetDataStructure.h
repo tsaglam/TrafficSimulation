@@ -48,7 +48,7 @@ public:
   /**
    * @brief      Default constructor. Valid, but results in unspecified behavior.
    */
-  NaiveStreetDataStructure();
+  NaiveStreetDataStructure() = default;
 
   /**
    * @brief      Proper constructor, initializes a new instance with specified parameters.
@@ -56,7 +56,7 @@ public:
    * @param[in]  laneCount  The number of lanes on the street (in the current direction).
    * @param[in]  length     The length of the street.
    */
-  NaiveStreetDataStructure(unsigned int laneCount, double length);
+  NaiveStreetDataStructure(unsigned int laneCount, double length) : laneCount(laneCount), length(length) {}
 
   // ------- Iterator & Iterable type defs -------
   using CarIterator      = typename std::vector<Car>::iterator;
@@ -130,8 +130,22 @@ public:
    *
    * @return     The car in front represented by an iterator.
    */
-  CarIterator getNextCarInFront(const CarIterator currentCarIt, const int laneOffset = 0);
-  ConstCarIterator getNextCarInFront(const ConstCarIterator currentCarIt, const int laneOffset = 0) const;
+  CarIterator getNextCarInFront(const CarIterator currentCarIt, const int laneOffset = 0) {
+    const unsigned int lane = currentCarIt->getLane() + laneOffset;
+    // iterate all cars in front of the current car (on all lanes) return first car on the specified lane
+    for (CarIterator i = currentCarIt; i != carsOnStreet.end(); ++i) {
+      if (i->getLane() == lane) { return i; }
+    }
+    return carsOnStreet.end(); // return end iterator if no prev car exists on the given lane
+  }
+  ConstCarIterator getNextCarInFront(const ConstCarIterator currentCarIt, const int laneOffset = 0) const {
+    const unsigned int lane = currentCarIt->getLane() + laneOffset;
+    // iterate all cars in front of the current car (on all lanes) return first car on the specified lane
+    for (ConstCarIterator i = currentCarIt; i != carsOnStreet.end(); ++i) {
+      if (i->getLane() == lane) { return i; }
+    }
+    return carsOnStreet.end(); // return end iterator if no prev car exists on the given lane
+  }
 
   /**
    * @brief      Find the next car behind the current car on the current or neighboring lane.
@@ -142,8 +156,22 @@ public:
    *
    * @return     The car behind the current car represented by an iterator.
    */
-  CarIterator getNextCarBehind(const CarIterator currentCarIt, const int laneOffset = 0);
-  ConstCarIterator getNextCarBehind(const ConstCarIterator currentCarIt, const int laneOffset = 0) const;
+  CarIterator getNextCarBehind(const CarIterator currentCarIt, const int laneOffset = 0) {
+    const unsigned int lane = currentCarIt->getLane() + laneOffset;
+    // iterate all cars behind the current car (on all lanes) return first car on the specified lane
+    for (CarIterator i = currentCarIt; i != carsOnStreet.begin(); --i) { // reverse iteration
+      if (i->getLane() == lane) { return i; }
+    }
+    return carsOnStreet.end(); // return end iterator if no next car exists on the given lane
+  }
+  ConstCarIterator getNextCarBehind(const ConstCarIterator currentCarIt, const int laneOffset = 0) const {
+    const unsigned int lane = currentCarIt->getLane() + laneOffset;
+    // iterate all cars behind the current car (on all lanes) return first car on the specified lane
+    for (ConstCarIterator i = currentCarIt; i != carsOnStreet.begin(); --i) { // reverse iteration
+      if (i->getLane() == lane) { return i; }
+    }
+    return carsOnStreet.end(); // return end iterator if no next car exists on the given lane
+  }
 
   /**
    * @brief      Add a new car to the street using move semantics.
@@ -169,7 +197,11 @@ public:
    * The cars are appended to the carsOnStreet vector and updated by calling the update() function on each new car.
    * The consistency is restored by sorting carsOnStreet.
    */
-  void incorporateInsertedCars();
+  void incorporateInsertedCars() {
+    for (auto newCar : newCars) { newCar.update(); }                         // update all new cars
+    carsOnStreet.insert(carsOnStreet.end(), newCars.begin(), newCars.end()); // append all new cars to carsOnStreet
+    sort(carsOnStreet.begin(), carsOnStreet.end(), carComperator);           // restore car order (sorted by distance)
+  }
 
   /**
    * @brief      Update the position of all cars on this street in the underlying data structure while retaining its
@@ -177,7 +209,11 @@ public:
    * All cars in carsOnStreet are updated by calling their update() function. The restore the consistency carsOnStreet
    * is sorted. Cars that reached the end of this street are removed from carsOnStreet and moved to departedCars.
    */
-  void updateCarsAndRestoreConsistency();
+  void updateCarsAndRestoreConsistency() {
+    // TODO remove departed cars
+    for (auto car : carsOnStreet) { car.update(); }                // update all cars
+    sort(carsOnStreet.begin(), carsOnStreet.end(), carComperator); // restore car order (sorted by distance)
+  }
 
   /**
    * @brief      Iterable for iterating over all cars.
