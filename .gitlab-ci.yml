@@ -1,9 +1,24 @@
 stages:
-  - build
   - test
+  - benchmark-build
+  - benchmark-run
 
-build:pc189:
-  stage: build
+
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+
+
+test:
+  stage: test
+  tags:
+    - docker
+  image: buildpack-deps:bionic
+  script:
+    - make test
+
+
+benchmark-build:pc189:
+  stage: benchmark-build
   tags:
     - pc189
   only:
@@ -17,8 +32,8 @@ build:pc189:
     - source ~/pdmkp_env
     - make
 
-build:pc205:
-  stage: build
+benchmark-build:pc205:
+  stage: benchmark-build
   tags:
     - pc205
   only:
@@ -33,28 +48,28 @@ build:pc205:
     - make
 
 
-test:pc189:
-  stage: test
+benchmark-run:pc189:
+  stage: benchmark-run
   tags:
     - pc189
   only:
     - master
   when: manual
   dependencies:
-    - build:pc189
+    - benchmark-build:pc189
   script:
     - source ~/pdmkp_env
     - traffic_check $PWD/traffic_sim
 
-test:pc205:
-  stage: test
+benchmark-run:pc205:
+  stage: benchmark-run
   tags:
     - pc205
   only:
     - master
   when: manual
   dependencies:
-    - build:pc205
+    - benchmark-build:pc205
   script:
     - source ~/pdmkp_env
     - traffic_check $PWD/traffic_sim
