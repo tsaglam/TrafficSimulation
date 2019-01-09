@@ -2,7 +2,7 @@
 #define LOW_LEVEL_CAR_H
 
 class LowLevelCar {
-public:
+private:
   unsigned int id;
 
   /**
