@@ -1,6 +1,7 @@
 #ifndef LOW_LEVEL_STREET_H
 #define LOW_LEVEL_STREET_H
 
+#include "LowLevelCar.h"
 #include "TrafficLightSignaler.h"
 
 /**
@@ -12,7 +13,11 @@
 template <template <typename Vehicle> RfbStructure>
 class LowLevelStreet {
 private:
-  using ConcreteRfbStructure = typename RfbStructure<LowLevelCar>;
+  using Vehicle                      = LowLevelCar;
+  using ConcreteRfbStructure         = typename RfbStructure<Vehicle>;
+  using ConcreteTrafficLightSignaler = typename TrafficLightSignaler<RfbStructure>;
+  using iterator                     = ConcreteTrafficLightSignaler::iterator;
+  using const_iterator               = ConcreteTrafficLightSignaler::const_iterator;
 
 private:
   /**
@@ -56,11 +61,14 @@ public:
    * @param[in]  _lanes           The number of lanes on the street in the direction represented by this instance.
    * @param[in]  _length        The street length
    * @param[in]  _speedLimit          The speed limit on this street.
+   * @param[in]  _trafficLightCar  A properly initialised car which is used as the basis of the traffic light car of the
+   * signaler.
    * @param[in]  _trafficLightOffset  The position of the traffic light as distance from the end of the street.
    */
-
-  LowLevelStreet(unsigned int _id, unsigned int _lanes, double _length, double _speedLimit, double _trafficLightOffset)
-      : id(_id), speedLimit(_speedLimit), signaler(rfb, _length, TODO, _trafficLightOffset), rfb(_lanes, _length) {}
+  LowLevelStreet(unsigned int _id, unsigned int _lanes, double _length, double _speedLimit,
+      const LowLevelCar &_trafficLightCar, double _trafficLightOffset)
+      : id(_id), speedLimit(_speedLimit), signaler(rfb, _length, _trafficLightCar, _trafficLightOffset),
+        rfb(_lanes, _length) {}
 
   /**
    * Gets the internal street id.
@@ -80,79 +88,90 @@ public:
    * Signaling methods which forward to signaler.
    */
 
-  bool isSignalRed() { return signaler.isSignalRed(); }
-  void setSignalRed(bool signalRed) { signaler.setSignalRed(signalRed); }
+  /**
+   * Retrieves the value of the signal.
+   */
+  Signal getSignal() const { return signaler.getSignal(); }
+  /**
+   * Sets the value of the signal.
+   */
+  void setSignal(const Signal signal) { signaler.setSignal(signal); }
+  /**
+   * Switches the signal of the traffic light.
+   *
+   * If the signal is RED, it will be set to GREEN. If the signal is GREEN it will be set to RED.
+   */
   void switchSignal() { signaler.switchSignal(); }
 
   /*
    * RfbStructure accessors which forward to signaler.
    */
 
+  TrafficLightSignaler<RfbStructure>::CarIterable allIterable() { return signaler.allIterable(); }
+
+  TrafficLightSignaler<RfbStructure>::ConstCarIterable allIterable() const { return signaler.allIterable(); }
+
+  TrafficLightSignaler<RfbStructure>::ConstCarIterable constAllIterable() const { return signaler.constAllIterable(); }
+
   /**
-   * Find the next car in front of the current car on the current or neighboring lane.
+   * Find the next car in front of an origin car on the same or a neighbouring lane.
    * The lane is determined by the laneOffset.
    * If the traffic light is red, the traffic light car might be returned instead of an actual car.
    * All cars are represented by iterators.
    *
-   * @param[in]  currentCarIt  The current car represented by an iterator.
-   * @param[in]  laneOffset    The lane offset determining which lane to search on. Own lane: 0, Left: -1, Right: +1.
+   * @param[in]  originVehicleIt The origin car represented by an iterator.
+   * @param[in]  laneOffset      The lane offset determining which lane to search on. Same lane: 0, Left: -1, Right: +1.
    *
-   * @return     The car in front represented by an iterator.
+   * @return     The car in front of the origin car represented by an iterator.
    */
-  LowLevelCar &getPrevCar(iterator currentCarIt, const int laneOffset = 0) {
-    return signaler.getPrevCar(currentCarIt, laneOffset);
+  iterator getNextCarInFront(iterator originVehicleIt, const int laneOffset = 0) {
+    return signaler.getNextCarInFront(originVehicleIt, laneOffset);
   }
-  const LowLevelCar &getPrevCar(const_iterator currentCarIt, const int laneOffset = 0) const {
-    return signaler.getPrevCar(currentCarIt, laneOffset);
+  const_iterator getNextCarInFront(const_iterator originVehicleIt, const int laneOffset = 0) const {
+    return signaler.getNextCarInFront(originVehicleIt, laneOffset);
   }
 
   /**
-   * Find the next car behind the current car on the current or neighboring lane.
+   * Find the next car in front of an origin car on the same or a neighbouring lane.
    * The lane is determined by the laneOffset.
    * The return value is not affected by the traffic light.
    * All cars are represented by iterators.
    *
-   * @param[in]  currentCarIt  The current car represented by an iterator.
-   * @param[in]  laneOffset    The lane offset determining which lane to search on. Own lane: 0, Left: -1, Right: +1.
+   * @param[in]  originVehicleIt The origin car represented by an iterator.
+   * @param[in]  laneOffset      The lane offset determining which lane to search on. Same lane: 0, Left: -1, Right: +1.
    *
-   * @return     The car behind the current car represented by an iterator.
+   * @return     The car behind the origin car represented by an iterator.
    */
-  LowLevelCar &getNextCar(iterator currentCarIt, const int laneOffset = 0) {
-    return signaler.getNextCar(currentCarIt, laneOffset);
+  iterator getNextCarBehind(iterator originVehicleIt, const int laneOffset = 0) {
+    return signaler.getNextCarBehind(originVehicleIt, laneOffset);
   }
-  const LowLevelCar &getNextCar(const_iterator currentCarIt, const int laneOffset = 0) const {
-    return signaler.getNextCar(currentCarIt, laneOffset);
+  const_iterator getNextCarBehind(const_iterator originVehicleIt, const int laneOffset = 0) const {
+    return signaler.getNextCarBehind(originVehicleIt, laneOffset);
   }
 
   /*
    * Data structure / representation operations which forward to rfb.
    */
 
-  unsigned int getLanes() const { return rfb.getLanes(); }
+  unsigned int getLaneCount() const { return rfb.getLaneCount(); }
 
   double getLength() const { return rfb.getLength(); }
 
-  unsigned int getNumCars() const { return rfb.getNumCars(); }
+  unsigned int getCarCount() const { return rfb.getCarCount(); }
 
-  void insertCar(const Vehicle &car) { rfb.insertCar(car); }
+  void insertCar(const Vehicle &vehicle) { rfb.insertCar(vehicle); }
 
-  void insertCar(Vehicle &&car) { rfb.insertCar(car); }
+  void insertCar(Vehicle &&vehicle) { rfb.insertCar(vehicle); }
 
   void incorporateInsertedCars() { rfb.incorporateInsertedCars(); }
 
-  void applyUpdates() { rfb.applyUpdates(); }
+  void updateCarsAndRestoreConsistency() { rfb.updateCarsAndRestoreConsistency(); }
 
-  CarIterable allIterable() { return rfb.allIterable(); }
+  ConcreteRfbStructure::BeyondsCarIterable beyondsIterable() { return rfb.beyondsIterable(); }
 
-  ConstCarIterable allIterable() const { return rfb.allIterable(); }
+  ConcreteRfbStructure::ConstBeyondsCarIterable beyondsIterable() const { return rfb.beyondsIterable(); }
 
-  ConstCarIterable constAllIterable() const { return rfb.constAllIterable(); }
-
-  CarIterable beyondsIterable() { return rfb.beyondsIterable(); }
-
-  ConstCarIterable beyondsIterable() const { return rfb.beyondsIterable(); }
-
-  ConstCarIterable constBeyondsIterable() const { return rfb.constBeyondsIterable(); }
+  ConcreteRfbStructure::ConstBeyondsCarIterable constBeyondsIterable() const { return rfb.constBeyondsIterable(); }
 
   void removeBeyonds() { rfb.removeBeyonds(); }
 };

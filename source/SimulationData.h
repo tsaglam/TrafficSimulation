@@ -12,12 +12,12 @@
  * Computation routines should exclusively use SimulationData to operate on domain model as well as low level
  * representation.
  */
-template <typename RfbStructure>
+template <template <typename Vehicle> RfbStructure>
 class SimulationData {
 public:
-  typedef LowLevelCar Car;
-  typedef typename LowLevelStreet<RfbStructure> Street;
-  typedef typename RfbStructure<Car> ConcreteRfbStructure;
+  using Car                  = LowLevelCar;
+  using Street               = typename LowLevelStreet<RfbStructure>;
+  using ConcreteRfbStructure = typename RfbStructure<Car>;
 
 private:
   DomainModel &domainModel;

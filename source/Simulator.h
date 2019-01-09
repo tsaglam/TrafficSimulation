@@ -31,10 +31,11 @@
  * The computation routine template parameters must be classes implementing the following methods:
  *
  *     Constructor();
- *     Constructor(SimulationData<RfbStructure> data);
+ *     Constructor(SimulationData<RfbStructure> &data);
  *     void perform();
  */
-template <typename RfbStructure, typename SignalingRoutine, typename IDMRoutine, typename ConsistencyRoutine>
+template <template <typename Vehicle> RfbStructure, typename SignalingRoutine, typename IDMRoutine,
+    typename ConsistencyRoutine>
 class Simulator {
 private:
   SimulationData data;

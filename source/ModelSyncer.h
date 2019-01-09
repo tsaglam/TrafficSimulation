@@ -10,11 +10,10 @@
 #define VEHICLE_LENGTH 5.0
 #define TRAFFIC_LIGHT_OFFSET 35.0 / 2.0
 
-template <typename RfbStructure>
+template <template <typename Vehicle> RfbStructure>
 class ModelSyncer {
 private:
   using Data = SimulationData<RfbStructure>;
-  using Car  = Data::Car; // TODO: sensible?
 
 private:
   Data &data;
@@ -26,17 +25,17 @@ public:
     auto streets     = data.getStreets();
     auto domainModel = data.getDomainModel();
 
+    LowLevelCar trafficLightCar(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+
     // Clear streets, start fresh
     streets.clear();
 
     for (const auto &domainStreet : domainModel.getStreets()) {
       streets.emplace_back(domainStreet.getId(), domainStreet.getLanes(), domainStreet.getLength(),
-          domainStreet.getSpeedLimit(), TRAFFIC_LIGHT_OFFSET);
+          domainStreet.getSpeedLimit(), trafficLightCar, TRAFFIC_LIGHT_OFFSET);
     }
 
     for (const auto &domainVehicle : domainModel.getVehicles()) {
-      // TODO: could use SimulationData<RfbStructure>::Car (mapped to Car), will no longer require LowLevelCar.h
-      // Car car(...)
       LowLevelCar car(domainVehicle->getId(), domainVehicle->getTargetVelocity(), domainVehicle->getMaxAcceleration(),
           domainVehicle->getTargetDeceleration(), domainVehicle->getMinDistance(), domainVehicle->getTargetHeadway(),
           domainVehicle->getPoliteness(), VEHICLE_LENGTH, domainVehicle->getPosition().getLane(),
