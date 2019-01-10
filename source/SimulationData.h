@@ -12,12 +12,12 @@
  * Computation routines should exclusively use SimulationData to operate on domain model as well as low level
  * representation.
  */
-template <template <typename Vehicle> RfbStructure>
+template <template <typename Vehicle> typename RfbStructure>
 class SimulationData {
 public:
-  using Car                  = LowLevelCar;
-  using Street               = typename LowLevelStreet<RfbStructure>;
-  using ConcreteRfbStructure = typename RfbStructure<Car>;
+  using Vehicle              = LowLevelCar;
+  using Street               = LowLevelStreet<RfbStructure>;
+  using ConcreteRfbStructure = RfbStructure<Vehicle>;
 
 private:
   DomainModel &domainModel;
@@ -26,9 +26,12 @@ private:
 public:
   SimulationData(DomainModel &_domainModel) : domainModel(_domainModel) {}
 
-  Street &getStreet(unsigned int id) const { return streets.at(id); }
-  std::vector<Street> &getStreets() const { return streets; }
-  DomainModel &getDomainModel() const { return domainModel; }
+  Street &getStreet(unsigned int id) { return streets.at(id); }
+  const Street &getStreet(unsigned int id) const { return streets.at(id); }
+  std::vector<Street> &getStreets() { return streets; }
+  const std::vector<Street> &getStreets() const { return streets; }
+  DomainModel &getDomainModel() { return domainModel; }
+  const DomainModel &getDomainModel() const { return domainModel; }
 };
 
 #endif

@@ -98,7 +98,7 @@ public:
   double getMinDistance() const { return minDistance; }
   double getTargetHeadway() const { return targetHeadway; }
   double getPoliteness() const { return politeness; }
-  double length() const { return length; }
+  double getLength() const { return length; }
 
   void setNextBaseAcceleration(double acceleration) { nextBaseAcceleration = acceleration; }
   double getNextBaseAcceleration() const { return nextBaseAcceleration; }

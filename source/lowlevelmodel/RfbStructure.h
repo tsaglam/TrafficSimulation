@@ -36,7 +36,7 @@
  * are no vehicles inserted but not yet incorporated and there are no cars beyond the street. In such a state, the
  * effect of all methods is specified. The effect of some methods may be unspecified in "un-clean" states.
  */
-template <class Vehicle>
+template <typename Vehicle>
 class RfbStructure {
 public:
   /**

@@ -10,14 +10,14 @@
  *
  * @tparam RfbStructure  Underlying data structure storing the cars on the street
  */
-template <template <typename Vehicle> RfbStructure>
+template <template <typename Vehicle> typename RfbStructure>
 class LowLevelStreet {
-private:
+public:
   using Vehicle                      = LowLevelCar;
-  using ConcreteRfbStructure         = typename RfbStructure<Vehicle>;
-  using ConcreteTrafficLightSignaler = typename TrafficLightSignaler<RfbStructure>;
-  using iterator                     = ConcreteTrafficLightSignaler::iterator;
-  using const_iterator               = ConcreteTrafficLightSignaler::const_iterator;
+  using ConcreteRfbStructure         = RfbStructure<Vehicle>;
+  using ConcreteTrafficLightSignaler = TrafficLightSignaler<RfbStructure>;
+  using iterator                     = typename ConcreteTrafficLightSignaler::iterator;
+  using const_iterator               = typename ConcreteTrafficLightSignaler::const_iterator;
 
 private:
   /**
@@ -107,11 +107,15 @@ public:
    * RfbStructure accessors which forward to signaler.
    */
 
-  TrafficLightSignaler<RfbStructure>::CarIterable allIterable() { return signaler.allIterable(); }
+  typename TrafficLightSignaler<RfbStructure>::AllCarIterable allIterable() { return signaler.allIterable(); }
 
-  TrafficLightSignaler<RfbStructure>::ConstCarIterable allIterable() const { return signaler.allIterable(); }
+  typename TrafficLightSignaler<RfbStructure>::ConstAllCarIterable allIterable() const {
+    return signaler.allIterable();
+  }
 
-  TrafficLightSignaler<RfbStructure>::ConstCarIterable constAllIterable() const { return signaler.constAllIterable(); }
+  typename TrafficLightSignaler<RfbStructure>::ConstAllCarIterable constAllIterable() const {
+    return signaler.constAllIterable();
+  }
 
   /**
    * Find the next car in front of an origin car on the same or a neighbouring lane.
@@ -167,11 +171,13 @@ public:
 
   void updateCarsAndRestoreConsistency() { rfb.updateCarsAndRestoreConsistency(); }
 
-  ConcreteRfbStructure::BeyondsCarIterable beyondsIterable() { return rfb.beyondsIterable(); }
+  typename ConcreteRfbStructure::BeyondsCarIterable beyondsIterable() { return rfb.beyondsIterable(); }
 
-  ConcreteRfbStructure::ConstBeyondsCarIterable beyondsIterable() const { return rfb.beyondsIterable(); }
+  typename ConcreteRfbStructure::ConstBeyondsCarIterable beyondsIterable() const { return rfb.beyondsIterable(); }
 
-  ConcreteRfbStructure::ConstBeyondsCarIterable constBeyondsIterable() const { return rfb.constBeyondsIterable(); }
+  typename ConcreteRfbStructure::ConstBeyondsCarIterable constBeyondsIterable() const {
+    return rfb.constBeyondsIterable();
+  }
 
   void removeBeyonds() { rfb.removeBeyonds(); }
 };

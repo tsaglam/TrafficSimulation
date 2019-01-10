@@ -16,10 +16,10 @@ enum Signal { RED, GREEN };
  * There is only one traffic car on each street. This car is returned as the traffic light car for all lanes of the
  * street. This car has its lane set to 0 by default.
  */
-template <template <typename Vehicle> RfbStructure>
+template <template <typename Vehicle> typename RfbStructure>
 class TrafficLightSignaler {
 private:
-  using ConcreteRfbStructure = typename RfbStructure<LowLevelCar>;
+  using ConcreteRfbStructure = RfbStructure<LowLevelCar>;
 
 public:
   template <typename RfbIterator, bool Const>
@@ -29,7 +29,7 @@ public:
      * Iterator trait definitions.
      */
 
-    using iterator_category = std::iterator_traits<RfbIterator>::iterator_category;
+    using iterator_category = typename std::iterator_traits<RfbIterator>::iterator_category;
     using value_type        = LowLevelCar;
     using difference_type   = std::ptrdiff_t;
     using reference         = typename std::conditional_t<Const, LowLevelCar const &, LowLevelCar &>;
@@ -83,11 +83,11 @@ public:
       switch (state) {
       case PROXY: return *dest;
       case SPECIAL: return *special;
-      default: return *nullptr;
+      default: return *special;
       }
     }
 
-    typename BaseIterator<RfbIterator> &operator++() {
+    BaseIterator<RfbIterator, Const> &operator++() {
       switch (state) {
       case PROXY: ++dest;
       case SPECIAL: break;
@@ -103,7 +103,7 @@ public:
      * https://en.cppreference.com/w/cpp/named_req/EqualityComparable
      */
 
-    friend bool operator==(const BaseIterator &lhs, const BaseIterator &rhs) {
+    friend bool operator==(const BaseIterator<RfbIterator, Const> &lhs, const BaseIterator<RfbIterator, Const> &rhs) {
       if (lhs.state != rhs.state) return false;
 
       switch (lhs.state) {
@@ -131,21 +131,15 @@ public:
       }
     }
 
-    typename BaseIterator<RfbIterator> operator++(int) {
+    BaseIterator<RfbIterator, Const> operator++(int) {
       switch (state) {
-      case PROXY:
-        int n;
-        return typename BaseIterator<RfbIterator>(dest++);
-
-        // TODO
-        // typename BaseIterator<RfbIterator> tmp(dest++);
-        // return tmp;
+      case PROXY: return BaseIterator<RfbIterator, Const>(dest++);
       case SPECIAL: return *this;
       default: return *this;
       }
     }
 
-    friend bool operator!=(const BaseIterator &lhs, const BaseIterator &rhs) {
+    friend bool operator!=(const BaseIterator<RfbIterator, Const> &lhs, const BaseIterator<RfbIterator, Const> &rhs) {
       if (lhs.state != rhs.state) return true;
 
       switch (lhs.state) {
@@ -161,7 +155,7 @@ public:
      * https://en.cppreference.com/w/cpp/named_req/BidirectionalIterator
      */
 
-    typename BaseIterator<RfbIterator> &operator--() {
+    BaseIterator<RfbIterator, Const> &operator--() {
       switch (state) {
       case PROXY: --dest;
       case SPECIAL: break;
@@ -171,14 +165,9 @@ public:
       return *this;
     }
 
-    typename BaseIterator<RfbIterator> operator--(int) {
+    BaseIterator<RfbIterator, Const> operator--(int) {
       switch (state) {
-      case PROXY:
-        return typename BaseIterator<RfbIterator>(dest--);
-
-        // TODO
-        // typename BaseIterator<RfbIterator> tmp(dest--);
-        // return tmp;
+      case PROXY: return BaseIterator<RfbIterator, Const>(dest--);
       case SPECIAL: return *this;
       default: return *this;
       }
@@ -190,20 +179,15 @@ public:
      * https://en.cppreference.com/w/cpp/named_req/RandomAccessIterator
      */
 
-    typename BaseIteratory<RfbIterator> operator+(const difference_type &n) const {
+    BaseIterator<RfbIterator, Const> operator+(const difference_type &n) const {
       switch (state) {
-      case PROXY:
-        return typename BaseIterator<RfbIterator>(dest + n);
-
-        // TODO
-        // typename BaseIterator<RfbIterator> tmp(dest + n);
-        // return tmp;
+      case PROXY: return BaseIterator<RfbIterator, Const>(dest + n);
       case SPECIAL: *this;
       default: *this;
       }
     }
 
-    typename BaseIteratory<RfbIterator> &operator+=(const difference_type &n) {
+    BaseIterator<RfbIterator, Const> &operator+=(const difference_type &n) {
       switch (state) {
       case PROXY: dest += n;
       case SPECIAL: break;
@@ -213,20 +197,15 @@ public:
       return *this;
     }
 
-    typename BaseIteratory<RfbIterator> operator-(const difference_type &n) const {
+    BaseIterator<RfbIterator, Const> operator-(const difference_type &n) const {
       switch (state) {
-      case PROXY:
-        return typename BaseIterator<RfbIterator>(dest - n);
-
-        // TODO
-        // typename BaseIterator<RfbIterator> tmp(dest - n);
-        // return tmp;
+      case PROXY: return BaseIterator<RfbIterator, Const>(dest - n);
       case SPECIAL: *this;
       default: *this;
       }
     }
 
-    typename BaseIteratory<RfbIterator> &operator-=(const difference_type &n) {
+    BaseIterator<RfbIterator, Const> &operator-=(const difference_type &n) {
       switch (state) {
       case PROXY: dest -= n;
       case SPECIAL: break;
@@ -240,7 +219,7 @@ public:
       switch (state) {
       case PROXY: return dest[n];
       case SPECIAL: return *special;
-      default: return *nilptr;
+      default: return *special;
       }
     }
 
@@ -250,7 +229,7 @@ public:
      * The operation is only results in sensible results if both iterators are in the PROXY state. In this case the
      * operation is forwarded to the RfbIterator instances. The operation complies with a total ordering in all cases.
      */
-    friend bool operator<(const BaseIterator &lhs, const BaseIterator &rhs) {
+    friend bool operator<(const BaseIterator<RfbIterator, Const> &lhs, const BaseIterator<RfbIterator, Const> &rhs) {
       if (lhs.state != rhs.state) return lhs.state < rhs.state;
 
       switch (lhs.state) {
@@ -266,7 +245,7 @@ public:
      * The operation is only results in sensible results if both iterators are in the PROXY state. In this case the
      * operation is forwarded to the RfbIterator instances. The operation complies with a total ordering in all cases.
      */
-    friend bool operator>(const BaseIterator &lhs, const BaseIterator &rhs) {
+    friend bool operator>(const BaseIterator<RfbIterator, Const> &lhs, const BaseIterator<RfbIterator, Const> &rhs) {
       if (lhs.state != rhs.state) return lhs.state > rhs.state;
 
       switch (lhs.state) {
@@ -282,7 +261,7 @@ public:
      * The operation is only results in sensible results if both iterators are in the PROXY state. In this case the
      * operation is forwarded to the RfbIterator instances. The operation complies with a total ordering in all cases.
      */
-    friend bool operator<=(const BaseIterator &lhs, const BaseIterator &rhs) {
+    friend bool operator<=(const BaseIterator<RfbIterator, Const> &lhs, const BaseIterator<RfbIterator, Const> &rhs) {
       if (lhs.state != rhs.state) return lhs.state <= rhs.state;
 
       switch (lhs.state) {
@@ -298,7 +277,7 @@ public:
      * The operation is only results in sensible results if both iterators are in the PROXY state. In this case the
      * operation is forwarded to the RfbIterator instances. The operation complies with a total ordering in all cases.
      */
-    friend bool operator>=(const BaseIterator &lhs, const BaseIterator &rhs) {
+    friend bool operator>=(const BaseIterator<RfbIterator, Const> &lhs, const BaseIterator<RfbIterator, Const> &rhs) {
       if (lhs.state != rhs.state) return lhs.state >= rhs.state;
 
       switch (lhs.state) {
@@ -344,7 +323,7 @@ public:
 
     TrafficLightSignaler &signaler;
 
-    AllCarIterable(TrafficLightSignaler &_signaler) signaler(_signaler) {}
+    AllCarIterable(TrafficLightSignaler &_signaler) : signaler(_signaler) {}
   };
 
   class ConstAllCarIterable {
@@ -360,7 +339,7 @@ public:
 
     const TrafficLightSignaler &signaler;
 
-    ConstAllCarIterable(const TrafficLightSignaler &_signaler) signaler(_signaler) {}
+    ConstAllCarIterable(const TrafficLightSignaler &_signaler) : signaler(_signaler) {}
   };
 
   friend class AllCarIterable;
@@ -373,12 +352,12 @@ private:
 
 public:
   TrafficLightSignaler(ConcreteRfbStructure &_rfb, double _streetLength, const LowLevelCar &_trafficLightCar,
-      double _trafficLightOffset, unsigned int _lane = 0, double _velocity = 0.0, Signal _signal = Green)
-      : rfb(_rfb), trafficLightCar(_trafficLightCar), signal(_signal) {
+      double _trafficLightOffset, unsigned int _lane = 0, double _velocity = 0.0, Signal _signal = GREEN)
+      : rfb(_rfb), signal(_signal), trafficLightCar(_trafficLightCar) {
     trafficLightCar.setPosition(_lane, _streetLength - _trafficLightOffset, _velocity);
   }
   TrafficLightSignaler(ConcreteRfbStructure &_rfb, const LowLevelCar &_trafficLightCar, double _trafficLightOffset,
-      unsigned int _lane = 0, double _velocity = 0.0, Signal _signal = Green)
+      unsigned int _lane = 0, double _velocity = 0.0, Signal _signal = GREEN)
       : TrafficLightSignaler(
             _rfb, _rfb.getLength(), _trafficLightCar, _trafficLightOffset, _lane, _velocity, _signal){};
 
@@ -419,7 +398,8 @@ public:
    */
   iterator getNextCarInFront(iterator originVehicleIt, const int laneOffset = 0) {
     switch (originVehicleIt.state) {
-    case iterator::PROXY:
+    case iterator::PROXY: {
+      // Create a new scope using brackets to be able to initialise variable only here
       iterator inFrontIt = rfb.getNextCarInFront(originVehicleIt.dest, laneOffset);
 
       if (signal == RED) {
@@ -430,13 +410,15 @@ public:
       }
 
       return iterator(inFrontIt);
+    }
     case iterator::SPECIAL: return iterator(originVehicleIt.inFrontIt);
-    case default: return iterator();
+    default: return iterator();
     }
   }
   const_iterator getNextCarInFront(const_iterator originVehicleIt, const int laneOffset = 0) const {
     switch (originVehicleIt.state) {
-    case const_iterator::PROXY:
+    case const_iterator::PROXY: {
+      // Create a new scope using brackets to be able to initialise variable only here
       const_iterator inFrontIt = rfb.getNextCarInFront(originVehicleIt.dest, laneOffset);
 
       if (signal == RED) {
@@ -447,8 +429,9 @@ public:
       }
 
       return const_iterator(inFrontIt);
+    }
     case const_iterator::SPECIAL: return const_iterator(originVehicleIt.inFrontIt);
-    case default: return const_iterator();
+    default: return const_iterator();
     }
   }
 
@@ -469,14 +452,14 @@ public:
     switch (originVehicleIt.state) {
     case iterator::PROXY: return iterator(rfb.getNextCarBehind(originVehicleIt.dest, laneOffset));
     case iterator::SPECIAL: return iterator(originVehicleIt.behindIt);
-    case default: return iterator();
+    default: return iterator();
     }
   }
   const_iterator getNextCarBehind(const_iterator originVehicleIt, const int laneOffset = 0) const {
     switch (originVehicleIt.state) {
     case const_iterator::PROXY: return const_iterator(rfb.getNextCarBehind(originVehicleIt.dest, laneOffset));
     case const_iterator::SPECIAL: return const_iterator(originVehicleIt.behindIt);
-    case default: return const_iterator();
+    default: return const_iterator();
     }
   }
 
@@ -489,11 +472,11 @@ public:
    * Vehicles which were added by insertCar() but not yet integrated into the data structure by a call to
    * incorporateInsertedCars() may or may not be considered by the iterable.
    */
-  CarIterable allIterable() { return AllCarIterable(*this); }
+  AllCarIterable allIterable() { return AllCarIterable(*this); }
 
-  ConstCarIterable allIterable() const { return ConstAllCarIterable(*this); }
+  ConstAllCarIterable allIterable() const { return ConstAllCarIterable(*this); }
 
-  ConstCarIterable constAllIterable() const { return ConstAllCarIterable(*this); }
+  ConstAllCarIterable constAllIterable() const { return ConstAllCarIterable(*this); }
 };
 
 #endif

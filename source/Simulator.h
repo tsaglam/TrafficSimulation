@@ -34,26 +34,28 @@
  *     Constructor(SimulationData<RfbStructure> &data);
  *     void perform();
  */
-template <template <typename Vehicle> RfbStructure, typename SignalingRoutine, typename IDMRoutine,
-    typename ConsistencyRoutine>
+template <template <typename Vehicle> typename RfbStructure,
+    template <template <typename Vehicle> typename _RfbStructure> typename SignalingRoutine,
+    template <template <typename Vehicle> typename _RfbStructure> typename IDMRoutine,
+    template <template <typename Vehicle> typename _RfbStructure> typename ConsistencyRoutine>
 class Simulator {
 private:
-  SimulationData data;
+  SimulationData<RfbStructure> data;
 
   bool lowLevelInitialised;
 
-  SignalingRoutine signalingRoutine;
-  IDMRoutine idmRoutine;
-  ConsistencyRoutine consistencyRoutine;
+  SignalingRoutine<RfbStructure> signalingRoutine;
+  IDMRoutine<RfbStructure> idmRoutine;
+  ConsistencyRoutine<RfbStructure> consistencyRoutine;
 
 private:
   void initialiseLowLevel() {
-    ModelSyncer(data).buildFreshLowLevel();
+    ModelSyncer<RfbStructure>(data).buildFreshLowLevel();
 
     lowLevelInitialised = true;
   }
 
-  void writeChangesToDomainModel() { ModelSyncer(data).writeVehiclePositionToDomainModel(); }
+  void writeChangesToDomainModel() { ModelSyncer<RfbStructure>(data).writeVehiclePositionToDomainModel(); }
 
   void computeStep() {
     signalingRoutine.perform();

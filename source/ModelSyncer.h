@@ -10,7 +10,7 @@
 #define VEHICLE_LENGTH 5.0
 #define TRAFFIC_LIGHT_OFFSET 35.0 / 2.0
 
-template <template <typename Vehicle> RfbStructure>
+template <template <typename Vehicle> typename RfbStructure>
 class ModelSyncer {
 private:
   using Data = SimulationData<RfbStructure>;
@@ -19,11 +19,11 @@ private:
   Data &data;
 
 public:
-  ModelSyncer(Data _data) : data(_data) {}
+  ModelSyncer(Data &_data) : data(_data) {}
 
   void buildFreshLowLevel() {
-    auto streets     = data.getStreets();
-    auto domainModel = data.getDomainModel();
+    auto &streets     = data.getStreets();
+    auto &domainModel = data.getDomainModel();
 
     LowLevelCar trafficLightCar(0, 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
@@ -31,8 +31,8 @@ public:
     streets.clear();
 
     for (const auto &domainStreet : domainModel.getStreets()) {
-      streets.emplace_back(domainStreet.getId(), domainStreet.getLanes(), domainStreet.getLength(),
-          domainStreet.getSpeedLimit(), trafficLightCar, TRAFFIC_LIGHT_OFFSET);
+      streets.emplace_back(domainStreet->getId(), domainStreet->getLanes(), domainStreet->getLength(),
+          domainStreet->getSpeedLimit(), trafficLightCar, TRAFFIC_LIGHT_OFFSET);
     }
 
     for (const auto &domainVehicle : domainModel.getVehicles()) {
@@ -46,13 +46,11 @@ public:
       street.insertCar(car);
     }
 
-    for (const auto &street : streets) { street.incorporateInsertedCars(); }
-
-    lowLevelInitialised = true;
+    for (auto &street : streets) { street.incorporateInsertedCars(); }
   }
 
   void writeVehiclePositionToDomainModel() {
-    auto domainModel = data.getDomainModel();
+    auto &domainModel = data.getDomainModel();
 
     for (const auto &street : data.getStreets()) {
       auto &domainStreet = domainModel.getStreet(street.getId());
