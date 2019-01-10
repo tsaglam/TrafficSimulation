@@ -86,8 +86,6 @@ public:
   public:
     iterator begin() const;
     iterator end() const;
-    const_iterator begin() const;
-    const_iterator end() const;
 
     const_iterator cbegin() const;
     const_iterator cend() const;

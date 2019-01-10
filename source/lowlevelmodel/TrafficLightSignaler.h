@@ -324,19 +324,17 @@ public:
         : state(SPECIAL), behindIt(_behindIt), inFrontIt(_inFrontIt), special(&_special) {}
   };
 
-  using iterator       = typename BaseIterator<typename RfbStructure<LowLevelCar>::iterator, false>;
-  using const_iterator = typename BaseIterator<typename RfbStructure<LowLevelCar>::const_iterator, true>;
+  using iterator       = BaseIterator<typename RfbStructure<LowLevelCar>::iterator, false>;
+  using const_iterator = BaseIterator<typename RfbStructure<LowLevelCar>::const_iterator, true>;
 
 public:
   /**
-   * Utility type providing iterators for retrieving all vehicles on the street.
+   * Iterable type providing iterators for retrieving vehicles on the street.
    */
   class AllCarIterable {
   public:
     iterator begin() const { return iterator(signaler.rfb.allIterable().begin()); }
     iterator end() const { return iterator(signaler.rfb.allIterable().end()); }
-    const_iterator begin() const { return iterator(signaler.rfb.allIterable().begin()); }
-    const_iterator end() const { return iterator(signaler.rfb.allIterable().end()); }
 
     const_iterator cbegin() const { return iterator(signaler.rfb.allIterable().cbegin()); }
     const_iterator cend() const { return iterator(signaler.rfb.allIterable().cend()); }

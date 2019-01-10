@@ -238,7 +238,10 @@
    These methods must probably be removed as there is no way for the
    compiler to decide which one to select.
 
-   **Status**: Pending
+   Experiment: The compiler does not allow overloading, the methods have to be
+   removed.
+
+   **Status**: Implemented
 
  * TrafficLightSignaler::BaseIterator: Only enable implemented functions
 
