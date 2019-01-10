@@ -253,3 +253,11 @@
    RfbIterator typename?
 
    **Status**: Pending
+
+ * LowLevelCar: Requires externalId
+
+   The external id is needs to be included in LowLevelCar. The RfbStructure
+   requires this information for sorting, vehicles are to be sorted by
+   (distance, id).
+
+   **Status**: Implemented

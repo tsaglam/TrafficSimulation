@@ -25,7 +25,7 @@ public:
     auto streets     = data.getStreets();
     auto domainModel = data.getDomainModel();
 
-    LowLevelCar trafficLightCar(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+    LowLevelCar trafficLightCar(0, 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
     // Clear streets, start fresh
     streets.clear();
@@ -36,10 +36,10 @@ public:
     }
 
     for (const auto &domainVehicle : domainModel.getVehicles()) {
-      LowLevelCar car(domainVehicle->getId(), domainVehicle->getTargetVelocity(), domainVehicle->getMaxAcceleration(),
-          domainVehicle->getTargetDeceleration(), domainVehicle->getMinDistance(), domainVehicle->getTargetHeadway(),
-          domainVehicle->getPoliteness(), VEHICLE_LENGTH, domainVehicle->getPosition().getLane(),
-          domainVehicle->getPosition().getDistance());
+      LowLevelCar car(domainVehicle->getId(), domainVehicle->getExternalId(), domainVehicle->getTargetVelocity(),
+          domainVehicle->getMaxAcceleration(), domainVehicle->getTargetDeceleration(), domainVehicle->getMinDistance(),
+          domainVehicle->getTargetHeadway(), domainVehicle->getPoliteness(), VEHICLE_LENGTH,
+          domainVehicle->getPosition().getLane(), domainVehicle->getPosition().getDistance());
 
       auto &street = streets.at(domainVehicle->getPosition().getStreet()->getId());
 

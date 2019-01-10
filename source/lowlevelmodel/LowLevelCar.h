@@ -4,6 +4,7 @@
 class LowLevelCar {
 private:
   unsigned int id;
+  unsigned int externalId;
 
   /**
    * Static properties.
@@ -40,16 +41,16 @@ private:
 
 public:
   LowLevelCar() = default;
-  LowLevelCar(unsigned int _id, double _targetVelocity, double _maxAcceleration, double _targetDeceleration,
-      double _minDistance, double _targetHeadway, double _politeness, double _length)
-      : id(_id), targetVelocity(_targetVelocity), maxAcceleration(_maxAcceleration),
+  LowLevelCar(unsigned int _id, unsigned int _externalId, double _targetVelocity, double _maxAcceleration,
+      double _targetDeceleration, double _minDistance, double _targetHeadway, double _politeness, double _length)
+      : id(_id), externalId(_externalId), targetVelocity(_targetVelocity), maxAcceleration(_maxAcceleration),
         targetDeceleration(_targetDeceleration), minDistance(_minDistance), targetHeadway(_targetHeadway),
         politeness(_politeness), length(_length) {}
-  LowLevelCar(unsigned int _id, double _targetVelocity, double _maxAcceleration, double _targetDeceleration,
-      double _minDistance, double _targetHeadway, double _politeness, double _length, unsigned int _lane,
-      double _distance, double _velocity = 0.0)
-      : LowLevelCar(_id, _targetVelocity, _maxAcceleration, _targetDeceleration, _minDistance, _targetHeadway,
-            _politeness, _length) {
+  LowLevelCar(unsigned int _id, unsigned int _externalId, double _targetVelocity, double _maxAcceleration,
+      double _targetDeceleration, double _minDistance, double _targetHeadway, double _politeness, double _length,
+      unsigned int _lane, double _distance, double _velocity = 0.0)
+      : LowLevelCar(_id, _externalId, _targetVelocity, _maxAcceleration, _targetDeceleration, _minDistance,
+            _targetHeadway, _politeness, _length) {
     setPosition(_lane, _distance, _velocity);
   }
 
@@ -64,7 +65,7 @@ public:
    * Interface for RfbStructure and computation routines.
    */
 
-  unsigned int getId() const { return id; }
+  unsigned int getExternalId() const { return externalId; }
   unsigned int getLane() const { return currentLane; }
   double getDistance() const { return currentDistance; }
   double getVelocity() const { return currentVelocity; }
@@ -90,6 +91,7 @@ public:
    * Interface for computation routines.
    */
 
+  unsigned int getId() const { return id; }
   double getTargetVelocity() const { return targetVelocity; }
   double getMaxAcceleration() const { return maxAcceleration; }
   double getTargetDeceleration() const { return targetDeceleration; }

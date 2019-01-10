@@ -6,13 +6,13 @@
  */
 // template <typename T>
 // concept Vehiclable = requires(T a, const T b) {
-//   { b.getId() }
+//   { b.getExternalId() }
 //   ->unsigned int;
 //   { b.getLane() }
 //   ->unsigned int;
 //   { b.getDistance() }
 //   ->unsigned int;
-//   {a.update()};
+//   { a.update() };
 // };
 
 /**
@@ -23,7 +23,7 @@
  *
  * The Vehicle template parameter must be a class implementing the following methods:
  *
- *     unsigned int getId() const;
+ *     unsigned int getExternalId() const;
  *     unsigned int getLane() const;
  *     double getDistance() const;
  *     void update();
@@ -276,7 +276,7 @@ public:
    */
   RfbStructure();
   /**
-   * Proper constructor, initialises a new instance with specified parameters.
+   * Proper constructor, initialises a new instance with the specified parameters.
    */
   RfbStructure(unsigned int lanes, double length);
 };
