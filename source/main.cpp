@@ -4,6 +4,8 @@
 #include "DomainModel.h"
 #include "JSONReader.h"
 #include "JSONWriter.h"
+#include "NaiveStreetDataStructure.h"
+#include "NullRoutine.h"
 #include "Simulator.h"
 
 int main() {
@@ -13,7 +15,7 @@ int main() {
 
   jsonReader.readInto(domainModel);
 
-  Simulator<int> simulator(domainModel);
+  Simulator<NaiveStreetDataStructure, NullRoutine, NullRoutine, NullRoutine> simulator(domainModel);
   simulator.performSteps(jsonReader.getTimeSteps());
 
   JSONWriter jsonWriter(std::cout);
