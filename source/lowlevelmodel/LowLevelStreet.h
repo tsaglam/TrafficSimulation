@@ -1,6 +1,8 @@
 #ifndef LOW_LEVEL_STREET_H
 #define LOW_LEVEL_STREET_H
 
+#include <utility>
+
 #include "LowLevelCar.h"
 #include "TrafficLightSignaler.h"
 
@@ -69,6 +71,31 @@ public:
       const LowLevelCar &_trafficLightCar, double _trafficLightOffset)
       : id(_id), speedLimit(_speedLimit), signaler(rfb, _length, _trafficLightCar, _trafficLightOffset),
         rfb(_lanes, _length) {}
+
+  /* Rule of Five */
+
+  /**
+   * Destructor.
+   */
+  ~LowLevelStreet<RfbStructure>() = default;
+  /**
+   * Copy constructor.
+   */
+  LowLevelStreet<RfbStructure>(const LowLevelStreet<RfbStructure> &other)
+      : id(other.id), speedLimit(other.speedLimit), signaler(other.signaler, rfb), rfb(other.rfb) {}
+  /**
+   * Move constructor.
+   */
+  LowLevelStreet<RfbStructure>(LowLevelStreet<RfbStructure> &&other) noexcept
+      : id(other.id), speedLimit(other.speedLimit), signaler(other.signaler, rfb), rfb(std::move(other.rfb)) {}
+  /**
+   * Copy assignment operator.
+   */
+  LowLevelStreet<RfbStructure> &operator=(const LowLevelStreet<RfbStructure> &other) = delete;
+  /**
+   * Move assignment operator.
+   */
+  LowLevelStreet<RfbStructure> &operator=(LowLevelStreet<RfbStructure> &&other) = delete;
 
   /**
    * Gets the internal street id.

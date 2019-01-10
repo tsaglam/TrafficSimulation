@@ -360,6 +360,12 @@ public:
       unsigned int _lane = 0, double _velocity = 0.0, Signal _signal = GREEN)
       : TrafficLightSignaler(
             _rfb, _rfb.getLength(), _trafficLightCar, _trafficLightOffset, _lane, _velocity, _signal){};
+  /**
+   * Constructor copying values from another signaler but using a different RfbStructure.
+   * Meant to be used in copy constructors of embedding types.
+   */
+  TrafficLightSignaler(const TrafficLightSignaler &other, ConcreteRfbStructure &_rfb)
+      : rfb(_rfb), signal(other.signal), trafficLightCar(other.trafficLightCar) {}
 
   /**
    * Retrieves the value of the signal.
