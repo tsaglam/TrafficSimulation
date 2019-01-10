@@ -264,3 +264,28 @@
    (distance, id).
 
    **Status**: Implemented
+
+ * LowLevelStreet: Fix stale rfb references in TrafficLightSignaler
+
+   When the LowLevelStreet objects are copied as part of vector enlarging the
+   references to the RfbStructure in the embedded TrafficLightSignaler still
+   points to the old memory address. This reference must be updated to point
+   to the new memory address. This can either be solved by wrapping
+   LowLevelStreet in std::unique_ptr within the std::vector to prevent
+   re-allocation or by implementing copy and move constructors on
+   LowLevelStreet.
+
+   The latter seems to be more in-line with C++ and simple enough to
+   implement. The rule of five should be considered.
+
+   **Status**: Implemented
+
+ * GitLab CI: Submodules on benchmark servers
+
+   One of the servers (pc189) used for benchmarking does not seem to support
+   the `git submodule` calls performed by the GitLab CI Runner. Submodules
+   should be disabled on the job running on this system. This does not affect
+   the result, as submodules are only required for including the snowhouse
+   assertion library and it is only includede in tests.
+
+   **Status**: Implemented
