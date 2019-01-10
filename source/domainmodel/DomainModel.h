@@ -27,9 +27,12 @@ public:
   Junction &addJunction(Junction &&junction);
 
   // access methods for the unique elements:
-  Vehicle &getVehicle(id_type id) const;
-  Street &getStreet(id_type id) const;
-  Junction &getJunction(id_type id) const;
+  Vehicle &getVehicle(id_type id);
+  Street &getStreet(id_type id);
+  Junction &getJunction(id_type id);
+  const Vehicle &getVehicle(id_type id) const;
+  const Street &getStreet(id_type id) const;
+  const Junction &getJunction(id_type id) const;
 
   // access methods for the full sets:
   const std::vector<std::unique_ptr<Vehicle>> &getVehicles() const;

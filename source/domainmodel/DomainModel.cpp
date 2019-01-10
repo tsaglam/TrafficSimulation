@@ -41,9 +41,12 @@ Junction &DomainModel::addJunction(Junction &&junction) {
 /*
  * Access methods:
  */
-Vehicle &DomainModel::getVehicle(id_type id) const { return *vehicles.at(id); }
-Street &DomainModel::getStreet(id_type id) const { return *streets.at(id); }
-Junction &DomainModel::getJunction(id_type id) const { return *junctions.at(id); }
+Vehicle &DomainModel::getVehicle(id_type id) { return *vehicles.at(id); }
+Street &DomainModel::getStreet(id_type id) { return *streets.at(id); }
+Junction &DomainModel::getJunction(id_type id) { return *junctions.at(id); }
+const Vehicle &DomainModel::getVehicle(id_type id) const { return *vehicles.at(id); }
+const Street &DomainModel::getStreet(id_type id) const { return *streets.at(id); }
+const Junction &DomainModel::getJunction(id_type id) const { return *junctions.at(id); }
 const std::vector<std::unique_ptr<Vehicle>> &DomainModel::getVehicles() const { return vehicles; }
 const std::vector<std::unique_ptr<Street>> &DomainModel::getStreets() const { return streets; }
 const std::vector<std::unique_ptr<Junction>> &DomainModel::getJunctions() const { return junctions; }
