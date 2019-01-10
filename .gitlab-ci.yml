@@ -25,7 +25,7 @@ benchmark-build:pc189:
     - master
   when: manual
   variables:
-    GIT_SUBMODULE_STRATEGY: normal
+    GIT_SUBMODULE_STRATEGY: none
   script:
     - source ~/pdmkp_env
     - make
@@ -41,8 +41,6 @@ benchmark-build:pc205:
   only:
     - master
   when: manual
-  variables:
-    GIT_SUBMODULE_STRATEGY: normal
   script:
     - source ~/pdmkp_env
     - make
@@ -62,7 +60,7 @@ benchmark-run:pc189:
   dependencies:
     - benchmark-build:pc189
   variables:
-    GIT_SUBMODULE_STRATEGY: normal
+    GIT_SUBMODULE_STRATEGY: none
   script:
     - source ~/pdmkp_env
     - traffic_check $PWD/traffic_sim
@@ -76,8 +74,6 @@ benchmark-run:pc205:
   when: manual
   dependencies:
     - benchmark-build:pc205
-  variables:
-    GIT_SUBMODULE_STRATEGY: normal
   script:
     - source ~/pdmkp_env
     - traffic_check $PWD/traffic_sim
