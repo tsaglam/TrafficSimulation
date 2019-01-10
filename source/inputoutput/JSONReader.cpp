@@ -39,7 +39,7 @@ void JSONReader::readInto(DomainModel &domainModel) {
   json input;
 
   // May throw exception
-  std::cin >> input;
+  in >> input;
 
   timeSteps = input["time_steps"].get<unsigned int>();
 
