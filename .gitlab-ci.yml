@@ -21,8 +21,6 @@ benchmark-build:pc189:
   stage: benchmark-build
   tags:
     - pc189
-  only:
-    - master
   when: manual
   variables:
     GIT_SUBMODULE_STRATEGY: none
@@ -38,8 +36,6 @@ benchmark-build:pc205:
   stage: benchmark-build
   tags:
     - pc205
-  only:
-    - master
   when: manual
   script:
     - source ~/pdmkp_env
@@ -54,8 +50,6 @@ benchmark-run:pc189:
   stage: benchmark-run
   tags:
     - pc189
-  only:
-    - master
   when: manual
   dependencies:
     - benchmark-build:pc189
@@ -69,8 +63,6 @@ benchmark-run:pc205:
   stage: benchmark-run
   tags:
     - pc205
-  only:
-    - master
   when: manual
   dependencies:
     - benchmark-build:pc205
