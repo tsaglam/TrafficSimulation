@@ -31,10 +31,10 @@ Vehicle createTestVehicle() {
  * Creates a test junction with four valid signals:
  */
 Junction createTestJunction() {
-  Junction::Signal signalNorth = Junction::Signal(CardinalDirection::NORTH, 30);
+  Junction::Signal signalNorth = Junction::Signal(CardinalDirection::NORTH, 10);
   Junction::Signal signalEast  = Junction::Signal(CardinalDirection::EAST, 20);
-  Junction::Signal signalSouth = Junction::Signal(CardinalDirection::SOUTH, 10);
-  Junction::Signal signalWest  = Junction::Signal(CardinalDirection::WEST, 0);
+  Junction::Signal signalSouth = Junction::Signal(CardinalDirection::SOUTH, 30);
+  Junction::Signal signalWest  = Junction::Signal(CardinalDirection::WEST, 40);
   const std::vector<Junction::Signal> signals{signalNorth, signalEast, signalSouth, signalWest};
   return Junction(0, 0, 10, 15, signals);
 }
