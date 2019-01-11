@@ -1,5 +1,5 @@
 #include "Junction.h"
-#include <iostream>
+#include "JunctionException.h"
 
 /*
  * Class Signal:
@@ -33,23 +33,26 @@ Junction::Junction(id_type _id, int _externalId, int _x, int _y, std::vector<Sig
   initJunction();
 }
 
-void Junction::initJunction() { // TODO test me!
-  signalIndex = 0;
-  if (signals.empty()) {
+void Junction::initJunction() {
+  if (signals.empty()) { // pre-simulation state, is allowed but cannot be simulated.
+    signalIndex  = -1;
     currentTimer = -1;
   } else {
+    signalIndex  = 0;
     currentTimer = getCurrentSignal().getDuration();
   }
 }
 
-bool Junction::nextStep() { // TODO test me!
+bool Junction::nextStep() {
   if (currentTimer == 0) {
     signalIndex  = (signalIndex + 1) % signals.size(); // next signal
     currentTimer = getCurrentSignal().getDuration();   // reset timer
     return true;                                       // indicate signal change
-  } else {
+  } else if (currentTimer > 0) {
     currentTimer--;
     return false;
+  } else {
+    throw JunctionException(*this, "Cannot simulate step on junction without traffic lights!");
   }
 }
 
@@ -69,7 +72,7 @@ int Junction::getExternalId() const { return externalId; }
 int Junction::getX() const { return x; }
 int Junction::getY() const { return y; }
 Junction::Signal Junction::getCurrentSignal() const {
-  if (signalIndex == -1) { throw std::out_of_range("Junction has no signals!"); }
+  if (signalIndex == -1) { throw JunctionException(*this, "Junction has no signals!"); }
   return signals.at(signalIndex);
 }
 std::vector<Junction::Signal> Junction::getSignals() const { return signals; }

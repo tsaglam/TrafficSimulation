@@ -62,7 +62,7 @@ private:
       {ConnectedStreet(false, nullptr, NORTH), ConnectedStreet(false, nullptr, EAST),
           ConnectedStreet(false, nullptr, SOUTH), ConnectedStreet(false, nullptr, WEST)}};
 
-  unsigned int currentTimer;
+  int currentTimer;
   int signalIndex;
 
   void initJunction();
@@ -96,7 +96,7 @@ public:
   int getExternalId() const;
   int getX() const;
   int getY() const;
-  Signal getCurrentSignal() const;
+  Signal getCurrentSignal() const; // is also the signal that is green 
   std::vector<Signal> getSignals() const;
   const ConnectedStreet &getIncomingStreet(CardinalDirection direction) const;
   const ConnectedStreet &getOutgoingStreet(CardinalDirection direction) const;
