@@ -65,3 +65,16 @@ void junctionWithoutTrafficLightsTest() {
   AssertThrows(JunctionException, weirdJunction.nextStep());
   AssertThrows(JunctionException, weirdJunction.getCurrentSignal());
 }
+
+/**
+ * Tests the valid case where a junction has not signals, and certain operations cannot be performed.
+ */
+void previousSignalTest() {
+  Junction testJunction  = createTestJunction();
+  Junction::Signal first = testJunction.getCurrentSignal();
+  while (!testJunction.nextStep()) {}
+  Junction::Signal second   = testJunction.getCurrentSignal();
+  Junction::Signal previous = testJunction.getPreviousSignal();
+  AssertThat(first.getDirection(), Is().EqualTo(previous.getDirection()));     // North is previous of east
+  AssertThat(first.getDirection(), Is().Not().EqualTo(second.getDirection())); // North is not east
+}
