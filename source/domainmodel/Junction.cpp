@@ -75,6 +75,11 @@ Junction::Signal Junction::getCurrentSignal() const {
   if (signalIndex == -1) { throw JunctionException(*this, "Junction has no signals!"); }
   return signals.at(signalIndex);
 }
+Junction::Signal Junction::getPreviousSignal() const {
+  if (signalIndex == -1) { throw JunctionException(*this, "Junction has no signals!"); }
+  int indexOfPrevious = (signalIndex + signals.size() - 1) % signals.size();
+  return signals.at(indexOfPrevious);
+}
 std::vector<Junction::Signal> Junction::getSignals() const { return signals; }
 const Junction::ConnectedStreet &Junction::getIncomingStreet(CardinalDirection direction) const {
   return incomingStreets[direction];

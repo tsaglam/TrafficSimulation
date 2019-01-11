@@ -96,7 +96,8 @@ public:
   int getExternalId() const;
   int getX() const;
   int getY() const;
-  Signal getCurrentSignal() const; // is also the signal that is green 
+  Signal getCurrentSignal() const;  // is also the signal that is green
+  Signal getPreviousSignal() const; // is also the last signal that has been green before the current
   std::vector<Signal> getSignals() const;
   const ConnectedStreet &getIncomingStreet(CardinalDirection direction) const;
   const ConnectedStreet &getOutgoingStreet(CardinalDirection direction) const;
