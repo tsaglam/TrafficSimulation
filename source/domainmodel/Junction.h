@@ -20,13 +20,13 @@ public:
   class Signal {
   private:
     CardinalDirection direction;
-    unsigned int time;
+    unsigned int signalDuration;
 
   public:
     Signal() = default;
-    Signal(CardinalDirection direction, unsigned int time);
+    Signal(CardinalDirection direction, unsigned int signalDuration);
     CardinalDirection getDirection() const;
-    unsigned int getTime() const;
+    unsigned int getDuration() const;
   };
 
 private:
@@ -61,10 +61,11 @@ private:
   std::array<ConnectedStreet, 4> outgoingStreets = {
       {ConnectedStreet(false, nullptr, NORTH), ConnectedStreet(false, nullptr, EAST),
           ConnectedStreet(false, nullptr, SOUTH), ConnectedStreet(false, nullptr, WEST)}};
-  /**
-   * @TODO: Track current signaling state here?
-   */
-  // unsigned int timer;
+
+  int currentTimer;
+  int signalIndex;
+
+  void initJunction();
 
 public:
   Junction(id_type id, int externalId, int x, int y, const std::vector<Signal> &signals);
@@ -84,11 +85,19 @@ public:
    */
   void addOutgoingStreet(Street &street, CardinalDirection direction);
 
+  /**
+   * @brief      simlates a step. Decreases the traffic light timer. Toggles traffic lights.
+   * @return     true if a traffic light was switched, false if only the timer was decreased.
+   */
+  bool nextStep();
+
   // access methods:
   id_type getId() const;
   int getExternalId() const;
   int getX() const;
   int getY() const;
+  Signal getCurrentSignal() const;  // is also the signal that is green
+  Signal getPreviousSignal() const; // is also the last signal that has been green before the current
   std::vector<Signal> getSignals() const;
   const ConnectedStreet &getIncomingStreet(CardinalDirection direction) const;
   const ConnectedStreet &getOutgoingStreet(CardinalDirection direction) const;

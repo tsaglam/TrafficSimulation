@@ -4,7 +4,6 @@
 #include <../../snowhouse/snowhouse.h>
 #include <iostream>
 #include <regex>
-#include <stdio.h>
 
 using namespace snowhouse;
 
@@ -41,6 +40,9 @@ int main() {
   RUN(setPositionTest);
   // Junction:
   RUN(junctionCreationTest);
+  RUN(trafficLightTest);
+  RUN(junctionWithoutTrafficLightsTest);
+  RUN(previousSignalTest);
   // DomainModel:
   RUN(modelCreationTest);
   RUN(modelCreationTest2);
