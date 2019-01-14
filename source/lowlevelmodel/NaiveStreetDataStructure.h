@@ -3,6 +3,8 @@
 
 #include <vector>
 
+#include "utils.h"
+
 template <class Car>
 class NaiveStreetDataStructure {
 private:
@@ -31,17 +33,6 @@ private:
    * Not necessarily sorted.
    */
   std::vector<Car> departedCars;
-
-  /**
-   * @brief      Compare two cars by their distance from the start of this street.
-   * TODO: compare by id if distance is equal
-   *
-   * @param[in]  a     The first car to compare.
-   * @param[in]  b     The second car to compare.
-   *
-   * @return     True, if Car a is closer to street start than Car b.
-   */
-  static inline bool carComperator(const Car a, const Car b) { return a.getDistance() < b.getDistance(); }
 
 public:
   // ------- Constructor -------
@@ -200,7 +191,7 @@ public:
   void incorporateInsertedCars() {
     for (auto newCar : newCars) { newCar.update(); }                         // update all new cars
     carsOnStreet.insert(carsOnStreet.end(), newCars.begin(), newCars.end()); // append all new cars to carsOnStreet
-    sort(carsOnStreet.begin(), carsOnStreet.end(), carComperator);           // restore car order (sorted by distance)
+    sort(carsOnStreet.begin(), carsOnStreet.end(), compareLess<Car>);        // restore car order (sorted by distance)
   }
 
   /**
@@ -211,7 +202,7 @@ public:
    */
   void updateCarsAndRestoreConsistency() {
     for (iterator carIt = carsOnStreet.begin(); carIt != carsOnStreet.end();) {
-      carIt->update();                   // update all cars
+      carIt->update();                     // update all cars
       if (carIt->getDistance() > length) { // if the car left the street move it into departedCars
         departedCars.push_back(*carIt);
         carIt = carsOnStreet.erase(carIt); // erases current car and increments carIt to the next car
@@ -219,7 +210,7 @@ public:
         ++carIt; // otherwise increment iterator manually
       }
     }
-    sort(carsOnStreet.begin(), carsOnStreet.end(), carComperator); // restore car order (sorted by distance)
+    sort(carsOnStreet.begin(), carsOnStreet.end(), compareLess<Car>); // restore car order (sorted by distance)
   }
 
   /**
