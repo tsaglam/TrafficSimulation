@@ -210,8 +210,15 @@ public:
    * is sorted. Cars that reached the end of this street are removed from carsOnStreet and moved to departedCars.
    */
   void updateCarsAndRestoreConsistency() {
-    // TODO remove departed cars
-    for (auto car : carsOnStreet) { car.update(); }                // update all cars
+    for (iterator carIt = carsOnStreet.begin(); carIt != carsOnStreet.end();) {
+      carIt->update();                   // update all cars
+      if (carIt->getDistance() > length) { // if the car left the street move it into departedCars
+        departedCars.push_back(*carIt);
+        carIt = carsOnStreet.erase(carIt); // erases current car and increments carIt to the next car
+      } else {
+        ++carIt; // otherwise increment iterator manually
+      }
+    }
     sort(carsOnStreet.begin(), carsOnStreet.end(), carComperator); // restore car order (sorted by distance)
   }
 
