@@ -21,16 +21,16 @@ public:
    * @brief      Simulates a single step for all junctions of the domain model.
    */
   void perform() {
-    DomainModel model = data.getDomainModel();
+    DomainModel &model = data.getDomainModel();
     for (auto const &junction : model.getJunctions()) {
       bool lightChanged = junction->nextStep();
       if (lightChanged) {
         // Turn previous red:
         Junction::Signal previous = junction->getPreviousSignal();
-        toggleStreetForSignal(previous);
+        toggleStreetForSignal(previous, *junction);
         // Turn current green:
         Junction::Signal current = junction->getCurrentSignal();
-        toggleStreetForSignal(current);
+        toggleStreetForSignal(current, *junction);
       }
     }
   }
@@ -41,13 +41,13 @@ private:
    * @param      signal  Is the specific signal.
    * @param      junction  Is the junction of the signal.
    */
-  void toggleStreetForSignal(Junction::Signal &signal, Junction &junction) {
+  void toggleStreetForSignal(Junction::Signal signal, const Junction &junction) {
     Street *domainModelStreet = junction.getIncomingStreet(signal.getDirection()).getStreet();
-    LowLevelStreet street     = data.getStreet(domainModelStreet->getId());
+    LowLevelStreet<RfbStructure> &street     = data.getStreet(domainModelStreet->getId());
     street.switchSignal();
   }
 
-  SimulationData<RfbStructure> data;
+  SimulationData<RfbStructure> &data;
 };
 
 #endif
