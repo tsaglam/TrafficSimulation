@@ -75,181 +75,208 @@ public:
         buckets(std::ceil(length / sectionLength)) {}
 
   // ------- Iterator & Iterable type defs -------
-  using BucketIterator      = typename Bucket::iterator;
-  using ConstBucketIterator = typename Bucket::const_iterator;
+  using bucket_iterator         = typename Bucket::iterator;
+  using bucket_const_iterator   = typename Bucket::const_iterator;
+  using BeyondsCarIterable      = bucket_iterator;
+  using ConstBeyondsCarIterable = bucket_const_iterator;
 
-  friend class CarIterator;
-  friend class ConstCarIterator;
-  friend class ReverseCarIterator;
-
-  // TODO: ensure that initial currentBucketIt != end()
-  // TODO: reduce code duplication with
-  // https://stackoverflow.com/questions/2150192/how-to-avoid-code-duplication-implementing-const-and-non-const-iterators
-
-  class ReverseCarIterator {
-    BucketIterator currentBucketIt;
-    typename std::vector<Bucket>::reverse_iterator bucketsIt;
-    const typename std::vector<Bucket>::reverse_iterator bucketsEnd;
-
-    bool alreadyIncremented = false;
-
+  template <bool Const = false>
+  class car_iterator {
   public:
-    ReverseCarIterator() = default;
-    ReverseCarIterator(BucketList &list, const unsigned int initialBucket)
-        : currentBucketIt((list.buckets.rbegin() + (list.buckets.size() - initialBucket))->begin()),
-          bucketsIt(list.buckets.rbegin() + (list.buckets.size() - initialBucket)), bucketsEnd(list.buckets.rend()) {}
-    ReverseCarIterator(BucketList &list, const unsigned int initialBucket, BucketIterator currentBucketIt)
-        : currentBucketIt(currentBucketIt), bucketsIt(list.buckets.begin() + initialBucket),
-          bucketsEnd(list.buckets.end()) {}
-    ReverseCarIterator(BucketList &list)
-        : currentBucketIt(list.buckets.rbegin()->begin()), bucketsIt(list.buckets.rbegin()),
-          bucketsEnd(list.buckets.rend()) {}
-    ReverseCarIterator(BucketList &list, bool) // end iterator
-        : currentBucketIt(list.buckets.rend()->end()), bucketsIt(list.buckets.rend()), bucketsEnd(list.buckets.rend()) {
+    using iterator_category = std::random_access_iterator_tag;
+    using value_type        = Car;
+    using difference_type   = std::ptrdiff_t;
+    using reference         = typename std::conditional_t<Const, Car const &, Car &>;
+    using pointer           = typename std::conditional_t<Const, Car const *, Car *>;
+    using _bucket_iterator  = typename std::conditional_t<Const, bucket_const_iterator, bucket_iterator>;
+    using buckets_iterator  = typename std::conditional_t<Const, typename std::vector<Bucket>::const_iterator,
+        typename std::vector<Bucket>::iterator>;
+
+  private:
+    const buckets_iterator beginBucket, endBucket;
+    buckets_iterator currentBucket;
+    _bucket_iterator currentPositionInBucket;
+
+    buckets_iterator findNextNonEmptyBucket(const bool includingCurrent = false) const {
+      if ((includingCurrent && !currentBucket->empty()) || currentBucket == endBucket) { return currentBucket; }
+      buckets_iterator nextBucket = currentBucket + 1;
+      while (nextBucket != endBucket && nextBucket->empty()) { ++nextBucket; }
+      return nextBucket;
     }
 
-    inline Car operator->() const { return currentBucketIt.operator->(); }
-    inline ReverseCarIterator &operator++() {
-      if (!alreadyIncremented) { ++currentBucketIt; } // get next car in current bucket
-      // if this was the last car, find the next non empty bucket
-      while (bucketsIt != bucketsEnd && currentBucketIt == bucketsIt->end()) {
-        ++bucketsIt;                          // move to next bucket
-        currentBucketIt = bucketsIt->begin(); // retrieve first element in new bucket
+    buckets_iterator findPreviousNonEmptyBucket(const bool includingCurrent = false) const {
+      if (includingCurrent && !currentBucket->empty()) { return currentBucket; }
+      buckets_iterator previousBucket = currentBucket - 1;
+      while (previousBucket->empty()) {
+        if (previousBucket == beginBucket) { return endBucket; }
+        --previousBucket;
       }
-
-      return *this;
+      return previousBucket;
     }
 
-    inline ReverseCarIterator operator++(int) {
-      ReverseCarIterator tmp(*this);
-      ++*this;
-      return tmp;
-    }
+    friend class BucketList<Car>;
 
-    inline bool operator==(const ReverseCarIterator &it) const {
-      return currentBucketIt == it.currentBucketIt && bucketsIt == it.bucketsIt;
-    };
-    inline bool operator!=(const ReverseCarIterator &it) const { return !((*this) == it); };
+    unsigned getCurrentBucket() const { return currentBucket - beginBucket; }
 
-    inline unsigned int getCurrentBucket() const { return bucketsIt - bucketsEnd; }
-
-    inline Car remove() {
-      Car removed        = currentBucketIt.operator->();      // create copy of the current car TODO correct?
-      currentBucketIt    = bucketsIt->erase(currentBucketIt); // remove car and move currentBucketIt to next element
-      alreadyIncremented = true;                              // remember that erase already incremented the iterator
+    Car remove() {
+      if (state == END) { return Car(); }     // TODO: calling remove on an end iterator is invalid
+      Car removed = *currentPositionInBucket; // create copy of the current car TODO correct?
+      // remove car and move currentPositionInBucket to next element
+      currentPositionInBucket = currentBucket->erase(currentPositionInBucket);
+      if (currentPositionInBucket == currentBucket.end()) {
+        currentBucket = findNextNonEmptyBucket(); // find next bucket
+        if (currentBucket == endBucket) {
+          state = END;
+        } else {
+          currentPositionInBucket = currentBucket->begin();
+        } // retrieve first element in new bucket
+      }
       return removed;
     }
-  };
 
-  class CarIterator {
-    BucketIterator currentBucketIt;
-    typename std::vector<Bucket>::iterator bucketsIt;
-    const typename std::vector<Bucket>::iterator bucketsEnd;
+    enum { STANDARD, END } state;
+
+    // STANDARD: currentPositionInBucket is a valid element (not end()) in the currentBucket (!= endBucket)
+    // END: currentBucket == endBucket, currentPositionInBucket undefined
 
   public:
-    CarIterator() = default;
-    CarIterator(BucketList &list, const unsigned int initialBucket)
-        : currentBucketIt((list.buckets.begin() + initialBucket)->begin()),
-          bucketsIt(list.buckets.begin() + initialBucket), bucketsEnd(list.buckets.end()) {}
-    CarIterator(BucketList &list, const unsigned int initialBucket, BucketIterator currentBucketIt)
-        : currentBucketIt(currentBucketIt), bucketsIt(list.buckets.begin() + initialBucket),
-          bucketsEnd(list.buckets.end()) {}
-    CarIterator(BucketList &list)
-        : currentBucketIt(list.buckets.begin()->begin()), bucketsIt(list.buckets.begin()),
-          bucketsEnd(list.buckets.end()) {}
-    CarIterator(BucketList &list, bool) // end iterator
-        : currentBucketIt(list.buckets.end()->end()), bucketsIt(list.buckets.end()), bucketsEnd(list.buckets.end()) {}
-
-    inline Car operator->() const { return currentBucketIt.operator->(); }
-    inline CarIterator &operator++() {
-      ++currentBucketIt; // get next car in current bucket
-      // if this was the last car, find the next non empty bucket
-      while (bucketsIt != bucketsEnd && currentBucketIt == bucketsIt->end()) {
-        ++bucketsIt;                          // move to next bucket
-        currentBucketIt = bucketsIt->begin(); // retrieve first element in new bucket
+    car_iterator() = default;
+    car_iterator(const buckets_iterator beginBucket, const buckets_iterator endBucket)
+        : beginBucket(beginBucket), endBucket(endBucket), currentBucket(beginBucket),
+          currentPositionInBucket(currentBucket->begin()), state(STANDARD) {
+      currentBucket           = findNextNonEmptyBucket(true);
+      currentPositionInBucket = currentBucket->begin();
+    }
+    car_iterator(const buckets_iterator beginBucket, const buckets_iterator endBucket, buckets_iterator initialBucket,
+        bucket_iterator currentPositionInBucket)
+        : beginBucket(beginBucket), endBucket(endBucket), currentBucket(initialBucket),
+          currentPositionInBucket(currentPositionInBucket), state(STANDARD) {
+      buckets_iterator it = findNextNonEmptyBucket(true);
+      if (it != currentBucket) {
+        currentBucket           = it;
+        currentPositionInBucket = currentBucket->begin();
       }
+    }
+    // create end iterator
+    car_iterator(const buckets_iterator beginBucket, const buckets_iterator endBucket, int)
+        : beginBucket(beginBucket), endBucket(endBucket), currentBucket(endBucket),
+          currentPositionInBucket((endBucket - 1)->end()), state(END) {}
 
+    reference operator*() const { return currentPositionInBucket.operator*(); }
+    pointer operator->() const { return currentPositionInBucket.operator->(); }
+
+    car_iterator &operator++() {
+      if (state == END) { return *this; }
+      ++currentPositionInBucket; // get next car in current bucket
+      // if this was the last car, find the next non empty bucket
+      if (currentPositionInBucket == currentBucket->end()) {
+        currentBucket = findNextNonEmptyBucket(); // find next bucket
+        if (currentBucket == endBucket) {
+          state = END;
+        } else {
+          currentPositionInBucket = currentBucket->begin();
+        } // retrieve first element in new bucket
+      }
       return *this;
     }
-
-    inline CarIterator operator++(int) {
-      CarIterator tmp(*this);
+    car_iterator operator++(int) {
+      car_iterator tmp(*this);
       ++*this;
       return tmp;
     }
 
-    inline bool operator==(const CarIterator &it) const {
-      return currentBucketIt == it.currentBucketIt && bucketsIt == it.bucketsIt;
-    };
-    inline bool operator!=(const CarIterator &it) const { return !((*this) == it); };
-
-    inline unsigned int getCurrentBucket() const { return bucketsIt - bucketsEnd; }
-  };
-
-  class ConstCarIterator {
-    ConstBucketIterator currentBucketIt;
-    typename std::vector<Bucket>::const_iterator bucketsIt;
-    const typename std::vector<Bucket>::const_iterator bucketsEnd;
-
-  public:
-    ConstCarIterator() = default;
-    ConstCarIterator(const BucketList &list, const unsigned int initialBucket)
-        : currentBucketIt((list.buckets.begin() + initialBucket)->begin()),
-          bucketsIt(list.buckets.begin() + initialBucket), bucketsEnd(list.buckets.end()) {}
-    ConstCarIterator(BucketList &list, const unsigned int initialBucket, ConstBucketIterator currentBucketIt)
-        : currentBucketIt(currentBucketIt), bucketsIt(list.buckets.begin() + initialBucket),
-          bucketsEnd(list.buckets.end()) {}
-    ConstCarIterator(const CarIterator &it)
-        : currentBucketIt(it.currentBucketIt), bucketsIt(it.bucketsIt), bucketsEnd(it.bucketsEnd) {}
-    ConstCarIterator(const BucketList &list)
-        : currentBucketIt(list.buckets.begin()->begin()), bucketsIt(list.buckets.begin()),
-          bucketsEnd(list.buckets.end()) {}
-    ConstCarIterator(const BucketList &list, bool) // end iterator
-        : currentBucketIt(list.buckets.end()->end()), bucketsIt(list.buckets.end()), bucketsEnd(list.buckets.end()) {}
-
-    inline const Car operator->() const { return currentBucketIt.operator->(); }
-    inline ConstCarIterator &operator++() {
-      ++currentBucketIt; // get next car in current bucket
-      // if this was the last car, find the next non empty bucket
-      while (bucketsIt != bucketsEnd && currentBucketIt == bucketsIt->end()) {
-        ++bucketsIt;                          // move to next bucket
-        currentBucketIt = bucketsIt->begin(); // retrieve first element in new bucket
+    car_iterator &operator--() {
+      // if this was the first car in the current bucket or this is the end iterator
+      if (state == END || currentPositionInBucket == currentBucket->begin()) {
+        buckets_iterator prevBucket = findPreviousNonEmptyBucket(); // find prev bucket
+        if (prevBucket == endBucket) { return *this; }              // return if this is the begin iterator
+        currentBucket           = prevBucket;
+        currentPositionInBucket = currentBucket->end();
       }
-
+      currentPositionInBucket--; // get previous car in current bucket
       return *this;
     }
-
-    inline ConstCarIterator operator++(int) {
-      ConstCarIterator tmp(*this);
-      ++*this;
+    car_iterator operator--(int) {
+      car_iterator tmp(*this);
+      --*this;
       return tmp;
     }
 
-    inline bool operator==(const ConstCarIterator &it) const {
-      return currentBucketIt == it.currentBucketIt && bucketsIt == it.bucketsIt;
-    };
-    inline bool operator!=(const ConstCarIterator &it) const { return !((*this) == it); };
+    car_iterator operator+(const difference_type &n) const {
+      car_iterator copy = this;
+      copy += n;
+      return copy;
+    }
+    car_iterator &operator+=(const difference_type &n) {
+      // determine correct bucket
+      buckets_iterator bucket                  = currentBucket;
+      const unsigned remainingElementsInBucket = currentBucket->end() - currentPositionInBucket; // including current
+      difference_type remainingDifference      = n - remainingElementsInBucket;                  // TODO check this
+      while (remainingDifference > 0) {
+        ++currentBucket;
+        if (currentBucket == endBucket) { return car_iterator(beginBucket, endBucket, 0); } // end iterator
+        remainingDifference -= currentBucket->size();
+      }
 
-    inline unsigned int getCurrentBucket() const { return bucketsIt - bucketsEnd; }
+      // determine position in currentBucket
+      currentPositionInBucket = currentBucket->begin() + (remainingDifference + currentBucket->size());
+      return *this;
+    }
+
+    car_iterator operator-(const difference_type &n) const {
+      car_iterator copy = this;
+      copy -= n;
+      return copy;
+    }
+    car_iterator &operator-=(const difference_type &n) {
+      // determine correct bucket
+      const unsigned remainingElementsInBucket = currentBucket->begin() - currentPositionInBucket; // excluding current
+      difference_type remainingDifference      = n - remainingElementsInBucket;                    // TODO check this
+      while (remainingDifference < 0 && currentBucket != beginBucket) {
+        --currentBucket;
+        remainingDifference -= currentBucket->size();
+      }
+
+      // determine position in currentBucket
+      currentPositionInBucket = currentBucket->begin();
+      if (remainingDifference >= 0) { currentPositionInBucket += remainingDifference; }
+      return *this;
+    }
+
+    reference operator[](const difference_type &n) const { return *(this + n); }
+
+    bool operator==(const car_iterator<Const> &other) const {
+      return currentBucket == other.currentBucket && currentPositionInBucket == other.currentPositionInBucket;
+    }
+    bool operator!=(const car_iterator &other) const { return !((*this) == other); }
+    bool operator<(const car_iterator &other) {
+      return currentBucket < other.currentBucket ||
+             (currentBucket == other.currentBucket && currentPositionInBucket < other.currentPositionInBucket);
+    }
+    bool operator>(const car_iterator &other) {
+      return currentBucket > other.currentBucket ||
+             (currentBucket == other.currentBucket && currentPositionInBucket > other.currentPositionInBucket);
+    }
+    bool operator<=(const car_iterator &other) { return (*this) < other || (*this) == other; }
+    bool operator>=(const car_iterator &other) { return (*this) > other || (*this) == other; }
   };
 
-  template <class IteratorType>
+  template <bool Const = false>
   class _AllCarIterable {
-    const IteratorType _begin;
-    const IteratorType _end;
+    const car_iterator<Const> _begin;
+    const car_iterator<Const> _end;
 
   public:
-    _AllCarIterable(BucketList &list) : _begin(list), _end(list, true) {}
-
-    inline IteratorType begin() const { return _begin; }
-    inline IteratorType end() const { return _end; }
+    _AllCarIterable(BucketList &list)
+        : _begin(list.buckets.begin(), list.buckets.end()), _end(list.buckets.begin(), list.buckets.end(), 0) {}
+    inline car_iterator<Const> begin() const { return _begin; }
+    inline car_iterator<Const> end() const { return _end; }
   };
 
-  using AllCarIterable          = _AllCarIterable<CarIterator>;
-  using ConstAllCarIterable     = _AllCarIterable<ConstCarIterator>;
-  using ReverseAllCarIterable   = _AllCarIterable<ReverseCarIterator>;
-  using BeyondsCarIterable      = BucketIterator;
-  using ConstBeyondsCarIterable = ConstBucketIterator;
+  using AllCarIterable      = _AllCarIterable<>;
+  using ConstAllCarIterable = _AllCarIterable<true>;
+  using iterator            = car_iterator<>;
+  using const_iterator      = car_iterator<>;
 
   // ------- Getter -------
   /**
@@ -293,18 +320,18 @@ private:
    *
    * @return     Iterator to the minimum car in the bucket with distance > lowerLimit, end() if no such car exists.
    */
-  inline BucketIterator findMinCarInBucket(const unsigned int bucketIndex, const double lowerLimit = -1) {
-    BucketIterator minIt = buckets[bucketIndex].end();
-    for (BucketIterator it = buckets[bucketIndex].begin(); it != buckets[bucketIndex].end(); ++it) {
+  inline bucket_iterator findMinCarInBucket(const unsigned int bucketIndex, const double lowerLimit = -1) {
+    bucket_iterator minIt = buckets[bucketIndex].end();
+    for (bucket_iterator it = buckets[bucketIndex].begin(); it != buckets[bucketIndex].end(); ++it) {
       if (it->getDistance() > lowerLimit && (minIt == buckets[bucketIndex].end() || it->lessThan(minIt.operator->()))) {
         minIt = it;
       }
     }
     return minIt;
   }
-  inline ConstBucketIterator findMinCarInBucket(const unsigned int bucketIndex, const double lowerLimit = -1) const {
-    ConstBucketIterator minIt = buckets[bucketIndex].end();
-    for (ConstBucketIterator it = buckets[bucketIndex].begin(); it != buckets[bucketIndex].end(); ++it) {
+  inline bucket_const_iterator findMinCarInBucket(const unsigned int bucketIndex, const double lowerLimit = -1) const {
+    bucket_const_iterator minIt = buckets[bucketIndex].end();
+    for (bucket_const_iterator it = buckets[bucketIndex].begin(); it != buckets[bucketIndex].end(); ++it) {
       if (it->getDistance() > lowerLimit && (minIt == buckets[bucketIndex].end() || it->lessThan(minIt.operator->()))) {
         minIt = it;
       }
@@ -320,10 +347,10 @@ private:
    *
    * @return     Iterator to the maximum car in the bucket with distance < upperLimit, end() if no such car exists.
    */
-  inline BucketIterator findMaxCarInBucket(
+  inline bucket_iterator findMaxCarInBucket(
       const unsigned int bucketIndex, const double upperLimit = std::numeric_limits<double>::max()) {
-    BucketIterator maxIt = buckets[bucketIndex].end();
-    for (BucketIterator it = buckets[bucketIndex].begin(); it != buckets[bucketIndex].end(); ++it) {
+    bucket_iterator maxIt = buckets[bucketIndex].end();
+    for (bucket_iterator it = buckets[bucketIndex].begin(); it != buckets[bucketIndex].end(); ++it) {
       if (it->getDistance() < upperLimit &&
           (maxIt == buckets[bucketIndex].end() || it->greaterThan(maxIt.operator->()))) {
         maxIt = it;
@@ -331,10 +358,10 @@ private:
     }
     return maxIt;
   }
-  inline ConstBucketIterator findMaxCarInBucket(
+  inline bucket_const_iterator findMaxCarInBucket(
       const unsigned int bucketIndex, const double upperLimit = std::numeric_limits<double>::max()) const {
-    ConstBucketIterator maxIt = buckets[bucketIndex].end();
-    for (ConstBucketIterator it = buckets[bucketIndex].begin(); it != buckets[bucketIndex].end(); ++it) {
+    bucket_const_iterator maxIt = buckets[bucketIndex].end();
+    for (bucket_const_iterator it = buckets[bucketIndex].begin(); it != buckets[bucketIndex].end(); ++it) {
       if (it->getDistance() < upperLimit &&
           (maxIt == buckets[bucketIndex].end() || it->greaterThan(maxIt.operator->()))) {
         maxIt = it;
@@ -353,39 +380,39 @@ public:
    *
    * @return     The car in front represented by an iterator.
    */
-  CarIterator getNextCarInFront(const CarIterator currentCarIt, const int laneOffset = 0) {
+  iterator getNextCarInFront(const iterator currentCarIt, const int laneOffset = 0) {
     unsigned int currentBucketIndex =
         findBucketIndex(currentCarIt->getLane() + laneOffset, currentCarIt->getDistance());
 
     double ownDistance = currentCarIt->getDistance();
     // search for next car in own bucket
-    BucketIterator nextCar = findMinCarInBucket(currentBucketIndex, ownDistance);
+    bucket_iterator nextCar = findMinCarInBucket(currentBucketIndex, ownDistance);
 
     // search for next car in next buckets until such a car is found
     while (nextCar == buckets[currentBucketIndex].end()) {
       currentBucketIndex += laneCount; // get next bucket in the current lane
       // if end of street is reached return end iterator to represent no next car
-      if (currentBucketIndex >= buckets.size()) { return CarIterator(*this, true); }
+      if (currentBucketIndex >= buckets.size()) { return iterator(*this, true); }
       nextCar = findMinCarInBucket(currentBucketIndex);
     }
-    return CarIterator(*this, currentCarIt.getCurrentBucket(), nextCar);
+    return iterator(*this, currentCarIt.getCurrentBucket(), nextCar);
   }
-  ConstCarIterator getNextCarInFront(const ConstCarIterator currentCarIt, const int laneOffset = 0) const {
+  const_iterator getNextCarInFront(const const_iterator currentCarIt, const int laneOffset = 0) const {
     unsigned int currentBucketIndex =
         findBucketIndex(currentCarIt->getLane() + laneOffset, currentCarIt->getDistance());
 
     double ownDistance = currentCarIt->getDistance();
     // search for next car in own bucket
-    ConstBucketIterator nextCar = findMinCarInBucket(currentBucketIndex, ownDistance);
+    bucket_const_iterator nextCar = findMinCarInBucket(currentBucketIndex, ownDistance);
 
     // search for next car in next buckets until such a car is found
     while (nextCar == buckets[currentBucketIndex].end()) {
       currentBucketIndex += laneCount; // get next bucket in the current lane
       // if end of street is reached return end iterator to represent no next car
-      if (currentBucketIndex >= buckets.size()) { return ConstCarIterator(*this, true); }
+      if (currentBucketIndex >= buckets.size()) { return const_iterator(*this, true); }
       nextCar = findMinCarInBucket(currentBucketIndex);
     }
-    return ConstCarIterator(*this, currentCarIt.getCurrentBucket(), nextCar);
+    return const_iterator(*this, currentCarIt.getCurrentBucket(), nextCar);
   }
 
   /**
@@ -397,39 +424,39 @@ public:
    *
    * @return     The car behind the current car represented by an iterator.
    */
-  CarIterator getNextCarBehind(const CarIterator currentCarIt, const int laneOffset = 0) {
+  iterator getNextCarBehind(const iterator currentCarIt, const int laneOffset = 0) {
     unsigned int currentBucketIndex =
         findBucketIndex(currentCarIt->getLane() + laneOffset, currentCarIt->getDistance());
 
     double ownDistance = currentCarIt->getDistance();
     // search for next car in own bucket
-    BucketIterator nextCar = findMaxCarInBucket(currentBucketIndex, ownDistance);
+    bucket_iterator nextCar = findMaxCarInBucket(currentBucketIndex, ownDistance);
 
     // search for next car in previous buckets until such a car is found
     while (nextCar == buckets[currentBucketIndex].end()) {
       currentBucketIndex -= laneCount; // get previous bucket in the current lane
       // if end of street is reached return end iterator to represent no next car
-      if (currentBucketIndex < 0) { return CarIterator(*this, true); }
+      if (currentBucketIndex < 0) { return iterator(*this, true); }
       nextCar = findMaxCarInBucket(currentBucketIndex);
     }
-    return CarIterator(*this, currentCarIt.getCurrentBucket(), nextCar);
+    return iterator(*this, currentCarIt.getCurrentBucket(), nextCar);
   }
-  ConstCarIterator getNextCarBehind(const ConstCarIterator currentCarIt, const int laneOffset = 0) const {
+  const_iterator getNextCarBehind(const const_iterator currentCarIt, const int laneOffset = 0) const {
     unsigned int currentBucketIndex =
         findBucketIndex(currentCarIt->getLane() + laneOffset, currentCarIt->getDistance());
 
     double ownDistance = currentCarIt->getDistance();
     // search for next car in own bucket
-    ConstBucketIterator nextCar = findMaxCarInBucket(currentBucketIndex, ownDistance);
+    bucket_const_iterator nextCar = findMaxCarInBucket(currentBucketIndex, ownDistance);
 
     // search for next car in previous buckets until such a car is found
     while (nextCar == buckets[currentBucketIndex].end()) {
       currentBucketIndex -= laneCount; // get previous bucket in the current lane
       // if end of street is reached return end iterator to represent no next car
-      if (currentBucketIndex < 0) { return ConstCarIterator(*this, true); }
+      if (currentBucketIndex < 0) { return const_iterator(*this, true); }
       nextCar = findMaxCarInBucket(currentBucketIndex);
     }
-    return ConstCarIterator(*this, currentCarIt.getCurrentBucket(), nextCar);
+    return const_iterator(*this, currentCarIt.getCurrentBucket(), nextCar);
   }
 
   /**
@@ -477,14 +504,17 @@ public:
    * to a higher lane and stayed within the same section.
    */
   void updateCarsAndRestoreConsistency() {
-    ReverseAllCarIterable iterable(*this);
-    for (ReverseCarIterator carIt = iterable.begin(); carIt != iterable.end(); ++carIt) { // for all cars on the street
+    AllCarIterable iterable(*this);
+    iterator carIt = AllCarIterable(*this).end();
+    for (int i = 0; i < getCarCount(); ++i) { // for all cars on the street
+      carIt--;
       carIt->update(); // update car to new state and position
 
       // if car is beyond street, move it from bucket to departedCars
       if (carIt->getDistance() > streetLength) {
-        --carCount;
         departedCars.push_back(carIt.remove());
+        --carCount;
+        continue;
       }
 
       // if the car needs to be moved, move it from the old to the new bucket
