@@ -453,8 +453,9 @@ public:
    * @param      car   The car to be inserted.
    */
   inline void insertCar(const Car &car) {
-    car.update();
-    buckets[findBucketIndex(car.getLane(), car.getDistance())].push_back(car);
+    Car copy = car;
+    copy.update();
+    buckets[findBucketIndex(copy.getLane(), copy.getDistance())].push_back(copy);
     ++carCount;
   }
 
