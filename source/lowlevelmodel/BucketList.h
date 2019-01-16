@@ -144,15 +144,24 @@ public:
     car_iterator(const buckets_iterator beginBucket, const buckets_iterator endBucket)
         : beginBucket(beginBucket), endBucket(endBucket), currentBucket(beginBucket),
           currentPositionInBucket(currentBucket->begin()), state(STANDARD) {
-      currentBucket           = findNextNonEmptyBucket(true);
-      currentPositionInBucket = currentBucket->begin();
+      currentBucket = findNextNonEmptyBucket(true);
+      if (currentBucket == endBucket) {
+        currentPositionInBucket = (endBucket - 1)->end();
+        state                   = END;
+      } else {
+        currentPositionInBucket = currentBucket->begin();
+      }
     }
     car_iterator(const buckets_iterator beginBucket, const buckets_iterator endBucket, buckets_iterator initialBucket,
         bucket_iterator currentPositionInBucket)
         : beginBucket(beginBucket), endBucket(endBucket), currentBucket(initialBucket),
           currentPositionInBucket(currentPositionInBucket), state(STANDARD) {
       buckets_iterator it = findNextNonEmptyBucket(true);
-      if (it != currentBucket) {
+      if (it == endBucket) {
+        currentBucket           = it;
+        currentPositionInBucket = (endBucket - 1)->end();
+        state                   = END;
+      } else if (it != currentBucket) {
         currentBucket           = it;
         currentPositionInBucket = currentBucket->begin();
       }
