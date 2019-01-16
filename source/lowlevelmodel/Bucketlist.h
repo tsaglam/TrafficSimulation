@@ -40,7 +40,7 @@ private:
    * The number of cars currently on the street. Includes cars inserted via insertCar even before
    * incorporateInsertedCars is called. Does not include cars beyond this street.
    */
-  const unsigned int carCount = 0;
+  unsigned carCount = 0;
 
 private:
   /**
@@ -442,6 +442,7 @@ public:
   inline void insertCar(Car &&car) {
     car.update();
     buckets[findBucketIndex(car.getLane(), car.getDistance())].push_back(car);
+    ++carCount;
   }
 
   /**
@@ -454,6 +455,7 @@ public:
   inline void insertCar(const Car &car) {
     car.update();
     buckets[findBucketIndex(car.getLane(), car.getDistance())].push_back(car);
+    ++carCount;
   }
 
   /**
@@ -479,7 +481,10 @@ public:
       carIt->update(); // update car to new state and position
 
       // if car is beyond street, move it from bucket to departedCars
-      if (carIt->getDistance() > streetLength) { departedCars.push_back(carIt.remove()); }
+      if (carIt->getDistance() > streetLength) {
+        --carCount;
+        departedCars.push_back(carIt.remove());
+      }
 
       // if the car needs to be moved, move it from the old to the new bucket
       unsigned int newBucket = findBucketIndex(carIt->getLane(), carIt->getDistance());
