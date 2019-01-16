@@ -61,7 +61,7 @@ public:
   /**
    * @brief      Default constructor. Valid, but results in unspecified behavior.
    */
-  BucketList();
+  BucketList() = default;
 
   /**
    * @brief      Proper constructor, initializes a new instance with specified parameters.
@@ -70,7 +70,9 @@ public:
    * @param[in]  length        The length of the street.
    * @param[in]  sectionLength The length of section represented by a bucket
    */
-  BucketList(const unsigned int laneCount, const double length, const double sectionLength);
+  BucketList(const unsigned int laneCount, const double length, const double sectionLength = 1.0)
+      : laneCount(laneCount), streetLength(length), sectionLength(sectionLength),
+        buckets(std::ceil(length / sectionLength)) {}
 
   // ------- Iterator & Iterable type defs -------
   using BucketIterator      = typename Bucket::iterator;
