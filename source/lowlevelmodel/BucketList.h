@@ -52,6 +52,8 @@ private:
    * @return     Returns the index of the correct bucket in the buckets data structure.
    */
   inline unsigned int findBucketIndex(const unsigned int lane, const double distance) const {
+    assert(lane >= 0 && lane < laneCount);
+    assert(distance >= 0 && distance < streetLength);
     const unsigned int sectionIndex = distance / sectionLength; // divide and cut off
     return sectionIndex * laneCount + lane;                     // 2D to 1D index conversion
   }
