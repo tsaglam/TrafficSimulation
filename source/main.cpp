@@ -8,6 +8,7 @@
 #include "NullRoutine.h"
 #include "Simulator.h"
 #include "TrafficLightRoutine.h"
+#include "ConsistencyRoutine.h"
 
 int main() {
   DomainModel domainModel;
@@ -16,7 +17,7 @@ int main() {
 
   jsonReader.readInto(domainModel);
 
-  Simulator<NaiveStreetDataStructure, TrafficLightRoutine, NullRoutine, NullRoutine> simulator(domainModel);
+  Simulator<NaiveStreetDataStructure, TrafficLightRoutine, NullRoutine, ConsistencyRoutine> simulator(domainModel);
   simulator.performSteps(jsonReader.getTimeSteps());
 
   JSONWriter jsonWriter(std::cout);
