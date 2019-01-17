@@ -124,7 +124,7 @@ public:
   iterator getNextCarInFront(const iterator currentCarIt, const int laneOffset = 0) {
     const unsigned int lane = currentCarIt->getLane() + laneOffset;
     // iterate all cars in front of the current car (on all lanes) return first car on the specified lane
-    for (iterator i = currentCarIt; i != carsOnStreet.end(); ++i) {
+    for (iterator i = currentCarIt + 1; i != carsOnStreet.end(); ++i) {
       if (i->getLane() == lane) { return i; }
     }
     return carsOnStreet.end(); // return end iterator if no prev car exists on the given lane
@@ -132,7 +132,7 @@ public:
   const_iterator getNextCarInFront(const const_iterator currentCarIt, const int laneOffset = 0) const {
     const unsigned int lane = currentCarIt->getLane() + laneOffset;
     // iterate all cars in front of the current car (on all lanes) return first car on the specified lane
-    for (const_iterator i = currentCarIt; i != carsOnStreet.end(); ++i) {
+    for (const_iterator i = currentCarIt + 1; i != carsOnStreet.end(); ++i) {
       if (i->getLane() == lane) { return i; }
     }
     return carsOnStreet.end(); // return end iterator if no prev car exists on the given lane
@@ -148,17 +148,21 @@ public:
    * @return     The car behind the current car represented by an iterator.
    */
   iterator getNextCarBehind(const iterator currentCarIt, const int laneOffset = 0) {
+    // there is no car behind if this is the first car on the street
+    if (currentCarIt == carsOnStreet.begin()) { return carsOnStreet.end(); }
     const unsigned int lane = currentCarIt->getLane() + laneOffset;
     // iterate all cars behind the current car (on all lanes) return first car on the specified lane
-    for (iterator i = currentCarIt; i != carsOnStreet.begin(); --i) { // reverse iteration
+    for (iterator i = currentCarIt - 1; i != carsOnStreet.begin(); --i) { // reverse iteration
       if (i->getLane() == lane) { return i; }
     }
     return carsOnStreet.end(); // return end iterator if no next car exists on the given lane
   }
   const_iterator getNextCarBehind(const const_iterator currentCarIt, const int laneOffset = 0) const {
+    // there is no car behind if this is the first car on the street
+    if (currentCarIt == carsOnStreet.begin()) { return carsOnStreet.end(); }
     const unsigned int lane = currentCarIt->getLane() + laneOffset;
     // iterate all cars behind the current car (on all lanes) return first car on the specified lane
-    for (const_iterator i = currentCarIt; i != carsOnStreet.begin(); --i) { // reverse iteration
+    for (const_iterator i = currentCarIt - 1; i != carsOnStreet.begin(); --i) { // reverse iteration
       if (i->getLane() == lane) { return i; }
     }
     return carsOnStreet.end(); // return end iterator if no next car exists on the given lane
