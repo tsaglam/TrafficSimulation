@@ -440,6 +440,20 @@ public:
     default: return const_iterator();
     }
   }
+  iterator getNextNotSpecialCarInFront(iterator originVehicleIt, const int laneOffset = 0) {
+    switch (originVehicleIt.state) {
+    case iterator::PROXY: return iterator(rfb.getNextCarInFront(originVehicleIt.dest, laneOffset));
+    case iterator::SPECIAL: return iterator(originVehicleIt.inFrontIt);
+    default: return iterator();
+    }
+  }
+  const_iterator getNextNotSpecialCarInFront(const_iterator originVehicleIt, const int laneOffset = 0) const {
+    switch (originVehicleIt.state) {
+    case iterator::PROXY: return iterator(rfb.getNextCarInFront(originVehicleIt.dest, laneOffset));
+    case iterator::SPECIAL: return iterator(originVehicleIt.inFrontIt);
+    default: return iterator();
+    }
+  }
 
   /**
    * Finds the next vehicle behind the current vehicle.
@@ -462,6 +476,20 @@ public:
     }
   }
   const_iterator getNextCarBehind(const_iterator originVehicleIt, const int laneOffset = 0) const {
+    switch (originVehicleIt.state) {
+    case const_iterator::PROXY: return const_iterator(rfb.getNextCarBehind(originVehicleIt.dest, laneOffset));
+    case const_iterator::SPECIAL: return const_iterator(originVehicleIt.behindIt);
+    default: return const_iterator();
+    }
+  }
+  iterator getNextNotSpecialCarBehind(iterator originVehicleIt, const int laneOffset = 0) {
+    switch (originVehicleIt.state) {
+    case iterator::PROXY: return iterator(rfb.getNextCarBehind(originVehicleIt.dest, laneOffset));
+    case iterator::SPECIAL: return iterator(originVehicleIt.behindIt);
+    default: return iterator();
+    }
+  }
+  const_iterator getNextNotSpecialCarBehind(const_iterator originVehicleIt, const int laneOffset = 0) const {
     switch (originVehicleIt.state) {
     case const_iterator::PROXY: return const_iterator(rfb.getNextCarBehind(originVehicleIt.dest, laneOffset));
     case const_iterator::SPECIAL: return const_iterator(originVehicleIt.behindIt);

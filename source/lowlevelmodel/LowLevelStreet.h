@@ -161,6 +161,12 @@ public:
   const_iterator getNextCarInFront(const_iterator originVehicleIt, const int laneOffset = 0) const {
     return signaler.getNextCarInFront(originVehicleIt, laneOffset);
   }
+  iterator getNextNotSpecialCarInFront(iterator originVehicleIt, const int laneOffset = 0) {
+    return signaler.getNextNotSpecialCarInFront(originVehicleIt, laneOffset);
+  }
+  const_iterator getNextNotSpecialCarInFront(const_iterator originVehicleIt, const int laneOffset = 0) const {
+    return signaler.getNextNotSpecialCarInFront(originVehicleIt, laneOffset);
+  }
 
   /**
    * Find the next car in front of an origin car on the same or a neighbouring lane.
@@ -178,6 +184,12 @@ public:
   }
   const_iterator getNextCarBehind(const_iterator originVehicleIt, const int laneOffset = 0) const {
     return signaler.getNextCarBehind(originVehicleIt, laneOffset);
+  }
+  iterator getNextNotSpecialCarBehind(iterator originVehicleIt, const int laneOffset = 0) {
+    return signaler.getNextNotSpecialCarBehind(originVehicleIt, laneOffset);
+  }
+  const_iterator getNextNotSpecialCarBehind(const_iterator originVehicleIt, const int laneOffset = 0) const {
+    return signaler.getNextNotSpecialCarBehind(originVehicleIt, laneOffset);
   }
 
   /*
