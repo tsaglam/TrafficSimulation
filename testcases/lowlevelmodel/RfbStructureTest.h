@@ -3,8 +3,8 @@
 
 #include <../../snowhouse/snowhouse.h>
 
-#include "LowLevelCar.h"
 #include "../randomUtils.h"
+#include "LowLevelCar.h"
 
 using namespace snowhouse;
 
@@ -13,7 +13,13 @@ using namespace snowhouse;
  * Check the laneCount and length via the getters.
  */
 template <template <class Car> class Street>
-void constructorAndConstMembersTest() {}
+void constructorAndConstMembersTest() {
+  const unsigned int laneCount = 3;
+  const double length          = 150;
+  const Street<LowLevelCar> street(laneCount, length);
+  AssertThat(street.getLaneCount(), Is().EqualTo(laneCount));
+  AssertThat(street.getLength(), Is().EqualTo(length));
+}
 
 /*
  * Ensure that the allIterable visits each car on the street exactly once and that the number of visited cars is equal
