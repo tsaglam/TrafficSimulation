@@ -72,7 +72,7 @@ public:
    */
   BucketList(const unsigned int laneCount, const double length, const double sectionLength = 1.0)
       : laneCount(laneCount), streetLength(length), sectionLength(sectionLength),
-        buckets(std::ceil(length / sectionLength)) {}
+        buckets(std::ceil(length / sectionLength) * laneCount) {}
 
   // ------- Iterator & Iterable type defs -------
   using bucket_iterator         = typename Bucket::iterator;
