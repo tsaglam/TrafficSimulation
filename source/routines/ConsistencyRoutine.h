@@ -53,7 +53,7 @@ public:
    * @return     The direction where the car is going.
    */
   CardinalDirection takeTurn(CardinalDirection origin, TurnDirection turn) {
-    return (CardinalDirection)(origin + turn);
+    return (CardinalDirection)(origin + turn) % 4;
   }
 
   /**
