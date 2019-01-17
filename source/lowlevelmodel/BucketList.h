@@ -336,7 +336,7 @@ private:
   inline bucket_iterator findMinCarInBucket(const unsigned int bucketIndex, const double lowerLimit = -1) {
     bucket_iterator minIt = buckets[bucketIndex].end();
     for (bucket_iterator it = buckets[bucketIndex].begin(); it != buckets[bucketIndex].end(); ++it) {
-      if (it->getDistance() > lowerLimit && (minIt == buckets[bucketIndex].end() || it->lessThan(minIt.operator->()))) {
+      if (it->getDistance() > lowerLimit && (minIt == buckets[bucketIndex].end() || compareLess(*it, *minIt))) {
         minIt = it;
       }
     }
@@ -345,7 +345,7 @@ private:
   inline bucket_const_iterator findMinCarInBucket(const unsigned int bucketIndex, const double lowerLimit = -1) const {
     bucket_const_iterator minIt = buckets[bucketIndex].end();
     for (bucket_const_iterator it = buckets[bucketIndex].begin(); it != buckets[bucketIndex].end(); ++it) {
-      if (it->getDistance() > lowerLimit && (minIt == buckets[bucketIndex].end() || it->lessThan(minIt.operator->()))) {
+      if (it->getDistance() > lowerLimit && (minIt == buckets[bucketIndex].end() || compareLess(*it, *minIt))) {
         minIt = it;
       }
     }
@@ -364,8 +364,7 @@ private:
       const unsigned int bucketIndex, const double upperLimit = std::numeric_limits<double>::max()) {
     bucket_iterator maxIt = buckets[bucketIndex].end();
     for (bucket_iterator it = buckets[bucketIndex].begin(); it != buckets[bucketIndex].end(); ++it) {
-      if (it->getDistance() < upperLimit &&
-          (maxIt == buckets[bucketIndex].end() || it->greaterThan(maxIt.operator->()))) {
+      if (it->getDistance() < upperLimit && (maxIt == buckets[bucketIndex].end() || !compareLess(*it, *maxIt))) {
         maxIt = it;
       }
     }
@@ -375,8 +374,7 @@ private:
       const unsigned int bucketIndex, const double upperLimit = std::numeric_limits<double>::max()) const {
     bucket_const_iterator maxIt = buckets[bucketIndex].end();
     for (bucket_const_iterator it = buckets[bucketIndex].begin(); it != buckets[bucketIndex].end(); ++it) {
-      if (it->getDistance() < upperLimit &&
-          (maxIt == buckets[bucketIndex].end() || it->greaterThan(maxIt.operator->()))) {
+      if (it->getDistance() < upperLimit && (maxIt == buckets[bucketIndex].end() || !compareLess(*it, *maxIt))) {
         maxIt = it;
       }
     }
