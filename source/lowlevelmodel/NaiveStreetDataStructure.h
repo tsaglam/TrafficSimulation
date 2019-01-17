@@ -189,7 +189,7 @@ public:
    * The consistency is restored by sorting carsOnStreet.
    */
   void incorporateInsertedCars() {
-    for (auto newCar : newCars) { newCar.update(); }                         // update all new cars
+    for (auto &newCar : newCars) { newCar.update(); }                        // update all new cars
     carsOnStreet.insert(carsOnStreet.end(), newCars.begin(), newCars.end()); // append all new cars to carsOnStreet
     sort(carsOnStreet.begin(), carsOnStreet.end(), compareLess<Car>);        // restore car order (sorted by distance)
   }
