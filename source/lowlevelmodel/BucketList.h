@@ -1,8 +1,8 @@
 #ifndef BUCKET_LIST_H
 #define BUCKET_LIST_H
 
-#include <vector>
 #include <cmath>
+#include <vector>
 
 template <class Car>
 class BucketList {
@@ -404,7 +404,7 @@ public:
     while (nextCar == buckets[currentBucketIndex].end()) {
       currentBucketIndex += laneCount; // get next bucket in the current lane
       // if end of street is reached return end iterator to represent no next car
-      if (currentBucketIndex >= buckets.size()) { return iterator(*this, true); }
+      if (currentBucketIndex >= buckets.size()) { return iterator(buckets.begin(), buckets.end(), 0); }
       nextCar = findMinCarInBucket(currentBucketIndex);
     }
     return iterator(*this, currentCarIt.getCurrentBucket(), nextCar);
@@ -421,7 +421,7 @@ public:
     while (nextCar == buckets[currentBucketIndex].end()) {
       currentBucketIndex += laneCount; // get next bucket in the current lane
       // if end of street is reached return end iterator to represent no next car
-      if (currentBucketIndex >= buckets.size()) { return const_iterator(*this, true); }
+      if (currentBucketIndex >= buckets.size()) { return const_iterator(buckets.begin(), buckets.end(), 0); }
       nextCar = findMinCarInBucket(currentBucketIndex);
     }
     return const_iterator(*this, currentCarIt.getCurrentBucket(), nextCar);
@@ -448,7 +448,7 @@ public:
     while (nextCar == buckets[currentBucketIndex].end()) {
       currentBucketIndex -= laneCount; // get previous bucket in the current lane
       // if end of street is reached return end iterator to represent no next car
-      if (currentBucketIndex < 0) { return iterator(*this, true); }
+      if (currentBucketIndex < 0) { return iterator(buckets.begin(), buckets.end(), 0); }
       nextCar = findMaxCarInBucket(currentBucketIndex);
     }
     return iterator(*this, currentCarIt.getCurrentBucket(), nextCar);
@@ -465,7 +465,7 @@ public:
     while (nextCar == buckets[currentBucketIndex].end()) {
       currentBucketIndex -= laneCount; // get previous bucket in the current lane
       // if end of street is reached return end iterator to represent no next car
-      if (currentBucketIndex < 0) { return const_iterator(*this, true); }
+      if (currentBucketIndex < 0) { return const_iterator(buckets.begin(), buckets.end(), 0); }
       nextCar = findMaxCarInBucket(currentBucketIndex);
     }
     return const_iterator(*this, currentCarIt.getCurrentBucket(), nextCar);
