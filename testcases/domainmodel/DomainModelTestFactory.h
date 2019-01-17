@@ -21,7 +21,7 @@ Street createTestStreet() {
  */
 Vehicle createTestVehicle() {
   Street street                    = createTestStreet();
-  const Vehicle::Position position = Vehicle::Position(street, 1, 33.3);
+  const Vehicle::Position position(street, 1, 33.3);
   // create test route and test vehicle:
   const std::vector<TurnDirection> route{TurnDirection::RIGHT, TurnDirection::UTURN, TurnDirection::STRAIGHT};
   return Vehicle(0, 0, 45.0, 1.0, 1.0, 10.0, 5.0, 0.5, route, position);
