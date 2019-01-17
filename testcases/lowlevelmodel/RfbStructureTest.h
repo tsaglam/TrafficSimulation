@@ -52,7 +52,27 @@ void allIterableTest() {
  * - try different special cases such as no existing neighbors, a neighbor at the same position etc.
  */
 template <template <typename Car> typename Street>
-void getNextCarTest() {}
+void getNextCarTest() {
+  const size_t carCount = 1;
+  Street<LowLevelCar> street(1, carCount);
+  for (size_t i = 0; i < carCount; ++i) { street.insertCar(createCar(i, 0, i)); }
+  street.incorporateInsertedCars();
+
+  for (auto car = street.allIterable().begin(); car != street.allIterable().end(); ++car) {
+    auto behind  = street.getNextCarBehind(car);
+    auto inFront = street.getNextCarInFront(car);
+    if (car->getId() == 0) {
+      AssertThat(behind, Is().EqualTo(street.allIterable().end()));
+    } else {
+      AssertThat(behind->getId(), Is().EqualTo(car->getId() - 1));
+    }
+    if (car->getId() == carCount - 1) {
+      AssertThat(inFront, Is().EqualTo(street.allIterable().end()));
+    } else {
+      AssertThat(inFront->getId(), Is().EqualTo(car->getId() + 1));
+    }
+  }
+}
 
 /*
  * Test if the iterator returned by the getNextCarInFront/Behind functions works as intendet.
