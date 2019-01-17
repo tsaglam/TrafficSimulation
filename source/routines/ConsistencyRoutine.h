@@ -25,19 +25,20 @@ public:
       // access domain model information for the low level street:
       Street &domStreet                 = model.getStreet(street.getId());
       Junction &domJunction             = domStreet.getTargetJunction();
+      // TODO interate streets of junction instad of analyse (JSONReader.cpp line 153)
       CardinalDirection originDirection = calculateOriginDirection(domJunction, domStreet.getSourceJunction());
       // update low level  cars and restore consistency:
       street.updateCarsAndRestoreConsistency();
       // for every low level car that changes streets:
       auto beyondsIterable = street.beyondsIterable();
-      for (auto vehicle = beyondsIterable.begin(); vehicle != beyondsIterable.end(); ++vehicle) {
+      for (auto vehicleIt = beyondsIterable.begin(); vehicleIt != beyondsIterable.end(); ++vehicleIt) {
         // get domain model car and desired domain model destination street:
-        Vehicle &domVehicle                    = model.getVehicle(vehicle->getId());
+        Vehicle &domVehicle                    = model.getVehicle(vehicleIt->getId());
         CardinalDirection destinationDirection = takeTurn(originDirection, domVehicle.getNextDirection());
         Street *domDestinationStreet           = domJunction.getOutgoingStreet(destinationDirection).getStreet();
         // insert car on correlating low level destination street:
         LowLevelStreet<RfbStructure> &destinationStreet = data.getStreet(domDestinationStreet->getId());
-        destinationStreet.insertCar(*vehicle);
+        destinationStreet.insertCar(*vehicleIt);
       }
       // remove all leaving cars from current street:
       street.removeBeyonds();
@@ -53,7 +54,7 @@ public:
    * @return     The direction where the car is going.
    */
   CardinalDirection takeTurn(CardinalDirection origin, TurnDirection turn) {
-    return (CardinalDirection)(origin + turn) % 4;
+    return (CardinalDirection)((origin + turn) % 4);
   }
 
   /**
@@ -71,7 +72,7 @@ public:
       return CardinalDirection::SOUTH;
     } else if (current.getY() > origin.getY()) {
       return CardinalDirection::NORTH;
-    } 
+    }
     throw std::invalid_argument("Junctions cannot be placed at the same spot!");
   }
 
