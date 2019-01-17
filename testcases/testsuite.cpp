@@ -57,6 +57,7 @@ int main() {
   RUN(calculateOriginDirectionTest);
 
   // RfbStructure - BucketList
+  std::cout << "\n";
   RUN(constructorAndConstMembersTest<BucketList>);
   RUN(allIterableTest<BucketList>);
   RUN(getNextCarTest<BucketList>);
@@ -66,6 +67,7 @@ int main() {
   RUN(beyondsIterableTest<BucketList>);
   RUN(removeBeyondsTest<BucketList>);
   // RfbStructure - NaiveStreetDataStructure
+  std::cout << "\n";
   RUN(constructorAndConstMembersTest<NaiveStreetDataStructure>);
   RUN(allIterableTest<NaiveStreetDataStructure>);
   RUN(getNextCarTest<NaiveStreetDataStructure>);
