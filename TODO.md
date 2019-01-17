@@ -289,3 +289,30 @@
    assertion library and it is only includede in tests.
 
    **Status**: Implemented
+
+ * computeIsSpace: What to do in case of a red light?
+
+   Our implementation considers the traffic light car to be a normal car.
+   Thus, the minDistance (property of the car in question) to the traffic
+   light car must be preserved in case of a lane change.
+
+   This should be re-evaluated if there are any problems regarding lane
+   changes not taking place. The responsible code contains a marker:
+
+   `PENDING [computeIsSpaceTrafficLightCar]`
+
+   **Status**: Pending
+
+ * Two cars in the same space: What is the distanceDelta?
+
+   When two cars partially overlap the formula for the distanceDelta returns a
+   negative value. This should be evaluated.
+
+   **Status**: Pending
+
+ * RfbStructure::{getNextCarInFront,getNextCarBehind}(): How to pass originIt?
+
+   The iterator is currently copied. It could instead be passed as a
+   reference.
+
+   **Status**: Pending

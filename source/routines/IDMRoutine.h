@@ -34,7 +34,70 @@ private:
   public:
     AccelerationComputer(LowLevelStreet<RfbStructure> &_street) : street(_street), endIt(_street.allIterable().end()) {}
 
+    double operator()(const car_iterator &carIt, const int laneOffset) const {
+      return computeAcceleration(carIt, laneOffset);
+    }
+
+    double operator()(const car_iterator &carIt, const car_iterator &carInFrontIt) const {
+      return computeAcceleration(carIt, carInFrontIt);
+    }
+
+    double operator()(const LowLevelCar &car, const LowLevelCar *inFront) const {
+      return computeAcceleration(car, inFront);
+    }
+
+    double computeAcceleration(const car_iterator &carIt, const int laneOffset) const {
+      return computeAcceleration(carIt, street.getNextCarInFront(carIt, laneOffset));
+    }
+
+    double computeAcceleration(const car_iterator &carIt, const car_iterator &carInFrontIt) const {
+      LowLevelCar *carInFrontPtr;
+      if (isEnd(carInFrontIt))
+        carInFrontPtr = nullptr;
+      else
+        carInFrontPtr = &*carInFrontIt;
+
+      return computeAcceleration(*carIt, carInFrontPtr);
+    }
+
+    double computeAcceleration(const LowLevelCar &car, const LowLevelCar *inFront) const {
+      // Captures constraints of target velocity, no consideration of car in front ("freie fahrt")
+      const double unrestrictedDrivingFactor = 1.0 - std::pow(car.getVelocity() / car.getTargetVelocity(), 4);
+
+      double carInFrontFactor = 0.0;
+      if (inFront != nullptr) {
+        // Distance between the car and the car in front of it.
+        const double distanceDelta = inFront->getDistance() - inFront->getLength() - car.getDistance();
+        // Difference of velocity between the car and the car in front of it.
+        const double velocityDelta = car.getVelocity() - inFront->getVelocity();
+
+        // clang-format off
+        const double fractionInFraction = (
+          (
+            car.getVelocity() * velocityDelta
+          ) / (
+            2.0 * std::sqrt(
+              car.getMaxAcceleration() * car.getTargetDeceleration()
+            )
+          )
+        );
+        // clang-format on
+
+        const double carInFrontFactorDividend =
+            car.getMinDistance() + car.getVelocity() * car.getTargetHeadway() + fractionInFraction;
+
+        // Captures constraints imposed by car in front
+        carInFrontFactor = std::pow(carInFrontFactorDividend / distanceDelta, 2);
+      }
+
+      return car.getMaxAcceleration() * (unrestrictedDrivingFactor - carInFrontFactor);
+    }
+
+    car_iterator end() const { return endIt; }
     bool isEnd(const car_iterator &it) const { return it == endIt; }
+    bool isNotEnd(const car_iterator &it) const { return it != endIt; }
+
+    LowLevelStreet<RfbStructure> &getStreet() const { return street; }
   };
 
 private:
@@ -48,35 +111,21 @@ public:
 
 private:
   void processStreet(LowLevelStreet<RfbStructure> &street) {
-    // Initialise end iterator for for loops during computation
-    car_iterator endIt = street.allIterable().end();
+    // Initialise acceleration computer for use during computation
+    AccelerationComputer accelerationComputer(street);
 
-    for (car_iterator carIt = street.allIterable().begin(); carIt != endIt; ++carIt) {
-      // TODO
-      // Extract into AccelerationComputer
-      // BEGIN [Extract into AccelerationComputer]
-
-      car_iterator carInFrontIt = street.getNextCarInFront(carIt, 0);
-
-      LowLevelCar *carInFrontPtr;
-      if (carInFrontIt == endIt)
-        carInFrontPtr = nullptr;
-      else
-        carInFrontPtr = *carInFrontIt;
-
-      const double baseAcceleration = computeAcceleration(*carIt, carInFrontPtr);
-      // END [Extract into AccelerationComputer]
-
+    for (car_iterator carIt = street.allIterable().begin(); accelerationComputer.isNotEnd(carIt); ++carIt) {
+      const double baseAcceleration = accelerationComputer(carIt, 0);
       carIt->setNextBaseAcceleration(baseAcceleration);
     }
 
-    for (car_iterator carIt = street.allIterable().begin(); carIt != endIt; ++carIt) {
+    for (car_iterator carIt = street.allIterable().begin(); accelerationComputer.isNotEnd(carIt); ++carIt) {
       LaneChangeValues leftLaneChange;
       LaneChangeValues rightLaneChange;
 
-      if (carIt->getLane() >= 0) // if not outermost left lane
+      if (carIt->getLane() > 0) // if not outermost left lane
         leftLaneChange = computeLaneChangeValues(street, carIt, -1);
-      if (carIt->getLane() < street.getLaneCount()) // if not outermost right lane
+      if (carIt->getLane() < street.getLaneCount() - 1) // if not outermost right lane
         rightLaneChange = computeLaneChangeValues(street, carIt, +1);
 
       double laneOffset       = 0;
@@ -94,66 +143,43 @@ private:
         nextAcceleration = rightLaneChange.acceleration;
       }
 
-      computeAndSetDynamics(*carIt, nextAcceleration, carIt->getLane() + laneOffset);
+      computeAndSetDynamics(*carIt, street, nextAcceleration, carIt->getLane() + laneOffset);
     }
   }
 
   LaneChangeValues computeLaneChangeValues(
-      LowLevelStreet<RfbStructure> &street, car_iterator carIt, const int laneOffset) {
-    // TODO OPTIMISATION
-    // Cache car in front, car behind
+      AccelerationComputer accelerationComputer, car_iterator carIt, const int laneOffset) {
+    LowLevelStreet<RfbStructure> &street = accelerationComputer.getStreet();
 
-    if (!computeIsSpace(street, carIt, laneOffset)) return LaneChangeValues();
+    // PENDING [computeIsSpaceTrafficLightCar]
 
-    // TODO
-    // Call AccelerationComputer
-    // BEGIN [Call AccelerationComputer]
+    // Retrieve next car behind the car in question if a lane change would take place.
+    car_iterator laneChangeCarBehindIt = street.getNextCarBehind(carIt, laneOffset);
+    // Retrieve next car in front of the car in question if a lane change would take place.
+    car_iterator laneChangeCarInFrontIt = street.getNextCarInFront(carIt, laneOffset);
 
-    car_iterator carInFrontIt = street.getNextCarInFront(carIt, laneOffset);
+    if (!computeIsSpace(accelerationComputer, carIt, laneChangeCarBehindIt, laneChangeCarInFrontIt))
+      return LaneChangeValues();
 
-    LowLevelCar *carInFrontPtr;
-    // TODO
-    // if (accelerationComputer.isEnd(carInFrontIt))
-    if (carInFrontIt == street.allIterable().end())
-      carInFrontPtr = nullptr;
-    else
-      carInFrontPtr = *carInFrontIt;
-
-    const double acceleration = computeAcceleration(*carIt, carInFrontPtr);
-    // END [Call AccelerationComputer]
+    const double acceleration = accelerationComputer(carIt, laneOffset);
 
     // Compute acceleration deltas of cars behind the car in question.
     // This delta is used in the calculation of the lane change indicator.
     double carBehindAccelerationDeltas = 0.0;
 
-    // Retrieve next car behind the car in question (no lange change). This should not be a "special" car (traffic light
-    // car)
+    // Retrieve next car behind the car in question (no lange change).
     car_iterator carBehindIt = street.getNextCarBehind(carIt, 0);
-    assert(!carBehindIt.isSpecial() || "Unexpected special iterator: Car behind should never be a special car!");
 
-    if (carBehindIt == street.allIterable().end()) {
-      // TODO
-      // end() behaviour: What if carBehindIt is end()?
-      // Probably disregard.
-    } else {
-      const double carBehindAcceleration = computeAcceleration(*carBehindIt, &*carIt);
+    if (accelerationComputer.isNotEnd(carBehindIt)) {
+      // If there is a car behind, then consider it in the acceleration delta
+      const double carBehindAcceleration = accelerationComputer(*carBehindIt, &*carIt);
       carBehindAccelerationDeltas += carBehindAcceleration - carBehindIt->getNextBaseAcceleration();
     }
 
-    // Retrieve next car behind the car in question if a lane change would take place. This should not be a "special"
-    // car (traffic light car)
-    car_iterator langeChangeCarBehindIt = street.getNextCarBehind(carIt, laneOffset);
-    assert(!langeChangeCarBehindIt.isSpecial() ||
-           "Unexpected special iterator: Car behind should never be a special car!");
-
-    if (langeChangeCarBehindIt == street.allIterable().end()) {
-      // TODO
-      // end() behaviour: What if langeChangeCarBehindIt is end()?
-      // Probably disregard.
-    } else {
-      const double laneChangeCarBehindAcceleration = computeAcceleration(*langeChangeCarBehindIt, &*carIt);
-      carBehindAccelerationDeltas +=
-          laneChangeCarBehindAcceleration - langeChangeCarBehindIt->getNextBaseAcceleration();
+    if (accelerationComputer.isNotEnd(laneChangeCarBehindIt)) {
+      // If there is a car behind, then consider it in the acceleration delta
+      const double laneChangeCarBehindAcceleration = accelerationComputer(*laneChangeCarBehindIt, &*carIt);
+      carBehindAccelerationDeltas += laneChangeCarBehindAcceleration - laneChangeCarBehindIt->getNextBaseAcceleration();
     }
 
     const double indicator =
@@ -165,79 +191,25 @@ private:
     return LaneChangeValues(acceleration, indicator);
   }
 
-  bool computeIsSpace(LowLevelStreet<RfbStructure> &street, car_iterator carIt, const int laneOffset) const {
+  bool computeIsSpace(AccelerationComputer accelerationComputer, car_iterator carIt, car_iterator carBehindIt,
+      car_iterator carInFrontIt) const {
 
-    // TODO
-    // end() behaviour
-    // should endIt be passed?
+    if (accelerationComputer.isNotEnd(carBehindIt) &&
+        carIt->getDistance() - carIt->getLength() < carBehindIt->getDistance() + carIt->getMinDistance())
+      return false;
 
-    // Retrieve next car behind the car in question. This should not be a "special" car (traffic light car)
-    car_iterator carBehindIt = street.getNextCarBehind(carIt, laneOffset);
-    assert(!carBehindIt.isSpecial() || "Unexpected special iterator: Car behind should never be a special car!");
-
-    if (carIt->getDistance() - carIt->getLength() < carBehindIt->getDistance() + carIt->getMinDistance()) return false;
-
-    // Retrieve next car in front of the car in question which is not a "special" car (traffic light car)
-    car_iterator carInFrontIt = carIt;
-    do { carInFrontIt = street.getNextCarInFront(carInFrontIt, laneOffset); } while (carInFrontIt.isSpecial());
-
-    if (carInFrontIt->getDistance() - carInFrontIt->getLength() < carIt->getDistance() + carIt->getMinDistance())
+    if (accelerationComputer.isNotEnd(carInFrontIt) &&
+        carInFrontIt->getDistance() - carInFrontIt->getLength() < carIt->getDistance() + carIt->getMinDistance())
       return false;
 
     return true;
   }
 
-  void computeAndSetDynamics(LowLevelCar &car, const double nextAcceleration, const unsigned int nextLane) {
-    const double nextVelocity = std::max(car.getVelocity() + nextAcceleration, 0.0);
+  void computeAndSetDynamics(LowLevelCar &car, LowLevelStreet<RfbStructure> &street, const double nextAcceleration,
+      const unsigned int nextLane) {
+    const double nextVelocity = std::min(std::max(car.getVelocity() + nextAcceleration, 0.0), street.getSpeedLimit());
     const double nextDistance = car.getDistance() + nextVelocity;
     car.setNext(nextLane, nextDistance, nextVelocity);
-  }
-
-  /**
-   * Computes the acceleration of a car with respect to the car immediately in front of it.
-   *
-   * TODO this method should be integrated e.g. with computeAcceleration_formula
-   */
-  double computeAcceleration(const LowLevelCar &origin, const LowLevelCar *inFront) {
-    // TODO
-    // What is the acceleration when there is no car in front?
-    // Probably use the formula with carInFrontFactor set to 0
-
-    if (inFront == nullptr) {
-      return 0.0;
-    } else {
-      return computeAcceleration_formula(origin, *inFront);
-    }
-  }
-
-  double computeAcceleration_formula(const LowLevelCar &origin, const LowLevelCar &inFront) const {
-    // Distance between the car and the car in front of it.
-    const double distanceDelta = inFront.getDistance() - origin.getDistance() - inFront.getLength();
-    // Difference of velocity between the car and the car in front of it.
-    const double velocityDelta = origin.getVelocity() - inFront.getVelocity();
-
-    // Captures constraints of target velocity, no consideration of car in front ("freie fahrt")
-    const double unrestrictedDrivingFactor = 1.0 - std::pow(origin.getVelocity() / origin.getTargetVelocity(), 4);
-
-    // clang-format off
-    const double fractionInFraction = (
-      (
-        origin.getVelocity() * velocityDelta
-      ) / (
-        2.0 * std::sqrt(
-          origin.getMaxAcceleration() * origin.getTargetDeceleration()
-        )
-      )
-    );
-    // clang-format on
-
-    const double carInFrontFactorDividend =
-        origin.getMinDistance() + origin.getVelocity() * origin.getTargetHeadway() + fractionInFraction;
-
-    // Captures constraints imposed by car in front
-    const double carInFrontFactor = std::pow(carInFrontFactorDividend / distanceDelta, 2);
-
-    return origin.getMaxAcceleration() * (unrestrictedDrivingFactor - carInFrontFactor);
   }
 };
 
