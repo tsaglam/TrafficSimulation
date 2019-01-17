@@ -4,8 +4,10 @@
 #include <../../snowhouse/snowhouse.h>
 
 #include "LowLevelCar.h"
+#include "../randomUtils.h"
 
 using namespace snowhouse;
+
 /*
  * Create a street with the constructor setting laneCount and length.
  * Check the laneCount and length via the getters.
