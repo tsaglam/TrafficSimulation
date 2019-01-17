@@ -451,7 +451,7 @@ public:
     while (nextCar == buckets[currentBucketIndex].end()) {
       currentBucketIndex -= laneCount; // get previous bucket in the current lane
       // if end of street is reached return end iterator to represent no next car
-      if (currentBucketIndex < 0) { return iterator(buckets.begin(), buckets.end(), 0); }
+      if (currentBucketIndex == (unsigned)-1) { return iterator(buckets.begin(), buckets.end(), 0); }
       nextCar = findMaxCarInBucket(currentBucketIndex);
     }
     return iterator(buckets.begin(), buckets.end(), buckets.begin() + currentCarIt.getCurrentBucket(), nextCar);
@@ -468,7 +468,7 @@ public:
     while (nextCar == buckets[currentBucketIndex].end()) {
       currentBucketIndex -= laneCount; // get previous bucket in the current lane
       // if end of street is reached return end iterator to represent no next car
-      if (currentBucketIndex < 0) { return const_iterator(buckets.begin(), buckets.end(), 0); }
+      if (currentBucketIndex == (unsigned)-1) { return const_iterator(buckets.begin(), buckets.end(), 0); }
       nextCar = findMaxCarInBucket(currentBucketIndex);
     }
     return const_iterator(buckets.begin(), buckets.end(), buckets.begin() + currentCarIt.getCurrentBucket(), nextCar);
