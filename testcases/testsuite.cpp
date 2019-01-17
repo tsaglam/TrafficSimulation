@@ -1,6 +1,9 @@
+#include "BucketList.h"
+#include "NaiveStreetDataStructure.h"
 #include "domainmodel/DomainModelTest.h"
 #include "domainmodel/JunctionTest.h"
 #include "domainmodel/VehicleTest.h"
+#include "lowlevelmodel/RfbStructureTest.h"
 #include "routines/TrafficLightRoutineTest.h"
 #include "routines/ConsistencyRoutineTest.h"
 #include <../../snowhouse/snowhouse.h>
@@ -52,6 +55,25 @@ int main() {
   RUN(trafficLightRoutineTest);
   RUN(takeTurnTest);
   RUN(calculateOriginDirectionTest);
+
+  // RfbStructure - BucketList
+  RUN(constructorAndConstMembersTest<BucketList>);
+  RUN(allIterableTest<BucketList>);
+  RUN(getNextCarTest<BucketList>);
+  RUN(getNextCarIteratorTest<BucketList>);
+  RUN(insertCarTest<BucketList>);
+  RUN(consistencyTest<BucketList>);
+  RUN(beyondsIterableTest<BucketList>);
+  RUN(removeBeyondsTest<BucketList>);
+  // RfbStructure - NaiveStreetDataStructure
+  RUN(constructorAndConstMembersTest<NaiveStreetDataStructure>);
+  RUN(allIterableTest<NaiveStreetDataStructure>);
+  RUN(getNextCarTest<NaiveStreetDataStructure>);
+  RUN(getNextCarIteratorTest<NaiveStreetDataStructure>);
+  RUN(insertCarTest<NaiveStreetDataStructure>);
+  RUN(consistencyTest<NaiveStreetDataStructure>);
+  RUN(beyondsIterableTest<NaiveStreetDataStructure>);
+  RUN(removeBeyondsTest<NaiveStreetDataStructure>);
 
   // Prints the test results and the number of failed tests:
   if (numberOfFailedTests == 0) {
