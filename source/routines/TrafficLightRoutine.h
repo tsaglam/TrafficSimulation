@@ -23,6 +23,7 @@ public:
   void perform() {
     DomainModel &model = data.getDomainModel();
     for (auto const &junction : model.getJunctions()) {
+      // TODO INIT OF NOT ALREADY
       bool lightChanged = junction->nextStep();
       if (lightChanged) {
         // Turn previous red:
