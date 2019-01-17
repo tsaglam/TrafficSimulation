@@ -51,6 +51,7 @@ int main() {
   // Routines:
   RUN(trafficLightRoutineTest);
   RUN(takeTurnTest);
+  RUN(calculateOriginDirectionTest);
 
   // Prints the test results and the number of failed tests:
   if (numberOfFailedTests == 0) {
