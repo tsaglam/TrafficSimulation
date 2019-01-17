@@ -25,19 +25,19 @@ public:
       // access domain model information for the low level street:
       Street &domStreet                 = model.getStreet(street.getId());
       Junction &domJunction             = domStreet.getTargetJunction();
-      CardinalDirection originDirection = calculateOriginDirection(domJunction, domStreet.getSourceJunction());
+      CardinalDirection originDirection = calculateOriginDirection(domJunction, domStreet);
       // update low level  cars and restore consistency:
       street.updateCarsAndRestoreConsistency();
       // for every low level car that changes streets:
       auto beyondsIterable = street.beyondsIterable();
-      for (auto vehicle = beyondsIterable.begin(); vehicle != beyondsIterable.end(); ++vehicle) {
+      for (auto vehicleIt = beyondsIterable.begin(); vehicleIt != beyondsIterable.end(); ++vehicleIt) {
         // get domain model car and desired domain model destination street:
-        Vehicle &domVehicle                    = model.getVehicle(vehicle->getId());
+        Vehicle &domVehicle                    = model.getVehicle(vehicleIt->getId());
         CardinalDirection destinationDirection = takeTurn(originDirection, domVehicle.getNextDirection());
         Street *domDestinationStreet           = domJunction.getOutgoingStreet(destinationDirection).getStreet();
         // insert car on correlating low level destination street:
         LowLevelStreet<RfbStructure> &destinationStreet = data.getStreet(domDestinationStreet->getId());
-        destinationStreet.insertCar(*vehicle);
+        destinationStreet.insertCar(*vehicleIt);
       }
       // remove all leaving cars from current street:
       street.removeBeyonds();
@@ -53,26 +53,22 @@ public:
    * @return     The direction where the car is going.
    */
   CardinalDirection takeTurn(CardinalDirection origin, TurnDirection turn) {
-    return (CardinalDirection)(origin + turn);
+    return (CardinalDirection)((origin + turn) % 4);
   }
 
   /**
-   * @brief      Determines the cardinal direction where a street is coming from related to the current junction.
-   * @param      current  The current junction.
-   * @param      origin   The origin junction where the street is also connected to.
+   * @brief      Determines the cardinal direction from where a street is coming to a junction.
+   * @param      junction  The junction, point of view for the direction.
+   * @param      incomingStreet   The street connected to the junction.
    * @return     The origin cardinal direction related to the current junction.
    */
-  CardinalDirection calculateOriginDirection(Junction &current, Junction &origin) {
-    if (current.getX() < origin.getX()) {
-      return CardinalDirection::EAST;
-    } else if (current.getX() > origin.getX()) {
-      return CardinalDirection::WEST;
-    } else if (current.getY() < origin.getY()) {
-      return CardinalDirection::SOUTH;
-    } else if (current.getY() > origin.getY()) {
-      return CardinalDirection::NORTH;
-    } 
-    throw std::invalid_argument("Junctions cannot be placed at the same spot!");
+  CardinalDirection calculateOriginDirection(Junction &junction, Street &incomingStreet) {
+    for (const auto &connectedStreet : junction.getIncomingStreets()) {
+      if (connectedStreet.isConnected() && connectedStreet.getStreet()->getId() == incomingStreet.getId()) {
+        return connectedStreet.getDirection();
+      }
+    }
+    throw std::invalid_argument("Street is not connected to junction!");
   }
 
   SimulationData<RfbStructure> &data;

@@ -36,9 +36,6 @@ private:
 
     bool connected;
     Street *street;
-    /**
-     * @TODO: Could be omitted, depends on implementation of signaling.
-     */
     CardinalDirection direction;
 
   public:

@@ -9,15 +9,15 @@ using namespace snowhouse;
 /*
  * adds four incoming and four outgoing streets to a junction.
  */
-void addStreets(Junction &junction) {
+void addStreets(Junction &junction, DomainModel& model) {
   Junction other = createTestJunction();
   // clang-format off
-  for (CardinalDirection dir = CardinalDirection::NORTH; dir < CardinalDirection::WEST;
+  for (CardinalDirection dir = CardinalDirection::NORTH; dir <= CardinalDirection::WEST;
        dir = CardinalDirection(dir + 1)) { // clang-format on
     Street incoming = Street(dir, 1, 50.0, 100.0, other, junction);
     Street outgoing = Street(dir + 4, 1, 50.0, 100.0, junction, other);
-    junction.addIncomingStreet(incoming, dir);
-    junction.addOutgoingStreet(outgoing, dir);
+    junction.addIncomingStreet(model.addStreet(incoming), dir);
+    junction.addOutgoingStreet(model.addStreet(outgoing), dir);
   }
 }
 
@@ -25,8 +25,9 @@ void addStreets(Junction &junction) {
  * Tries to add streets and checks whether they are connected.
  */
 void junctionCreationTest() {
+  DomainModel model;
   Junction testJunction = createTestJunction();
-  addStreets(testJunction);
+  addStreets(testJunction, model);
   // clang-format off
   for (CardinalDirection dir = CardinalDirection::NORTH; dir < CardinalDirection::WEST;
        dir = CardinalDirection(dir + 1)) { // clang-format on
