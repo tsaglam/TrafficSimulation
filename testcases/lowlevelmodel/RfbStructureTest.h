@@ -1,3 +1,6 @@
+#ifndef RFB_STRUCTURE_TEST_H
+#define RFB_STRUCTURE_TEST_H
+
 #include <../../snowhouse/snowhouse.h>
 
 #include "LowLevelCar.h"
@@ -74,3 +77,5 @@ void beyondsIterableTest() {}
  */
 template <template <typename Car> typename Street>
 void removeBeyondsTest() {}
+
+#endif
