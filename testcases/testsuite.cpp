@@ -2,6 +2,7 @@
 #include "domainmodel/JunctionTest.h"
 #include "domainmodel/VehicleTest.h"
 #include "routines/TrafficLightRoutineTest.h"
+#include "routines/ConsistencyRoutineTest.h"
 #include <../../snowhouse/snowhouse.h>
 #include <iostream>
 #include <regex>
@@ -49,6 +50,7 @@ int main() {
   RUN(modelCreationTest2);
   // Routines:
   RUN(trafficLightRoutineTest);
+  RUN(takeTurnTest);
 
   // Prints the test results and the number of failed tests:
   if (numberOfFailedTests == 0) {
