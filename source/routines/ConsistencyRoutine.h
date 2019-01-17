@@ -25,8 +25,7 @@ public:
       // access domain model information for the low level street:
       Street &domStreet                 = model.getStreet(street.getId());
       Junction &domJunction             = domStreet.getTargetJunction();
-      // TODO interate streets of junction instad of analyse (JSONReader.cpp line 153)
-      CardinalDirection originDirection = calculateOriginDirection(domJunction, domStreet.getSourceJunction());
+      CardinalDirection originDirection = calculateOriginDirection(domJunction, domStreet);
       // update low level  cars and restore consistency:
       street.updateCarsAndRestoreConsistency();
       // for every low level car that changes streets:
@@ -58,22 +57,18 @@ public:
   }
 
   /**
-   * @brief      Determines the cardinal direction where a street is coming from related to the current junction.
-   * @param      current  The current junction.
-   * @param      origin   The origin junction where the street is also connected to.
+   * @brief      Determines the cardinal direction from where a street is coming to a junction.
+   * @param      junction  The junction, point of view for the direction.
+   * @param      incomingStreet   The street connected to the junction.
    * @return     The origin cardinal direction related to the current junction.
    */
-  CardinalDirection calculateOriginDirection(Junction &current, Junction &origin) {
-    if (current.getX() < origin.getX()) {
-      return CardinalDirection::EAST;
-    } else if (current.getX() > origin.getX()) {
-      return CardinalDirection::WEST;
-    } else if (current.getY() < origin.getY()) {
-      return CardinalDirection::SOUTH;
-    } else if (current.getY() > origin.getY()) {
-      return CardinalDirection::NORTH;
+  CardinalDirection calculateOriginDirection(Junction &junction, Street &incomingStreet) {
+    for (const auto &connectedStreet : junction.getIncomingStreets()) {
+      if (connectedStreet.isConnected() && connectedStreet.getStreet()->getId() == incomingStreet.getId()) {
+        return connectedStreet.getDirection();
+      }
     }
-    throw std::invalid_argument("Junctions cannot be placed at the same spot!");
+    throw std::invalid_argument("Street is not connected to junction!");
   }
 
   SimulationData<RfbStructure> &data;
