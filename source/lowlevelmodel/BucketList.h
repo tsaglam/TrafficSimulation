@@ -406,7 +406,7 @@ public:
       if (currentBucketIndex >= buckets.size()) { return iterator(buckets.begin(), buckets.end(), 0); }
       nextCar = findMinCarInBucket(currentBucketIndex);
     }
-    return iterator(*this, currentCarIt.getCurrentBucket(), nextCar);
+    return iterator(buckets.begin(), buckets.end(), buckets.begin() + currentCarIt.getCurrentBucket(), nextCar);
   }
   const_iterator getNextCarInFront(const const_iterator currentCarIt, const int laneOffset = 0) const {
     unsigned int currentBucketIndex =
@@ -423,7 +423,7 @@ public:
       if (currentBucketIndex >= buckets.size()) { return const_iterator(buckets.begin(), buckets.end(), 0); }
       nextCar = findMinCarInBucket(currentBucketIndex);
     }
-    return const_iterator(*this, currentCarIt.getCurrentBucket(), nextCar);
+    return const_iterator(buckets.begin(), buckets.end(), buckets.begin() + currentCarIt.getCurrentBucket(), nextCar);
   }
 
   /**
@@ -450,7 +450,7 @@ public:
       if (currentBucketIndex < 0) { return iterator(buckets.begin(), buckets.end(), 0); }
       nextCar = findMaxCarInBucket(currentBucketIndex);
     }
-    return iterator(*this, currentCarIt.getCurrentBucket(), nextCar);
+    return iterator(buckets.begin(), buckets.end(), buckets.begin() + currentCarIt.getCurrentBucket(), nextCar);
   }
   const_iterator getNextCarBehind(const const_iterator currentCarIt, const int laneOffset = 0) const {
     unsigned int currentBucketIndex =
@@ -467,7 +467,7 @@ public:
       if (currentBucketIndex < 0) { return const_iterator(buckets.begin(), buckets.end(), 0); }
       nextCar = findMaxCarInBucket(currentBucketIndex);
     }
-    return const_iterator(*this, currentCarIt.getCurrentBucket(), nextCar);
+    return const_iterator(buckets.begin(), buckets.end(), buckets.begin() + currentCarIt.getCurrentBucket(), nextCar);
   }
 
   /**
