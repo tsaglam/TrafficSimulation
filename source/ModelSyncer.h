@@ -40,7 +40,6 @@ public:
           domainVehicle->getMaxAcceleration(), domainVehicle->getTargetDeceleration(), domainVehicle->getMinDistance(),
           domainVehicle->getTargetHeadway(), domainVehicle->getPoliteness(), VEHICLE_LENGTH,
           domainVehicle->getPosition().getLane(), domainVehicle->getPosition().getDistance());
-      car.setNext(domainVehicle->getPosition().getLane(), domainVehicle->getPosition().getDistance(), 0.0);
 
       auto &street = streets.at(domainVehicle->getPosition().getStreet()->getId());
 

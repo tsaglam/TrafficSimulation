@@ -52,6 +52,7 @@ public:
       : LowLevelCar(_id, _externalId, _targetVelocity, _maxAcceleration, _targetDeceleration, _minDistance,
             _targetHeadway, _politeness, _length) {
     setPosition(_lane, _distance, _velocity);
+    setNext(_lane, _distance, _velocity);
   }
 
   void setPosition(unsigned int lane, double distance, double velocity = 0.0) {
