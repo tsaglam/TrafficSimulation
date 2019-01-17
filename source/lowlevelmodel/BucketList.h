@@ -258,7 +258,8 @@ public:
     reference operator[](const difference_type &n) const { return *(this + n); }
 
     bool operator==(const car_iterator<Const> &other) const {
-      return currentBucket == other.currentBucket && currentPositionInBucket == other.currentPositionInBucket;
+      return state == other.state && currentBucket == other.currentBucket &&
+             currentPositionInBucket == other.currentPositionInBucket;
     }
     bool operator!=(const car_iterator &other) const { return !((*this) == other); }
     bool operator<(const car_iterator &other) {
