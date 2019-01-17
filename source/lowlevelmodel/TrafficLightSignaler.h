@@ -292,7 +292,7 @@ public:
      *
      * https://en.cppreference.com/w/cpp/named_req/ForwardIterator
      */
-    BaseIterator() = default;
+    BaseIterator() {}
 
   public:
     bool isSpecial() const { return state == SPECIAL; }
@@ -303,8 +303,8 @@ public:
         : state(SPECIAL), behindIt(_behindIt), inFrontIt(_inFrontIt), special(&_special) {}
   };
 
-  using iterator       = BaseIterator<typename RfbStructure<LowLevelCar>::iterator, false>;
-  using const_iterator = BaseIterator<typename RfbStructure<LowLevelCar>::const_iterator, true>;
+  using iterator       = BaseIterator<typename ConcreteRfbStructure::iterator, false>;
+  using const_iterator = BaseIterator<typename ConcreteRfbStructure::const_iterator, true>;
 
 public:
   /**
@@ -406,13 +406,13 @@ public:
     switch (originVehicleIt.state) {
     case iterator::PROXY: {
       // Create a new scope using brackets to be able to initialise variable only here
-      iterator inFrontIt = rfb.getNextCarInFront(originVehicleIt.dest, laneOffset);
+      typename ConcreteRfbStructure::iterator inFrontIt = rfb.getNextCarInFront(originVehicleIt.dest, laneOffset);
 
       if (signal == RED) {
         // Traffic light is RED, check if the traffic light is between the origin car and the next car in front.
         if (inFrontIt->getDistance() > trafficLightCar.getDistance() &&
             originVehicleIt->getDistance() <= trafficLightCar.getDistance())
-          return iterator(originVehicleIt, inFrontIt, trafficLightCar);
+          return iterator(originVehicleIt.dest, inFrontIt, trafficLightCar);
       }
 
       return iterator(inFrontIt);
@@ -425,13 +425,13 @@ public:
     switch (originVehicleIt.state) {
     case const_iterator::PROXY: {
       // Create a new scope using brackets to be able to initialise variable only here
-      const_iterator inFrontIt = rfb.getNextCarInFront(originVehicleIt.dest, laneOffset);
+      typename ConcreteRfbStructure::const_iterator inFrontIt = rfb.getNextCarInFront(originVehicleIt.dest, laneOffset);
 
       if (signal == RED) {
         // Traffic light is RED, check if the traffic light is between the origin car and the next car in front.
         if (inFrontIt->getDistance() > trafficLightCar.getDistance() &&
             originVehicleIt->getDistance() <= trafficLightCar.getDistance())
-          return const_iterator(originVehicleIt, inFrontIt, trafficLightCar);
+          return const_iterator(originVehicleIt.dest, inFrontIt, trafficLightCar);
       }
 
       return const_iterator(inFrontIt);

@@ -35,9 +35,14 @@ public:
         Vehicle &domVehicle                    = model.getVehicle(vehicleIt->getId());
         CardinalDirection destinationDirection = takeTurn(originDirection, domVehicle.getNextDirection());
         Street *domDestinationStreet           = domJunction.getOutgoingStreet(destinationDirection).getStreet();
+
+        // Copy the vehicle and adjust distance
+        LowLevelCar vehicle = *vehicleIt;
+        vehicle.setNext(vehicle.getLane(), vehicle.getDistance() - street.getLength(), vehicle.getVelocity());
+
         // insert car on correlating low level destination street:
         LowLevelStreet<RfbStructure> &destinationStreet = data.getStreet(domDestinationStreet->getId());
-        destinationStreet.insertCar(*vehicleIt);
+        destinationStreet.insertCar(vehicle);
       }
       // remove all leaving cars from current street:
       street.removeBeyonds();
