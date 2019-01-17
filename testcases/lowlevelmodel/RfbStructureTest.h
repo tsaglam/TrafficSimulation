@@ -8,6 +8,8 @@
 
 using namespace snowhouse;
 
+#define createCar(id, lane, distance) LowLevelCar(id, id, 0, 0, 0, 0, 0, 0, 0, lane, distance, 0)
+
 /*
  * Create a street with the constructor setting laneCount and length.
  * Check the laneCount and length via the getters.
@@ -26,7 +28,23 @@ void constructorAndConstMembersTest() {
  * to getCarCount. Try different states of the street including special cases and inbetween states.
  */
 template <template <typename Car> typename Street>
-void allIterableTest() {}
+void allIterableTest() {
+  Street<LowLevelCar> street(1, 10);
+  std::vector<int> expectedCarIds(10);
+  for (int i = 0; i < 10; ++i) {
+    street.insertCar(createCar(i, 0, i));
+    expectedCarIds[i] = i;
+  }
+  street.incorporateInsertedCars();
+
+  std::vector<int> carIds;
+  for (const LowLevelCar &car : street.allIterable()) { carIds.push_back(car.getId()); }
+
+  std::sort(carIds.begin(), carIds.end());
+  std::sort(expectedCarIds.begin(), expectedCarIds.end());
+
+  AssertThat(carIds, Is().EqualToContainer(expectedCarIds));
+}
 
 /*
  * Test if the getNextCarInFront/Behind functions return the correct car.
