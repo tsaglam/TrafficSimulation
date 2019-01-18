@@ -1,6 +1,7 @@
 #ifndef BUCKET_LIST_H
 #define BUCKET_LIST_H
 
+#include <cassert>
 #include <cmath>
 #include <vector>
 
