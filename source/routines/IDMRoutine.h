@@ -61,8 +61,10 @@ private:
     }
 
     double computeAcceleration(const LowLevelCar &car, const LowLevelCar *inFront) const {
+      const double targetVelocity = std::min(car.getTargetVelocity(), street.getSpeedLimit());
+
       // Captures constraints of target velocity, no consideration of car in front ("freie fahrt")
-      const double unrestrictedDrivingFactor = 1.0 - std::pow(car.getVelocity() / car.getTargetVelocity(), 4);
+      const double unrestrictedDrivingFactor = 1.0 - std::pow(car.getVelocity() / targetVelocity, 4);
 
       double carInFrontFactor = 0.0;
       if (inFront != nullptr) {
@@ -143,7 +145,7 @@ private:
         nextAcceleration = rightLaneChange.acceleration;
       }
 
-      computeAndSetDynamics(*carIt, street, nextAcceleration, carIt->getLane() + laneOffset);
+      computeAndSetDynamics(*carIt, nextAcceleration, carIt->getLane() + laneOffset);
     }
   }
 
@@ -205,9 +207,8 @@ private:
     return true;
   }
 
-  void computeAndSetDynamics(LowLevelCar &car, LowLevelStreet<RfbStructure> &street, const double nextAcceleration,
-      const unsigned int nextLane) {
-    const double nextVelocity = std::min(std::max(car.getVelocity() + nextAcceleration, 0.0), street.getSpeedLimit());
+  void computeAndSetDynamics(LowLevelCar &car, const double nextAcceleration, const unsigned int nextLane) {
+    const double nextVelocity = std::max(car.getVelocity() + nextAcceleration, 0.0);
     const double nextDistance = car.getDistance() + nextVelocity;
     car.setNext(nextLane, nextDistance, nextVelocity);
   }
