@@ -1,6 +1,7 @@
 #ifndef NAIVE_STREET_DATA_STRUCTURE_H
 #define NAIVE_STREET_DATA_STRUCTURE_H
 
+#include <algorithm>
 #include <vector>
 
 #include "utils.h"
@@ -195,7 +196,8 @@ public:
   void incorporateInsertedCars() {
     for (auto &newCar : newCars) { newCar.update(); }                        // update all new cars
     carsOnStreet.insert(carsOnStreet.end(), newCars.begin(), newCars.end()); // append all new cars to carsOnStreet
-    sort(carsOnStreet.begin(), carsOnStreet.end(), compareLess<Car>);        // restore car order (sorted by distance)
+    std::sort(carsOnStreet.begin(), carsOnStreet.end(), compareLess<Car>);   // restore car order (sorted by distance)
+    newCars.clear();
   }
 
   /**
@@ -214,7 +216,7 @@ public:
         ++carIt; // otherwise increment iterator manually
       }
     }
-    sort(carsOnStreet.begin(), carsOnStreet.end(), compareLess<Car>); // restore car order (sorted by distance)
+    std::sort(carsOnStreet.begin(), carsOnStreet.end(), compareLess<Car>); // restore car order (sorted by distance)
   }
 
   /**
