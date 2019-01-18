@@ -31,6 +31,7 @@ void assertNeighborDef(
   if (def.neighborId == (unsigned)-1) {
     AssertThat(neighbor, Is().EqualTo(street.allIterable().end()));
   } else {
+    AssertThat(neighbor, Is().Not().EqualTo(street.allIterable().end()));
     AssertThat(neighbor->getId(), Is().EqualTo(def.neighborId));
   }
 }
