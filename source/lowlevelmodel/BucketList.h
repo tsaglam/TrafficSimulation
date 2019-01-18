@@ -145,6 +145,9 @@ public:
 
   public:
     car_iterator() = default;
+    car_iterator(const car_iterator<false> it)
+        : beginBucket(it.beginBucket), endBucket(it.endBucket), currentBucket(it.currentBucket),
+          currentPositionInBucket(it.currentPositionInBucket), state(it.state) {}
     car_iterator(const buckets_iterator beginBucket, const buckets_iterator endBucket)
         : beginBucket(beginBucket), endBucket(endBucket), currentBucket(beginBucket),
           currentPositionInBucket(currentBucket->begin()), state(STANDARD) {
@@ -157,7 +160,7 @@ public:
       }
     }
     car_iterator(const buckets_iterator beginBucket, const buckets_iterator endBucket, buckets_iterator initialBucket,
-        bucket_iterator currentPositionInBucket)
+        _bucket_iterator currentPositionInBucket)
         : beginBucket(beginBucket), endBucket(endBucket), currentBucket(initialBucket),
           currentPositionInBucket(currentPositionInBucket), state(STANDARD) {
       buckets_iterator it = findNextNonEmptyBucket(true);
@@ -277,11 +280,12 @@ public:
 
   template <bool Const = false>
   class _AllCarIterable {
+    using ListReference = typename std::conditional_t<Const, BucketList const &, BucketList &>;
     const car_iterator<Const> _begin;
     const car_iterator<Const> _end;
 
   public:
-    _AllCarIterable(BucketList &list)
+    _AllCarIterable(ListReference &list)
         : _begin(list.buckets.begin(), list.buckets.end()), _end(list.buckets.begin(), list.buckets.end(), 0) {}
     inline car_iterator<Const> begin() const { return _begin; }
     inline car_iterator<Const> end() const { return _end; }
@@ -290,7 +294,7 @@ public:
   using AllCarIterable      = _AllCarIterable<>;
   using ConstAllCarIterable = _AllCarIterable<true>;
   using iterator            = car_iterator<>;
-  using const_iterator      = car_iterator<>;
+  using const_iterator      = car_iterator<true>;
 
   // ------- Getter -------
   /**
