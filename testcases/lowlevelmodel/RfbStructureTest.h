@@ -3,6 +3,7 @@
 
 #include <../../snowhouse/snowhouse.h>
 #include <map>
+#include <cassert>
 
 #include "../randomUtils.h"
 #include "LowLevelCar.h"
