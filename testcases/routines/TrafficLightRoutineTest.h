@@ -14,18 +14,24 @@
  * @param      data      The data which is used for the simulation.
  * @return     The current signal of the low level street that correlates to the junctions signal.
  */
-Signal getLowLevelSignal(Junction::Signal signal, const Junction &junction, SimulationData<NaiveStreetDataStructure> &data) {
+Signal getSignal(Junction::Signal signal, const Junction &junction, SimulationData<NaiveStreetDataStructure> &data) {
   Street *domainModelStreet                        = junction.getIncomingStreet(signal.getDirection()).getStreet();
   LowLevelStreet<NaiveStreetDataStructure> &street = data.getStreet(domainModelStreet->getId());
   return street.getSignal();
 }
 
+/**
+ * @brief      Gets the current low level signal value (should be GREEN).
+ */
 Signal getCurrentLowLevelSignal(const Junction &junction, SimulationData<NaiveStreetDataStructure> &data) {
-  return getLowLevelSignal(junction.getCurrentSignal(), junction, data);
+  return getSignal(junction.getCurrentSignal(), junction, data);
 }
 
+/**
+ * @brief      Gets the previous low level signal value (should be RED).
+ */
 Signal getPreviousLowLevelSignal(const Junction &junction, SimulationData<NaiveStreetDataStructure> &data) {
-  return getLowLevelSignal(junction.getPreviousSignal(), junction, data);
+  return getSignal(junction.getPreviousSignal(), junction, data);
 }
 
 /**
