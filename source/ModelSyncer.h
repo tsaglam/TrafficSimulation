@@ -18,6 +18,14 @@ private:
 private:
   Data &data;
 
+  /**
+   * @brief      Sets a signal of the low level street correlating to a specific domain model street.
+   */
+  void setLowLevelSignal(Signal signal, Street *domainModelStreet) {
+    LowLevelStreet<RfbStructure> &street = data.getStreet(domainModelStreet->getId());
+    street.setSignal(signal);
+  }
+
 public:
   ModelSyncer(Data &_data) : data(_data) {}
 
@@ -47,6 +55,20 @@ public:
     }
 
     for (auto &street : streets) { street.incorporateInsertedCars(); }
+
+    // Init signals on low level streets:
+    for (const auto &domainJunction : domainModel.getJunctions()) {
+      Junction::Signal currentSignal = domainJunction->getCurrentSignal();
+      for (const auto &connectedStreet : domainJunction->getIncomingStreets()) {
+        if (connectedStreet.isConnected()) {
+          if (connectedStreet.getDirection() == currentSignal.getDirection()) {
+            setLowLevelSignal(Signal::GREEN, connectedStreet.getStreet());
+          } else {
+            setLowLevelSignal(Signal::RED, connectedStreet.getStreet());
+          }
+        }
+      }
+    }
   }
 
   void writeVehiclePositionToDomainModel() {

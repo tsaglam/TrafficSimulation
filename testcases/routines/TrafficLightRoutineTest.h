@@ -1,14 +1,42 @@
 #include "../domainmodel/DomainModelTestFactory.h"
 #include <../../snowhouse/snowhouse.h>
 
+#include "LowLevelStreet.h"
 #include "ModelSyncer.h"
 #include "NaiveStreetDataStructure.h"
 #include "TrafficLightRoutine.h"
-#include <iostream>
+#include "TrafficLightSignaler.h"
 
 /**
- *	Checks whether the traffic light routine works.
- * The following Network is build:
+ * @brief      Gets the signal of the low level street of a junctions signal in the domain model.
+ * @param      signal    The desired signal.
+ * @param[in]  junction  The junction which contains the signal.
+ * @param      data      The data which is used for the simulation.
+ * @return     The current signal of the low level street that correlates to the junctions signal.
+ */
+Signal getSignal(Junction::Signal signal, const Junction &junction, SimulationData<NaiveStreetDataStructure> &data) {
+  Street *domainModelStreet                        = junction.getIncomingStreet(signal.getDirection()).getStreet();
+  LowLevelStreet<NaiveStreetDataStructure> &street = data.getStreet(domainModelStreet->getId());
+  return street.getSignal();
+}
+
+/**
+ * @brief      Gets the current low level signal value (should be GREEN).
+ */
+Signal getCurrentLowLevelSignal(const Junction &junction, SimulationData<NaiveStreetDataStructure> &data) {
+  return getSignal(junction.getCurrentSignal(), junction, data);
+}
+
+/**
+ * @brief      Gets the previous low level signal value (should be RED).
+ */
+Signal getPreviousLowLevelSignal(const Junction &junction, SimulationData<NaiveStreetDataStructure> &data) {
+  return getSignal(junction.getPreviousSignal(), junction, data);
+}
+
+/**
+ * @brief      Checks whether the traffic light routine works. Checks the changed lights in the domain model and in the
+ * low level model. The following Network is build:
  *     x
  *     |
  *  x--x--x
@@ -18,8 +46,7 @@
 void trafficLightRoutineTest() {
   // DOMAIN MODEL SETUP:
   DomainModel model;
-  Junction &junction = model.addJunction(createTestJunction());
-  // clang-format off
+  Junction &junction = model.addJunction(createTestJunction()); // clang-format off
   for (CardinalDirection direction = CardinalDirection::NORTH; direction <= CardinalDirection::WEST;
        direction = CardinalDirection(direction + 1)) { // clang-format on
     CardinalDirection opposite = (CardinalDirection)((direction + 2) % 4);
@@ -38,13 +65,22 @@ void trafficLightRoutineTest() {
   modelSyncer.buildFreshLowLevel();
   // ACTUAL TESTING:
   AssertThat(junction.getCurrentSignal().getDirection(), Is().EqualTo(CardinalDirection::NORTH));
+  AssertThat(getCurrentLowLevelSignal(junction, data), Is().EqualTo(Signal::GREEN));
+  AssertThat(getPreviousLowLevelSignal(junction, data), Is().EqualTo(Signal::RED));
   for (int i = 0; i <= 10; ++i) { routine.perform(); }
   AssertThat(junction.getCurrentSignal().getDirection(), Is().EqualTo(CardinalDirection::EAST));
+  AssertThat(getCurrentLowLevelSignal(junction, data), Is().EqualTo(Signal::GREEN));
+  AssertThat(getPreviousLowLevelSignal(junction, data), Is().EqualTo(Signal::RED));
   for (int i = 0; i <= 20; ++i) { routine.perform(); }
   AssertThat(junction.getCurrentSignal().getDirection(), Is().EqualTo(CardinalDirection::SOUTH));
+  AssertThat(getCurrentLowLevelSignal(junction, data), Is().EqualTo(Signal::GREEN));
+  AssertThat(getPreviousLowLevelSignal(junction, data), Is().EqualTo(Signal::RED));
   for (int i = 0; i <= 30; ++i) { routine.perform(); }
   AssertThat(junction.getCurrentSignal().getDirection(), Is().EqualTo(CardinalDirection::WEST));
+  AssertThat(getCurrentLowLevelSignal(junction, data), Is().EqualTo(Signal::GREEN));
+  AssertThat(getPreviousLowLevelSignal(junction, data), Is().EqualTo(Signal::RED));
   for (int i = 0; i <= 40; ++i) { routine.perform(); }
   AssertThat(junction.getCurrentSignal().getDirection(), Is().EqualTo(CardinalDirection::NORTH));
-  // TODO check low level street
+  AssertThat(getCurrentLowLevelSignal(junction, data), Is().EqualTo(Signal::GREEN));
+  AssertThat(getPreviousLowLevelSignal(junction, data), Is().EqualTo(Signal::RED));
 }
