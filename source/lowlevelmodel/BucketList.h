@@ -197,38 +197,33 @@ public:
    * @return     The car in front represented by an iterator.
    */
   iterator getNextCarInFront(const iterator currentCarIt, const int laneOffset = 0) {
-    unsigned int currentBucketIndex =
-        findBucketIndex(currentCarIt->getLane() + laneOffset, currentCarIt->getDistance());
-
-    double ownDistance = currentCarIt->getDistance();
     // search for next car in own bucket
-    bucket_iterator nextCar = findMinCarInBucket(currentBucketIndex, ownDistance);
+    unsigned int currentBucket = findBucketIndex(currentCarIt->getLane() + laneOffset, currentCarIt->getDistance());
+    bucket_iterator nextCar    = findMinCarInBucket(currentBucket, currentCarIt->getDistance());
 
     // search for next car in next buckets until such a car is found
-    while (nextCar == buckets[currentBucketIndex].end()) {
-      currentBucketIndex += laneCount; // get next bucket in the current lane
+    while (nextCar == buckets[currentBucket].end()) {
+      currentBucket += laneCount; // get next bucket in the current lane
       // if end of street is reached return end iterator to represent no next car
-      if (currentBucketIndex >= buckets.size()) { return iterator(buckets.begin(), buckets.end(), 0); }
-      nextCar = findMinCarInBucket(currentBucketIndex);
+      if (currentBucket >= buckets.size()) { return iterator(buckets.begin(), buckets.end(), 0); }
+      nextCar = findMinCarInBucket(currentBucket);
     }
-    return iterator(buckets.begin(), buckets.end(), buckets.begin() + currentCarIt.getCurrentBucket(), nextCar);
+    return iterator(buckets.begin(), buckets.end(), buckets.begin() + currentBucket, nextCar);
   }
   const_iterator getNextCarInFront(const const_iterator currentCarIt, const int laneOffset = 0) const {
-    unsigned int currentBucketIndex =
-        findBucketIndex(currentCarIt->getLane() + laneOffset, currentCarIt->getDistance());
-
-    double ownDistance = currentCarIt->getDistance();
     // search for next car in own bucket
-    bucket_const_iterator nextCar = findMinCarInBucket(currentBucketIndex, ownDistance);
+    unsigned int currentBucket    = findBucketIndex(currentCarIt->getLane() + laneOffset, currentCarIt->getDistance());
+    bucket_const_iterator nextCar = findMinCarInBucket(currentBucket, currentCarIt->getDistance());
 
-    // search for next car in next buckets until such a car is found
-    while (nextCar == buckets[currentBucketIndex].end()) {
-      currentBucketIndex += laneCount; // get next bucket in the current lane
+    // if this is the first car in the bucket find the next non-empty in front of the current bucket in this lane
+    if (nextCar == buckets[currentBucket].end()) {
+      currentBucket += laneCount;
+      while (currentBucket < buckets.size() && buckets[currentBucket].size() == 0) { currentBucket += laneCount; }
       // if end of street is reached return end iterator to represent no next car
-      if (currentBucketIndex >= buckets.size()) { return const_iterator(buckets.begin(), buckets.end(), 0); }
-      nextCar = findMinCarInBucket(currentBucketIndex);
+      if (currentBucket >= buckets.size()) { return const_iterator(buckets.begin(), buckets.end(), 0); }
+      nextCar = findMinCarInBucket(currentBucket); // otherwise return the first car of the next non-empty bucket
     }
-    return const_iterator(buckets.begin(), buckets.end(), buckets.begin() + currentCarIt.getCurrentBucket(), nextCar);
+    return const_iterator(buckets.begin(), buckets.end(), buckets.begin() + currentBucket, nextCar);
   }
 
   /**
@@ -241,38 +236,34 @@ public:
    * @return     The car behind the current car represented by an iterator.
    */
   iterator getNextCarBehind(const iterator currentCarIt, const int laneOffset = 0) {
-    unsigned int currentBucketIndex =
-        findBucketIndex(currentCarIt->getLane() + laneOffset, currentCarIt->getDistance());
-
-    double ownDistance = currentCarIt->getDistance();
     // search for next car in own bucket
-    bucket_iterator nextCar = findMaxCarInBucket(currentBucketIndex, ownDistance);
+    int currentBucket       = findBucketIndex(currentCarIt->getLane() + laneOffset, currentCarIt->getDistance());
+    bucket_iterator nextCar = findMaxCarInBucket(currentBucket, currentCarIt->getDistance());
 
-    // search for next car in previous buckets until such a car is found
-    while (nextCar == buckets[currentBucketIndex].end()) {
-      currentBucketIndex -= laneCount; // get previous bucket in the current lane
-      // if end of street is reached return end iterator to represent no next car
-      if (currentBucketIndex == (unsigned)-1) { return iterator(buckets.begin(), buckets.end(), 0); }
-      nextCar = findMaxCarInBucket(currentBucketIndex);
+    // if this is the last car in the bucket find the next non-empty behind the current bucket in this lane
+    if (nextCar == buckets[currentBucket].end()) {
+      currentBucket -= laneCount;
+      while (currentBucket >= 0 && buckets[currentBucket].size() == 0) { currentBucket -= laneCount; }
+      // if start of street is reached return end iterator to represent no next car
+      if (currentBucket < 0) { return iterator(buckets.begin(), buckets.end(), 0); }
+      nextCar = findMaxCarInBucket(currentBucket); // otherwise return the last car of the next non-empty bucket
     }
-    return iterator(buckets.begin(), buckets.end(), buckets.begin() + currentCarIt.getCurrentBucket(), nextCar);
+    return iterator(buckets.begin(), buckets.end(), buckets.begin() + currentBucket, nextCar);
   }
   const_iterator getNextCarBehind(const const_iterator currentCarIt, const int laneOffset = 0) const {
-    unsigned int currentBucketIndex =
-        findBucketIndex(currentCarIt->getLane() + laneOffset, currentCarIt->getDistance());
-
-    double ownDistance = currentCarIt->getDistance();
     // search for next car in own bucket
-    bucket_const_iterator nextCar = findMaxCarInBucket(currentBucketIndex, ownDistance);
+    int currentBucket             = findBucketIndex(currentCarIt->getLane() + laneOffset, currentCarIt->getDistance());
+    bucket_const_iterator nextCar = findMaxCarInBucket(currentBucket, currentCarIt->getDistance());
 
-    // search for next car in previous buckets until such a car is found
-    while (nextCar == buckets[currentBucketIndex].end()) {
-      currentBucketIndex -= laneCount; // get previous bucket in the current lane
-      // if end of street is reached return end iterator to represent no next car
-      if (currentBucketIndex == (unsigned)-1) { return const_iterator(buckets.begin(), buckets.end(), 0); }
-      nextCar = findMaxCarInBucket(currentBucketIndex);
+    // if this is the last car in the bucket find the next non-empty behind the current bucket in this lane
+    if (nextCar == buckets[currentBucket].end()) {
+      currentBucket -= laneCount;
+      while (currentBucket >= 0 && buckets[currentBucket].size() == 0) { currentBucket -= laneCount; }
+      // if start of street is reached return end iterator to represent no next car
+      if (currentBucket < 0) { return const_iterator(buckets.begin(), buckets.end(), 0); }
+      nextCar = findMaxCarInBucket(currentBucket); // otherwise return the last car of the next non-empty bucket
     }
-    return const_iterator(buckets.begin(), buckets.end(), buckets.begin() + currentCarIt.getCurrentBucket(), nextCar);
+    return const_iterator(buckets.begin(), buckets.end(), buckets.begin() + currentBucket, nextCar);
   }
 
   /**
