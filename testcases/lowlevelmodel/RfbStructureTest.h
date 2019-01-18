@@ -2,6 +2,7 @@
 #define RFB_STRUCTURE_TEST_H
 
 #include <../../snowhouse/snowhouse.h>
+#include <map>
 
 #include "../randomUtils.h"
 #include "LowLevelCar.h"
@@ -9,6 +10,25 @@
 using namespace snowhouse;
 
 #define createCar(id, lane, distance) LowLevelCar(id, id, 0, 0, 0, 0, 0, 0, 0, lane, distance, 0)
+
+template <class Iterable>
+void checkIterable(Iterable iterable, const std::vector<unsigned> &shouldContain,
+    const std::vector<unsigned> &mightContain, const std::vector<unsigned> &shouldNotContain) {
+  std::map<unsigned, bool> shouldContainMap;
+  for (auto id : shouldContain) { shouldContainMap.insert(std::pair<unsigned, bool>(id, false)); }
+
+  for (auto car : iterable) {
+    unsigned id = car->getId();
+    AssertThat(shouldNotContain, Is().Not().Containing(id)); // does not contain ids it should not contain
+    // all contained ids are either necessary or at least allowed to be contained
+    auto findShouldContain = shouldContainMap.find(id);
+    assert(findShouldContain != shouldContainMap.end() ||
+           std::find(mightContain.begin(), mightContain.end(), id) != mightContain.end());
+    findShouldContain->second = true; // mark contained ids
+  }
+
+  for (auto const &kv : shouldContainMap) { AssertThat(kv.second, Is().True()); }
+}
 
 enum NeighborState { inFront = 1, behind = -1 };
 
