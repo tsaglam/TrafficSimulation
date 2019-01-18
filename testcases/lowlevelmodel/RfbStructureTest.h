@@ -98,8 +98,9 @@ void allIterableTest() {
  * - try different special cases such as no existing neighbors, a neighbor at the same position etc.
  */
 template <template <typename Car> typename Street>
-void getNextCarTest() {
-  const size_t carCount = 1;
+void getNextCarTest1() {
+  // Set-Up: create street and insert cars
+  const size_t carCount = 10;
   Street<LowLevelCar> street(1, carCount);
   for (size_t i = 0; i < carCount; ++i) { street.insertCar(createCar(i, 0, i)); }
   street.incorporateInsertedCars();
