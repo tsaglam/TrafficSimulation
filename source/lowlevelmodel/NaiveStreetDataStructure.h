@@ -56,36 +56,40 @@ public:
   friend class _AllCarIterable;
   friend class _BeyondsCarIterable;
 
-  template <class IteratorType>
+  template <bool Const = false>
   class _AllCarIterable {
+    using IteratorType    = std::conditional_t<Const, const_iterator, iterator>;
+    using StreetReference = std::conditional_t<Const, NaiveStreetDataStructure const &, NaiveStreetDataStructure &>;
     const IteratorType _begin;
     const IteratorType _end;
 
   public:
-    _AllCarIterable(NaiveStreetDataStructure &dataStructure)
+    _AllCarIterable(StreetReference &dataStructure)
         : _begin(dataStructure.carsOnStreet.begin()), _end(dataStructure.carsOnStreet.end()) {}
 
     inline IteratorType begin() const { return _begin; }
     inline IteratorType end() const { return _end; }
   };
 
-  template <class IteratorType>
+  template <bool Const = false>
   class _BeyondsCarIterable {
+    using IteratorType    = std::conditional_t<Const, const_iterator, iterator>;
+    using StreetReference = std::conditional_t<Const, NaiveStreetDataStructure const &, NaiveStreetDataStructure &>;
     const IteratorType _begin;
     const IteratorType _end;
 
   public:
-    _BeyondsCarIterable(NaiveStreetDataStructure &dataStructure)
+    _BeyondsCarIterable(StreetReference &dataStructure)
         : _begin(dataStructure.departedCars.begin()), _end(dataStructure.departedCars.end()) {}
 
     inline IteratorType begin() const { return _begin; }
     inline IteratorType end() const { return _end; }
   };
 
-  using AllCarIterable          = _AllCarIterable<iterator>;
-  using ConstAllCarIterable     = _AllCarIterable<const_iterator>;
-  using BeyondsCarIterable      = _BeyondsCarIterable<iterator>;
-  using ConstBeyondsCarIterable = _BeyondsCarIterable<const_iterator>;
+  using AllCarIterable          = _AllCarIterable<>;
+  using ConstAllCarIterable     = _AllCarIterable<true>;
+  using BeyondsCarIterable      = _BeyondsCarIterable<>;
+  using ConstBeyondsCarIterable = _BeyondsCarIterable<true>;
 
   // ------- Getter -------
   /**
@@ -148,22 +152,18 @@ public:
    * @return     The car behind the current car represented by an iterator.
    */
   iterator getNextCarBehind(const iterator currentCarIt, const int laneOffset = 0) {
-    // there is no car behind if this is the first car on the street
-    if (currentCarIt == carsOnStreet.begin()) { return carsOnStreet.end(); }
     const unsigned int lane = currentCarIt->getLane() + laneOffset;
     // iterate all cars behind the current car (on all lanes) return first car on the specified lane
-    for (iterator i = currentCarIt - 1; i != carsOnStreet.begin(); --i) { // reverse iteration
-      if (i->getLane() == lane) { return i; }
+    for (iterator i = currentCarIt; i != carsOnStreet.begin(); --i) { // reverse iteration
+      if ((i - 1)->getLane() == lane) { return (i - 1); }
     }
     return carsOnStreet.end(); // return end iterator if no next car exists on the given lane
   }
   const_iterator getNextCarBehind(const const_iterator currentCarIt, const int laneOffset = 0) const {
-    // there is no car behind if this is the first car on the street
-    if (currentCarIt == carsOnStreet.begin()) { return carsOnStreet.end(); }
     const unsigned int lane = currentCarIt->getLane() + laneOffset;
     // iterate all cars behind the current car (on all lanes) return first car on the specified lane
-    for (const_iterator i = currentCarIt - 1; i != carsOnStreet.begin(); --i) { // reverse iteration
-      if (i->getLane() == lane) { return i; }
+    for (const_iterator i = currentCarIt; i != carsOnStreet.begin(); --i) { // reverse iteration
+      if ((i - 1)->getLane() == lane) { return (i - 1); }
     }
     return carsOnStreet.end(); // return end iterator if no next car exists on the given lane
   }

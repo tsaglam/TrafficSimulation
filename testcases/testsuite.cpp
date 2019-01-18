@@ -60,7 +60,8 @@ int main() {
   std::cout << "\n";
   RUN(constructorAndConstMembersTest<BucketList>);
   RUN(allIterableTest<BucketList>);
-  RUN(getNextCarTest<BucketList>);
+  RUN(getNextCarTest1<BucketList>);
+  RUN(getNextCarTest2<BucketList>);
   RUN(getNextCarIteratorTest<BucketList>);
   RUN(insertCarTest<BucketList>);
   RUN(consistencyTest<BucketList>);
@@ -70,7 +71,8 @@ int main() {
   std::cout << "\n";
   RUN(constructorAndConstMembersTest<NaiveStreetDataStructure>);
   RUN(allIterableTest<NaiveStreetDataStructure>);
-  RUN(getNextCarTest<NaiveStreetDataStructure>);
+  RUN(getNextCarTest1<NaiveStreetDataStructure>);
+  RUN(getNextCarTest2<NaiveStreetDataStructure>);
   RUN(getNextCarIteratorTest<NaiveStreetDataStructure>);
   RUN(insertCarTest<NaiveStreetDataStructure>);
   RUN(consistencyTest<NaiveStreetDataStructure>);
