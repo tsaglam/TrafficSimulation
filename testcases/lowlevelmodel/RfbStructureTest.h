@@ -112,6 +112,31 @@ void getNextCarTest1() {
   neighbors.push_back(NeighborDef(carCount - 1, -1, 0, inFront));
   checkNeighbors(street, neighbors);
 }
+
+template <template <typename Car> typename Street>
+void getNextCarTest2() {
+  //   0123456789
+  // 0:  1     2
+  // 1:  3  0  4
+  // 2:  5     6
+  Street<LowLevelCar> street(3, 10);
+  street.insertCar(createCar(0, 1, 4));
+  street.insertCar(createCar(1, 0, 1));
+  street.insertCar(createCar(2, 0, 7));
+  street.insertCar(createCar(3, 1, 1));
+  street.insertCar(createCar(4, 1, 7));
+  street.insertCar(createCar(5, 2, 1));
+  street.insertCar(createCar(6, 2, 7));
+  street.incorporateInsertedCars();
+
+  std::vector<NeighborDef> neighbors;
+  neighbors.push_back(NeighborDef(0, 2, -1, inFront));
+  neighbors.push_back(NeighborDef(0, 4, 0, inFront));
+  neighbors.push_back(NeighborDef(0, 6, 1, inFront));
+  neighbors.push_back(NeighborDef(0, 1, -1, behind));
+  neighbors.push_back(NeighborDef(0, 3, 0, behind));
+  neighbors.push_back(NeighborDef(0, 5, 1, behind));
+  checkNeighbors(street, neighbors);
 }
 
 /*
