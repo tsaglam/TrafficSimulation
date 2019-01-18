@@ -10,6 +10,52 @@ using namespace snowhouse;
 
 #define createCar(id, lane, distance) LowLevelCar(id, id, 0, 0, 0, 0, 0, 0, 0, lane, distance, 0)
 
+enum NeighborState { inFront = 1, behind = -1 };
+
+struct NeighborDef {
+  unsigned carId;
+  unsigned neighborId;
+  int laneOffset;
+  NeighborState state;
+
+  NeighborDef(unsigned carId, unsigned neighborId, int laneOffset, NeighborState state)
+      : carId(carId), neighborId(neighborId), laneOffset(laneOffset), state(state) {}
+};
+
+template <template <class Car> class Street>
+void assertNeighborDef(
+    const Street<LowLevelCar> &street, typename Street<LowLevelCar>::const_iterator carIt, const NeighborDef def) {
+  AssertThat(carIt->getId(), Is().EqualTo(def.carId));
+  auto neighbor = (def.state == inFront) ? street.getNextCarInFront(carIt, def.laneOffset)
+                                         : street.getNextCarBehind(carIt, def.laneOffset);
+  if (def.neighborId == (unsigned)-1) {
+    AssertThat(neighbor, Is().EqualTo(street.allIterable().end()));
+  } else {
+    AssertThat(neighbor->getId(), Is().EqualTo(def.neighborId));
+  }
+}
+
+template <template <class Car> class Street>
+void checkNeighbors(const Street<LowLevelCar> &street, const std::vector<NeighborDef> &neighborDefinitionsVector) {
+  // create map from vector using the carId as key
+  std::map<unsigned, std::vector<NeighborDef>> neighborDefinitionsMap;
+  for (const NeighborDef &def : neighborDefinitionsVector) {
+    if (neighborDefinitionsMap.count(def.carId) == 0) {
+      std::pair<unsigned, std::vector<NeighborDef>> newElement(def.carId, std::vector<NeighborDef>(1, def));
+      neighborDefinitionsMap.insert(newElement);
+    } else {
+      neighborDefinitionsMap.find(def.carId)->second.push_back(def);
+    }
+  }
+
+  // Check the neighbors for all cars
+  for (auto carIt = street.allIterable().begin(); carIt != street.allIterable().end(); ++carIt) {
+    if (neighborDefinitionsMap.count(carIt->getId()) == 0) { continue; }
+    auto neighbors = neighborDefinitionsMap.find(carIt->getId())->second;
+    for (auto it = neighbors.begin(); it != neighbors.end(); ++it) { assertNeighborDef(street, carIt, *it); }
+  }
+}
+
 /*
  * Create a street with the constructor setting laneCount and length.
  * Check the laneCount and length via the getters.
@@ -58,20 +104,13 @@ void getNextCarTest() {
   for (size_t i = 0; i < carCount; ++i) { street.insertCar(createCar(i, 0, i)); }
   street.incorporateInsertedCars();
 
-  for (auto car = street.allIterable().begin(); car != street.allIterable().end(); ++car) {
-    auto behind  = street.getNextCarBehind(car);
-    auto inFront = street.getNextCarInFront(car);
-    if (car->getId() == 0) {
-      AssertThat(behind, Is().EqualTo(street.allIterable().end()));
-    } else {
-      AssertThat(behind->getId(), Is().EqualTo(car->getId() - 1));
-    }
-    if (car->getId() == carCount - 1) {
-      AssertThat(inFront, Is().EqualTo(street.allIterable().end()));
-    } else {
-      AssertThat(inFront->getId(), Is().EqualTo(car->getId() + 1));
-    }
-  }
+  // Define neighbor relationships
+  std::vector<NeighborDef> neighbors;
+  for (size_t i = 0; i < carCount; ++i) { neighbors.push_back(NeighborDef(i, i - 1, 0, behind)); }
+  for (size_t i = 0; i < carCount - 1; ++i) { neighbors.push_back(NeighborDef(i, i + 1, 0, inFront)); }
+  neighbors.push_back(NeighborDef(carCount - 1, -1, 0, inFront));
+  checkNeighbors(street, neighbors);
+}
 }
 
 /*
