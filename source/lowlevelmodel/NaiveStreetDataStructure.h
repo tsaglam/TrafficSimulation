@@ -56,36 +56,40 @@ public:
   friend class _AllCarIterable;
   friend class _BeyondsCarIterable;
 
-  template <class IteratorType>
+  template <bool Const = false>
   class _AllCarIterable {
+    using IteratorType    = std::conditional_t<Const, const_iterator, iterator>;
+    using StreetReference = std::conditional_t<Const, NaiveStreetDataStructure const &, NaiveStreetDataStructure &>;
     const IteratorType _begin;
     const IteratorType _end;
 
   public:
-    _AllCarIterable(NaiveStreetDataStructure &dataStructure)
+    _AllCarIterable(StreetReference &dataStructure)
         : _begin(dataStructure.carsOnStreet.begin()), _end(dataStructure.carsOnStreet.end()) {}
 
     inline IteratorType begin() const { return _begin; }
     inline IteratorType end() const { return _end; }
   };
 
-  template <class IteratorType>
+  template <bool Const = false>
   class _BeyondsCarIterable {
+    using IteratorType    = std::conditional_t<Const, const_iterator, iterator>;
+    using StreetReference = std::conditional_t<Const, NaiveStreetDataStructure const &, NaiveStreetDataStructure &>;
     const IteratorType _begin;
     const IteratorType _end;
 
   public:
-    _BeyondsCarIterable(NaiveStreetDataStructure &dataStructure)
+    _BeyondsCarIterable(StreetReference &dataStructure)
         : _begin(dataStructure.departedCars.begin()), _end(dataStructure.departedCars.end()) {}
 
     inline IteratorType begin() const { return _begin; }
     inline IteratorType end() const { return _end; }
   };
 
-  using AllCarIterable          = _AllCarIterable<iterator>;
-  using ConstAllCarIterable     = _AllCarIterable<const_iterator>;
-  using BeyondsCarIterable      = _BeyondsCarIterable<iterator>;
-  using ConstBeyondsCarIterable = _BeyondsCarIterable<const_iterator>;
+  using AllCarIterable          = _AllCarIterable<>;
+  using ConstAllCarIterable     = _AllCarIterable<true>;
+  using BeyondsCarIterable      = _BeyondsCarIterable<>;
+  using ConstBeyondsCarIterable = _BeyondsCarIterable<true>;
 
   // ------- Getter -------
   /**
