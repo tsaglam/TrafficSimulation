@@ -8,17 +8,11 @@
 template <class Car>
 class BucketList {
 private:
-  /**
-   * The number of lanes on the street (in the current direction).
-   */
+  /** The number of lanes on the street (in the current direction). */
   const unsigned int laneCount;
-  /**
-   * The length of the street.
-   */
+  /** The length of the street. */
   const double streetLength;
-  /**
-   * The distance represented by a single bucket.
-   */
+  /** The distance represented by a single bucket. */
   const double sectionLength;
 
   // ------- Data Storage -------
@@ -33,9 +27,7 @@ private:
    */
   std::vector<Bucket> buckets;
 
-  /**
-   * All cars that left this street (i.e. their distance is greater than the street length).
-   */
+  /**  All cars that left this street (i.e. their distance is greater than the street length). */
   Bucket departedCars;
 
   /**
@@ -299,30 +291,25 @@ public:
   // ------- Getter -------
   /**
    * @brief      Gets the number of lanes on the street (in the current direction).
-   *
    * @return     The number of lanes.
    */
   inline unsigned int getLaneCount() const { return laneCount; }
 
   /**
    * @brief      Gets the length of the street.
-   *
    * @return     The street length.
    */
   inline double getLength() const { return streetLength; }
 
   /**
    * @brief      Gets the length of a section represented by single buckets.
-   *
    * @return     The section length.
    */
   inline double getSectionLength() const { return sectionLength; }
 
   /**
    * @brief      Gets the number cars on this street (in the current direction).
-   *
    * Cars beyond the street and cars that are inserted but not incorporated are not considered.
-   *
    * @return     The number cars on this street.
    */
   inline unsigned int getCarCount() const { return carCount; }
