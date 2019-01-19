@@ -94,7 +94,7 @@ void constructorAndConstMembersTest() {
 
 /*
  * Ensure that the allIterable visits each car on the street exactly once and that the number of visited cars is equal
- * to getCarCount. Try different states of the street including special cases and inbetween states.
+ * to getCarCount. Try different states of the street including special cases and in-between states.
  */
 template <template <typename Car> typename Street>
 void allIterableTest() {
@@ -156,7 +156,7 @@ void getNextCarTest2() {
 }
 
 /*
- * Test if the iterator returned by the getNextCarInFront/Behind functions works as intendet.
+ * Test if the iterator returned by the getNextCarInFront/Behind functions works as intended.
  * (i.e. ?)
  * - check neighbors on both the own lane an neighboring lanes
  * - try different special cases such as no existing neighbors, a neighbor at the same position etc.
