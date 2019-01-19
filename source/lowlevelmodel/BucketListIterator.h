@@ -18,7 +18,7 @@ public:
       typename std::vector<Bucket>::iterator>;
 
 private:
-  const buckets_iterator beginBucket, endBucket;
+  buckets_iterator beginBucket, endBucket;
   buckets_iterator currentBucket;
   bucket_iterator currentPositionInBucket;
 
