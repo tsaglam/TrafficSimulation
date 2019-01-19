@@ -21,4 +21,10 @@ inline bool compareLess(const LowLevelCar &a, const LowLevelCar &b) {
          (a.getDistance() == b.getDistance() && a.getExternalId() > b.getExternalId());
 }
 
+template <class LowLevelCar>
+inline bool compareGreater(const LowLevelCar &a, const LowLevelCar &b) {
+  return (a.getDistance() > b.getDistance()) ||
+         (a.getDistance() == b.getDistance() && a.getExternalId() < b.getExternalId());
+}
+
 #endif
