@@ -201,6 +201,8 @@ void allIterableTest6() {
  * - check neighbors on both the own lane an neighboring lanes
  * - try different special cases such as no existing neighbors, a neighbor at the same position etc.
  */
+
+// Case 1: 1 lane street, multiple cars in succession
 template <template <typename Car> typename Street>
 void getNextCarTest1() {
   // Set-Up: create street and insert cars
@@ -217,6 +219,7 @@ void getNextCarTest1() {
   checkNeighbors(street, neighbors);
 }
 
+// Case 2: 3 lane street, one car with a neighbor in each direction and lane
 template <template <typename Car> typename Street>
 void getNextCarTest2() {
   //   0123456789
@@ -240,6 +243,77 @@ void getNextCarTest2() {
   neighbors.push_back(NeighborDef(0, 1, -1, behind));
   neighbors.push_back(NeighborDef(0, 3, 0, behind));
   neighbors.push_back(NeighborDef(0, 5, 1, behind));
+  checkNeighbors(street, neighbors);
+}
+
+// Case 3: 3 lane street, one car, no neighbors
+template <template <typename Car> typename Street>
+void getNextCarTest3() {
+  //   0123456789
+  // 0:
+  // 1:    0
+  // 2:
+  Street<LowLevelCar> street(3, 10);
+  street.insertCar(createCar(0, 1, 4));
+  street.incorporateInsertedCars();
+
+  std::vector<NeighborDef> neighbors;
+  neighbors.push_back(NeighborDef(0, -1, -1, inFront));
+  neighbors.push_back(NeighborDef(0, -1, 0, inFront));
+  neighbors.push_back(NeighborDef(0, -1, 1, inFront));
+  neighbors.push_back(NeighborDef(0, -1, -1, behind));
+  neighbors.push_back(NeighborDef(0, -1, 0, behind));
+  neighbors.push_back(NeighborDef(0, -1, 1, behind));
+  checkNeighbors(street, neighbors);
+}
+
+// Case 4: 1 lane street, three cars at the same position
+template <template <typename Car> typename Street>
+void getNextCarTest4() {
+  Street<LowLevelCar> street(1, 10);
+  for (int i = 0; i < 3; ++i) { street.insertCar(createCar(i, 0, 0)); }
+  street.incorporateInsertedCars();
+
+  std::vector<NeighborDef> neighbors;
+  neighbors.push_back(NeighborDef(0, -1, 0, inFront));
+  neighbors.push_back(NeighborDef(0, 1, 0, behind));
+  neighbors.push_back(NeighborDef(1, 0, 0, inFront));
+  neighbors.push_back(NeighborDef(1, 2, 0, behind));
+  neighbors.push_back(NeighborDef(2, 1, 0, inFront));
+  neighbors.push_back(NeighborDef(2, -1, 0, behind));
+  checkNeighbors(street, neighbors);
+}
+
+// Case 5: 3 lane street, one car per lane, each car at the same distance
+template <template <typename Car> typename Street>
+void getNextCarTest5() {
+  //   0123456789
+  // 0:    0
+  // 1:    1
+  // 2:    2
+  Street<LowLevelCar> street(3, 10);
+  street.insertCar(createCar(0, 0, 4));
+  street.insertCar(createCar(1, 1, 4));
+  street.insertCar(createCar(2, 2, 4));
+  street.incorporateInsertedCars();
+
+  std::vector<NeighborDef> neighbors;
+  neighbors.push_back(NeighborDef(0, -1, 0, inFront));
+  neighbors.push_back(NeighborDef(0, -1, 0, behind));
+  neighbors.push_back(NeighborDef(0, -1, 1, inFront));
+  neighbors.push_back(NeighborDef(0, 1, 1, behind));
+
+  neighbors.push_back(NeighborDef(1, 0, -1, inFront));
+  neighbors.push_back(NeighborDef(1, -1, -1, behind));
+  neighbors.push_back(NeighborDef(1, -1, 0, inFront));
+  neighbors.push_back(NeighborDef(1, -1, 0, behind));
+  neighbors.push_back(NeighborDef(1, -1, 1, inFront));
+  neighbors.push_back(NeighborDef(1, 2, 1, behind));
+
+  neighbors.push_back(NeighborDef(2, 1, -1, inFront));
+  neighbors.push_back(NeighborDef(2, -1, -1, behind));
+  neighbors.push_back(NeighborDef(2, -1, 0, inFront));
+  neighbors.push_back(NeighborDef(2, -1, 0, behind));
   checkNeighbors(street, neighbors);
 }
 

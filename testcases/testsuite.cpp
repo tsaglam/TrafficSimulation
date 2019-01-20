@@ -69,6 +69,10 @@ int main() {
   std::cout << "\n";
   RUN(getNextCarTest1<BucketList>);
   RUN(getNextCarTest2<BucketList>);
+  RUN(getNextCarTest3<BucketList>);
+  RUN(getNextCarTest4<BucketList>);
+  RUN(getNextCarTest5<BucketList>);
+  std::cout << "\n";
   RUN(getNextCarIteratorTest1<BucketList>);
   RUN(insertCarTest<BucketList>);
   RUN(consistencyTest<BucketList>);
@@ -88,6 +92,10 @@ int main() {
   std::cout << "\n";
   RUN(getNextCarTest1<NaiveStreetDataStructure>);
   RUN(getNextCarTest2<NaiveStreetDataStructure>);
+  RUN(getNextCarTest3<NaiveStreetDataStructure>);
+  RUN(getNextCarTest4<NaiveStreetDataStructure>);
+  RUN(getNextCarTest5<NaiveStreetDataStructure>);
+  std::cout << "\n";
   RUN(getNextCarIteratorTest1<NaiveStreetDataStructure>);
   RUN(insertCarTest<NaiveStreetDataStructure>);
   RUN(consistencyTest<NaiveStreetDataStructure>);
