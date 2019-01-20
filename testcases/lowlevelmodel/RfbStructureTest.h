@@ -15,7 +15,7 @@ using namespace snowhouse;
 template <class Iterable>
 void checkIterable(Iterable iterable, const std::vector<unsigned> &shouldContain,
     const std::vector<unsigned> &mightContain     = std::vector<unsigned>(),
-    const std::vector<unsigned> &shouldNotContain = std::vector<unsigned>()) {
+    const std::vector<unsigned> &shouldNotContain = std::vector<unsigned>(), const bool noDuplicates = true) {
   std::map<unsigned, bool> shouldContainMap;
   for (auto id : shouldContain) { shouldContainMap.insert(std::pair<unsigned, bool>(id, false)); }
 
@@ -26,6 +26,7 @@ void checkIterable(Iterable iterable, const std::vector<unsigned> &shouldContain
     auto findShouldContain = shouldContainMap.find(id);
     assert(findShouldContain != shouldContainMap.end() ||
            std::find(mightContain.begin(), mightContain.end(), id) != mightContain.end());
+    if (noDuplicates) { AssertThat(findShouldContain->second, Is().False()); }
     findShouldContain->second = true; // mark contained ids
   }
 
