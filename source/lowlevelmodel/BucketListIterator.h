@@ -40,6 +40,7 @@ private:
   }
 
   friend class BucketList<Car>;
+  friend class bucket_list_iterator<Bucket, Car, !Const>;
 
   unsigned getCurrentBucket() const { return currentBucket - beginBucket; }
 
@@ -72,9 +73,11 @@ private:
 
 public:
   bucket_list_iterator() = default;
-  bucket_list_iterator(const bucket_list_iterator<Bucket, Car, false>& it)
+  bucket_list_iterator(const bucket_list_iterator<Bucket, Car, false> &it)
       : beginBucket(it.beginBucket), endBucket(it.endBucket), currentBucket(it.currentBucket),
-        currentPositionInBucket(it.currentPositionInBucket), state(it.state) {}
+        currentPositionInBucket(it.currentPositionInBucket), state(STANDARD) {
+    if (it.state == END) { state = END; }
+  }
   bucket_list_iterator(const buckets_iterator beginBucket, const buckets_iterator endBucket)
       : beginBucket(beginBucket), endBucket(endBucket), currentBucket(beginBucket),
         currentPositionInBucket(currentBucket->begin()), state(STANDARD) {
