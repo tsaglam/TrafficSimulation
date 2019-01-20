@@ -85,16 +85,19 @@ public:
   template <bool Const = false>
   class _AllCarIterable {
     using ListReference = typename std::conditional_t<Const, BucketList const &, BucketList &>;
-    const BucketList::const_iterator _begin;
-    const BucketList::const_iterator _end;
+    using iterator_type = typename std::conditional_t<Const, BucketList::const_iterator, BucketList::iterator>;
+    const iterator_type _begin;
+    const iterator_type _end;
 
   public:
-    _AllCarIterable(ListReference &list)
+    _AllCarIterable(ListReference list)
         : _begin(list.buckets.begin(), list.buckets.end()), _end(list.buckets.begin(), list.buckets.end(), 0) {}
-    inline BucketList::const_iterator begin() const { return _begin; }
-    inline BucketList::const_iterator end() const { return _end; }
+    inline iterator_type begin() const { return _begin; }
+    inline iterator_type end() const { return _end; }
   };
 
+  template<bool Const>
+  friend class _AllCarIterable;
   using AllCarIterable      = _AllCarIterable<>;
   using ConstAllCarIterable = _AllCarIterable<true>;
 
@@ -349,8 +352,8 @@ public:
    */
   void updateCarsAndRestoreConsistency() {
     AllCarIterable iterable(*this);
-    iterator carIt = AllCarIterable(*this).end();
     for (int i = 0; i < getCarCount(); ++i) { // for all cars on the street
+    iterator carIt = allIterable().end();
       carIt--;
       carIt->update(); // update car to new state and position
 
