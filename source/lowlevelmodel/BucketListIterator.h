@@ -49,7 +49,7 @@ private:
     Car removed = *currentPositionInBucket; // create copy of the current car TODO correct?
     // remove car and move currentPositionInBucket to next element
     currentPositionInBucket = currentBucket->erase(currentPositionInBucket);
-    if (currentPositionInBucket == currentBucket.end()) {
+    if (currentPositionInBucket == currentBucket->end()) {
       currentBucket = findNextNonEmptyBucket(); // find next bucket
       if (currentBucket == endBucket) {
         state = END;
