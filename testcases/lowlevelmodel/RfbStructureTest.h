@@ -16,18 +16,27 @@ template <class Iterable>
 void checkIterable(Iterable iterable, const std::vector<unsigned> &shouldContain,
     const std::vector<unsigned> &mightContain     = std::vector<unsigned>(),
     const std::vector<unsigned> &shouldNotContain = std::vector<unsigned>(), const bool noDuplicates = true) {
-  std::map<unsigned, bool> shouldContainMap;
+  std::map<unsigned, bool> shouldContainMap, mightContainMap;
   for (auto id : shouldContain) { shouldContainMap.insert(std::pair<unsigned, bool>(id, false)); }
+  for (auto id : mightContain) { mightContainMap.insert(std::pair<unsigned, bool>(id, false)); }
 
   for (auto car : iterable) {
     unsigned id = car.getId();
     AssertThat(shouldNotContain, Is().Not().Containing(id)); // does not contain ids it should not contain
-    // all contained ids are either necessary or at least allowed to be contained
     auto findShouldContain = shouldContainMap.find(id);
-    assert(findShouldContain != shouldContainMap.end() ||
-           std::find(mightContain.begin(), mightContain.end(), id) != mightContain.end());
-    if (noDuplicates) { AssertThat(findShouldContain->second, Is().False()); }
-    findShouldContain->second = true; // mark contained ids
+    auto findMightContain  = mightContainMap.find(id);
+    // all contained ids are either necessary or at least allowed to be contained
+    assert(findShouldContain != shouldContainMap.end() || findMightContain != mightContainMap.end());
+
+    if (noDuplicates) { // check for duplicates if wanted
+      // if the id is in shouldContain, ensure that is is not yet visited
+      assert(findShouldContain == shouldContainMap.end() || findShouldContain->second == false);
+      // if the id is in mightContain, ensure that is is not yet visited
+      assert(findMightContain == mightContainMap.end() || findMightContain->second == false);
+    }
+    // mark id as visited
+    if (findShouldContain != shouldContainMap.end()) { findShouldContain->second = true; }
+    if (findMightContain != mightContainMap.end()) { findMightContain->second = true; }
   }
 
   for (auto const &kv : shouldContainMap) { AssertThat(kv.second, Is().True()); }
