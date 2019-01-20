@@ -352,8 +352,8 @@ public:
    */
   void updateCarsAndRestoreConsistency() {
     AllCarIterable iterable(*this);
-    for (int i = 0; i < getCarCount(); ++i) { // for all cars on the street
     iterator carIt = allIterable().end();
+    for (unsigned i = 0; i < getCarCount(); ++i) { // for all cars on the street
       carIt--;
       carIt->update(); // update car to new state and position
 
