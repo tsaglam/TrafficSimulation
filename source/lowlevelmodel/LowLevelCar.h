@@ -12,7 +12,22 @@ private:
 
   double targetVelocity;
   double maxAcceleration;
-  double targetDeceleration;
+  /**
+   * accelerationDivisor is a pre-computed variable used in the calculation of the car's acceleration.
+   * It is used as a divisor within the formula for carInFrontFactor, the factor capturing causing deceleration when a
+   * car (or traffic light) is in front of the car in question.
+   *
+   * The formula for calculating the accelerationDivisor is:
+   *
+   *     2.0 * std::sqrt(
+   *         maxAcceleration * targetDeceleration
+   *     )
+   */
+  double accelerationDivisor;
+  /**
+   * targetDeceleration is not needed during computation when the accelerationDivisor value is known.
+   */
+  // double targetDeceleration;
   double minDistance;
   double targetHeadway;
   double politeness;
@@ -42,14 +57,14 @@ private:
 public:
   LowLevelCar() = default;
   LowLevelCar(unsigned int _id, unsigned int _externalId, double _targetVelocity, double _maxAcceleration,
-      double _targetDeceleration, double _minDistance, double _targetHeadway, double _politeness, double _length)
+      double _accelerationDivisor, double _minDistance, double _targetHeadway, double _politeness, double _length)
       : id(_id), externalId(_externalId), targetVelocity(_targetVelocity), maxAcceleration(_maxAcceleration),
-        targetDeceleration(_targetDeceleration), minDistance(_minDistance), targetHeadway(_targetHeadway),
+        accelerationDivisor(_accelerationDivisor), minDistance(_minDistance), targetHeadway(_targetHeadway),
         politeness(_politeness), length(_length) {}
   LowLevelCar(unsigned int _id, unsigned int _externalId, double _targetVelocity, double _maxAcceleration,
-      double _targetDeceleration, double _minDistance, double _targetHeadway, double _politeness, double _length,
+      double _accelerationDivisor, double _minDistance, double _targetHeadway, double _politeness, double _length,
       unsigned int _lane, double _distance, double _velocity = 0.0)
-      : LowLevelCar(_id, _externalId, _targetVelocity, _maxAcceleration, _targetDeceleration, _minDistance,
+      : LowLevelCar(_id, _externalId, _targetVelocity, _maxAcceleration, _accelerationDivisor, _minDistance,
             _targetHeadway, _politeness, _length) {
     setPosition(_lane, _distance, _velocity);
     setNext(_lane, _distance, _velocity);
@@ -95,7 +110,7 @@ public:
   unsigned int getId() const { return id; }
   double getTargetVelocity() const { return targetVelocity; }
   double getMaxAcceleration() const { return maxAcceleration; }
-  double getTargetDeceleration() const { return targetDeceleration; }
+  double getAccelerationDivisor() const { return accelerationDivisor; }
   double getMinDistance() const { return minDistance; }
   double getTargetHeadway() const { return targetHeadway; }
   double getPoliteness() const { return politeness; }

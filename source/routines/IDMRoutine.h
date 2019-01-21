@@ -78,9 +78,7 @@ private:
           (
             car.getVelocity() * velocityDelta
           ) / (
-            2.0 * std::sqrt(
-              car.getMaxAcceleration() * car.getTargetDeceleration()
-            )
+            car.getAccelerationDivisor()
           )
         );
         // clang-format on

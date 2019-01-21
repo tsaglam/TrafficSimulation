@@ -44,8 +44,11 @@ public:
     }
 
     for (const auto &domainVehicle : domainModel.getVehicles()) {
+      const double accelerationDivisor =
+          2.0 * std::sqrt(domainVehicle->getMaxAcceleration() * domainVehicle->getTargetDeceleration());
+
       LowLevelCar car(domainVehicle->getId(), domainVehicle->getExternalId(), domainVehicle->getTargetVelocity(),
-          domainVehicle->getMaxAcceleration(), domainVehicle->getTargetDeceleration(), domainVehicle->getMinDistance(),
+          domainVehicle->getMaxAcceleration(), accelerationDivisor, domainVehicle->getMinDistance(),
           domainVehicle->getTargetHeadway(), domainVehicle->getPoliteness(), VEHICLE_LENGTH,
           domainVehicle->getPosition().getLane(), domainVehicle->getPosition().getDistance());
 
