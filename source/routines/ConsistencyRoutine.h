@@ -6,6 +6,7 @@
 #include "LowLevelStreet.h"
 #include "RfbStructure.h"
 #include "SimulationData.h"
+#include <algorithm>
 
 template <template <typename Vehicle> typename RfbStructure>
 class ConsistencyRoutine {
@@ -31,14 +32,18 @@ public:
       // for every low level car that changes streets:
       auto beyondsIterable = street.beyondsIterable();
       for (auto vehicleIt = beyondsIterable.begin(); vehicleIt != beyondsIterable.end(); ++vehicleIt) {
-        // get domain model car and desired domain model destination street:
+        // get domain model car and desired/available domain model destination street:
         Vehicle &domVehicle                    = model.getVehicle(vehicleIt->getId());
         CardinalDirection destinationDirection = takeTurn(originDirection, domVehicle.getNextDirection());
-        Street *domDestinationStreet           = domJunction.getOutgoingStreet(destinationDirection).getStreet();
+        while (!domJunction.getOutgoingStreet(destinationDirection).isConnected()) {
+          destinationDirection = CardinalDirection(destinationDirection + 1);
+        }
+        Street *domDestinationStreet = domJunction.getOutgoingStreet(destinationDirection).getStreet();
 
         // Copy the vehicle and adjust distance
         LowLevelCar vehicle = *vehicleIt;
-        vehicle.setNext(vehicle.getLane(), vehicle.getDistance() - street.getLength(), vehicle.getVelocity());
+        int newLane         = std::min(vehicle.getLane(), domDestinationStreet->getLanes() - 1);
+        vehicle.setNext(newLane, vehicle.getDistance() - street.getLength(), vehicle.getVelocity());
 
         // insert car on correlating low level destination street:
         LowLevelStreet<RfbStructure> &destinationStreet = data.getStreet(domDestinationStreet->getId());
