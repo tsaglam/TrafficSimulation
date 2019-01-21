@@ -36,7 +36,7 @@ public:
         Vehicle &domVehicle                    = model.getVehicle(vehicleIt->getId());
         CardinalDirection destinationDirection = takeTurn(originDirection, domVehicle.getNextDirection());
         while (!domJunction.getOutgoingStreet(destinationDirection).isConnected()) {
-          destinationDirection = CardinalDirection(destinationDirection + 1);
+          destinationDirection = CardinalDirection((destinationDirection + 1) % 4);
         }
         Street *domDestinationStreet = domJunction.getOutgoingStreet(destinationDirection).getStreet();
 
