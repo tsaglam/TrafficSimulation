@@ -1,7 +1,6 @@
 stages:
   - test
-  - benchmark-build
-  - benchmark-run
+  - benchmark
 
 
 variables:
@@ -17,8 +16,8 @@ test:
     - make test
 
 
-benchmark-build:pc189:
-  stage: benchmark-build
+benchmark:pc189:
+  stage: benchmark
   tags:
     - pc189
   when: manual
@@ -27,45 +26,14 @@ benchmark-build:pc189:
   script:
     - source ~/pdmkp_env
     - make
-  artifacts:
-    paths:
-      - traffic_sim
-      - build
-
-benchmark-build:pc205:
-  stage: benchmark-build
-  tags:
-    - pc205
-  when: manual
-  script:
-    - source ~/pdmkp_env
-    - make
-  artifacts:
-    paths:
-      - traffic_sim
-      - build
-
-
-benchmark-run:pc189:
-  stage: benchmark-run
-  tags:
-    - pc189
-  when: manual
-  dependencies:
-    - benchmark-build:pc189
-  variables:
-    GIT_SUBMODULE_STRATEGY: none
-  script:
-    - source ~/pdmkp_env
     - traffic_check $PWD/traffic_sim
 
-benchmark-run:pc205:
-  stage: benchmark-run
+benchmark:pc205:
+  stage: benchmark
   tags:
     - pc205
   when: manual
-  dependencies:
-    - benchmark-build:pc205
   script:
     - source ~/pdmkp_env
+    - make
     - traffic_check $PWD/traffic_sim
