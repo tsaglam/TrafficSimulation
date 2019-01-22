@@ -1,5 +1,16 @@
 # adapted from https://spin.atomicobject.com/2016/08/26/makefile-c-projects/
 
+UNAME := $(shell uname)
+
+ifdef OMP
+LDFLAGS += -lomp
+ifeq ($(UNAME), Darwin)
+OMP_FLAGS = -DOMP -Xpreprocessor -fopenmp
+else
+OMP_FLAGS = -DOMP -fopenmp
+endif
+endif
+
 BUILD_DIR ?= ./build
 SRC_DIRS ?= ./source
 TEST_DIRS ?= ./testcases
@@ -18,9 +29,9 @@ DBG_DEPS := $(DBG_OBJS:.o=.d)
 INC_DIRS := $(shell find $(SRC_DIRS) -type d)
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
-CPPFLAGS ?= $(CXXFLAGS) $(INC_FLAGS) -MMD -MP -std=c++17 -O3 -Werror -Wall -Wextra
+CPPFLAGS ?= $(CXXFLAGS) $(INC_FLAGS) $(OMP_FLAGS) -MMD -MP -std=c++17 -O3 -Werror -Wall -Wextra
 
-DBG_CPPFLAGS ?= $(CXXFLAGS) $(INC_FLAGS) -MMD -MP -std=c++17 -O0 -fno-omit-frame-pointer -g -fsanitize=address -Werror -Wall -Wextra
+DBG_CPPFLAGS ?= $(CXXFLAGS) $(INC_FLAGS) $(OMP_FLAGS) -MMD -MP -std=c++17 -O0 -fno-omit-frame-pointer -g -fsanitize=address -Werror -Wall -Wextra
 TEST_CPPFLAGS ?= $(DBG_CPPFLAGS)
 
 # Rules regarding the primary executable
