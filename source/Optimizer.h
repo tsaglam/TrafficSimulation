@@ -1,7 +1,11 @@
 #ifndef OPTIMIZER_H
 #define OPTIMIZER_H
 
+#include "DomainModel.h"
+#include "Junction.h"
 #include "Simulator.h"
+
+#include <vector>
 
 template <template <typename Vehicle> typename RfbStructure,
     template <template <typename Vehicle> typename _RfbStructure> typename SignalingRoutine,
