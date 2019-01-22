@@ -4,8 +4,8 @@
 #include "domainmodel/JunctionTest.h"
 #include "domainmodel/VehicleTest.h"
 #include "lowlevelmodel/RfbStructureTest.h"
-#include "routines/TrafficLightRoutineTest.h"
 #include "routines/ConsistencyRoutineTest.h"
+#include "routines/TrafficLightRoutineTest.h"
 #include <../../snowhouse/snowhouse.h>
 #include <iostream>
 #include <regex>
@@ -57,23 +57,46 @@ int main() {
   RUN(calculateOriginDirectionTest);
 
   // RfbStructure - BucketList
-  std::cout << "\n";
+  std::cout << "\n   BucketList\n";
   RUN(constructorAndConstMembersTest<BucketList>);
-  RUN(allIterableTest<BucketList>);
+  std::cout << "\n";
+  RUN(allIterableTest1<BucketList>);
+  RUN(allIterableTest2<BucketList>);
+  RUN(allIterableTest3<BucketList>);
+  RUN(allIterableTest4<BucketList>);
+  RUN(allIterableTest5<BucketList>);
+  RUN(allIterableTest6<BucketList>);
+  std::cout << "\n";
   RUN(getNextCarTest1<BucketList>);
   RUN(getNextCarTest2<BucketList>);
-  RUN(getNextCarIteratorTest<BucketList>);
+  RUN(getNextCarTest3<BucketList>);
+  RUN(getNextCarTest4<BucketList>);
+  RUN(getNextCarTest5<BucketList>);
+  std::cout << "\n";
+  RUN(getNextCarIteratorTest1<BucketList>);
   RUN(insertCarTest<BucketList>);
   RUN(consistencyTest<BucketList>);
   RUN(beyondsIterableTest<BucketList>);
   RUN(removeBeyondsTest<BucketList>);
+
   // RfbStructure - NaiveStreetDataStructure
-  std::cout << "\n";
+  std::cout << "\n   NaiveStreetDataStructure\n";
   RUN(constructorAndConstMembersTest<NaiveStreetDataStructure>);
-  RUN(allIterableTest<NaiveStreetDataStructure>);
+  std::cout << "\n";
+  RUN(allIterableTest1<NaiveStreetDataStructure>);
+  RUN(allIterableTest2<NaiveStreetDataStructure>);
+  RUN(allIterableTest3<NaiveStreetDataStructure>);
+  RUN(allIterableTest4<NaiveStreetDataStructure>);
+  RUN(allIterableTest5<NaiveStreetDataStructure>);
+  RUN(allIterableTest6<NaiveStreetDataStructure>);
+  std::cout << "\n";
   RUN(getNextCarTest1<NaiveStreetDataStructure>);
   RUN(getNextCarTest2<NaiveStreetDataStructure>);
-  RUN(getNextCarIteratorTest<NaiveStreetDataStructure>);
+  RUN(getNextCarTest3<NaiveStreetDataStructure>);
+  RUN(getNextCarTest4<NaiveStreetDataStructure>);
+  RUN(getNextCarTest5<NaiveStreetDataStructure>);
+  std::cout << "\n";
+  RUN(getNextCarIteratorTest1<NaiveStreetDataStructure>);
   RUN(insertCarTest<NaiveStreetDataStructure>);
   RUN(consistencyTest<NaiveStreetDataStructure>);
   RUN(beyondsIterableTest<NaiveStreetDataStructure>);

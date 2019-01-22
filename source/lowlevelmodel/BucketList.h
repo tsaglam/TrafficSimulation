@@ -85,16 +85,19 @@ public:
   template <bool Const = false>
   class _AllCarIterable {
     using ListReference = typename std::conditional_t<Const, BucketList const &, BucketList &>;
-    const BucketList::const_iterator _begin;
-    const BucketList::const_iterator _end;
+    using iterator_type = typename std::conditional_t<Const, BucketList::const_iterator, BucketList::iterator>;
+    const iterator_type _begin;
+    const iterator_type _end;
 
   public:
-    _AllCarIterable(ListReference &list)
+    _AllCarIterable(ListReference list)
         : _begin(list.buckets.begin(), list.buckets.end()), _end(list.buckets.begin(), list.buckets.end(), 0) {}
-    inline BucketList::const_iterator begin() const { return _begin; }
-    inline BucketList::const_iterator end() const { return _end; }
+    inline iterator_type begin() const { return _begin; }
+    inline iterator_type end() const { return _end; }
   };
 
+  template<bool Const>
+  friend class _AllCarIterable;
   using AllCarIterable      = _AllCarIterable<>;
   using ConstAllCarIterable = _AllCarIterable<true>;
 
@@ -128,61 +131,97 @@ public:
 
 private:
   /**
-   * @brief      Determine the minimum car in the given bucket and return it via an iterator.
+   * @brief      Determine the minimum car in the given bucket and return it via an iterator. Return only cars > the
+   * given limitCar.
    *
    * @param[in]  bucketIndex  The bucket index of the bucket to search in.
-   * @param[in]  lowerLimit   The lower limit of the distance, only cars with distance > lowerLimit are returned.
+   * @param[in]  limitCar     The limit car,  only cars > limitCar are returned.
    *
-   * @return     Iterator to the minimum car in the bucket with distance > lowerLimit, end() if no such car exists.
+   * @return     Iterator to the minimum car in the bucket > limitCar, end() if no such car exists.
    */
-  inline bucket_iterator findMinCarInBucket(const unsigned int bucketIndex, const double lowerLimit = -1) {
+  inline bucket_iterator findMinCarInBucket(const unsigned int bucketIndex, const Car &limitCar) {
     assert(bucketIndex >= 0 && bucketIndex < buckets.size());
     bucket_iterator minIt = buckets[bucketIndex].end();
     for (bucket_iterator it = buckets[bucketIndex].begin(); it != buckets[bucketIndex].end(); ++it) {
-      if (it->getDistance() > lowerLimit && (minIt == buckets[bucketIndex].end() || compareLess(*it, *minIt))) {
-        minIt = it;
-      }
+      if (!compareGreater(*it, limitCar)) { continue; } // skip if it < limit
+      if (minIt == buckets[bucketIndex].end() || compareLess(*it, *minIt)) { minIt = it; }
     }
     return minIt;
   }
-  inline bucket_const_iterator findMinCarInBucket(const unsigned int bucketIndex, const double lowerLimit = -1) const {
+  inline bucket_const_iterator findMinCarInBucket(const unsigned int bucketIndex, const Car &limitCar) const {
     assert(bucketIndex >= 0 && bucketIndex < buckets.size());
     bucket_const_iterator minIt = buckets[bucketIndex].end();
     for (bucket_const_iterator it = buckets[bucketIndex].begin(); it != buckets[bucketIndex].end(); ++it) {
-      if (it->getDistance() > lowerLimit && (minIt == buckets[bucketIndex].end() || compareLess(*it, *minIt))) {
-        minIt = it;
-      }
+      if (!compareGreater(*it, limitCar)) { continue; } // skip if it < limit
+      if (minIt == buckets[bucketIndex].end() || compareLess(*it, *minIt)) { minIt = it; }
     }
     return minIt;
   }
 
   /**
-   * @brief      Determine the maximum car in the given bucket and return it via an iterator.
+   * @brief      Variant of findMinCarInBucket without limitCar. Returns the actual minimum car in the bucket.
+   */
+  inline bucket_iterator findMinCarInBucket(const unsigned int bucketIndex) {
+    assert(bucketIndex >= 0 && bucketIndex < buckets.size());
+    bucket_iterator minIt = buckets[bucketIndex].end();
+    for (bucket_iterator it = buckets[bucketIndex].begin(); it != buckets[bucketIndex].end(); ++it) {
+      if (minIt == buckets[bucketIndex].end() || compareLess(*it, *minIt)) { minIt = it; }
+    }
+    return minIt;
+  }
+  inline bucket_const_iterator findMinCarInBucket(const unsigned int bucketIndex) const {
+    assert(bucketIndex >= 0 && bucketIndex < buckets.size());
+    bucket_const_iterator minIt = buckets[bucketIndex].end();
+    for (bucket_const_iterator it = buckets[bucketIndex].begin(); it != buckets[bucketIndex].end(); ++it) {
+      if (minIt == buckets[bucketIndex].end() || compareLess(*it, *minIt)) { minIt = it; }
+    }
+    return minIt;
+  }
+
+  /**
+   * @brief      Determine the maximum car in the given bucket and return it via an iterator. Return only cars > the
+   * given limitCar.
    *
    * @param[in]  bucketIndex  The bucket index of the bucket to search in.
-   * @param[in]  upperLimit   The upper limit of the distance, only cars with distance < upperLimit are returned.
+   * @param[in]  limitCar     The limit car,  only cars < limitCar are returned.
    *
-   * @return     Iterator to the maximum car in the bucket with distance < upperLimit, end() if no such car exists.
+   * @return     Iterator to the maximum car in the bucket < limitCar, end() if no such car exists.
    */
-  inline bucket_iterator findMaxCarInBucket(
-      const unsigned int bucketIndex, const double upperLimit = std::numeric_limits<double>::max()) {
+  inline bucket_iterator findMaxCarInBucket(const unsigned int bucketIndex, const Car &limitCar) {
     assert(bucketIndex >= 0 && bucketIndex < buckets.size());
     bucket_iterator maxIt = buckets[bucketIndex].end();
     for (bucket_iterator it = buckets[bucketIndex].begin(); it != buckets[bucketIndex].end(); ++it) {
-      if (it->getDistance() < upperLimit && (maxIt == buckets[bucketIndex].end() || !compareLess(*it, *maxIt))) {
-        maxIt = it;
-      }
+      if (!compareLess(*it, limitCar)) { continue; } // skip if it > limit
+      if (maxIt == buckets[bucketIndex].end() || compareGreater(*it, *maxIt)) { maxIt = it; }
     }
     return maxIt;
   }
-  inline bucket_const_iterator findMaxCarInBucket(
-      const unsigned int bucketIndex, const double upperLimit = std::numeric_limits<double>::max()) const {
+  inline bucket_const_iterator findMaxCarInBucket(const unsigned int bucketIndex, const Car &limitCar) const {
     assert(bucketIndex >= 0 && bucketIndex < buckets.size());
     bucket_const_iterator maxIt = buckets[bucketIndex].end();
     for (bucket_const_iterator it = buckets[bucketIndex].begin(); it != buckets[bucketIndex].end(); ++it) {
-      if (it->getDistance() < upperLimit && (maxIt == buckets[bucketIndex].end() || !compareLess(*it, *maxIt))) {
-        maxIt = it;
-      }
+      if (!compareLess(*it, limitCar)) { continue; } // skip if it > limit
+      if (maxIt == buckets[bucketIndex].end() || compareGreater(*it, *maxIt)) { maxIt = it; }
+    }
+    return maxIt;
+  }
+
+  /**
+   * @brief      Variant of findMaxCarInBucket without limitCar. Returns the actual maximum car in the bucket.
+   */
+  inline bucket_iterator findMaxCarInBucket(const unsigned int bucketIndex) {
+    assert(bucketIndex >= 0 && bucketIndex < buckets.size());
+    bucket_iterator maxIt = buckets[bucketIndex].end();
+    for (bucket_iterator it = buckets[bucketIndex].begin(); it != buckets[bucketIndex].end(); ++it) {
+      if (maxIt == buckets[bucketIndex].end() || compareGreater(*it, *maxIt)) { maxIt = it; }
+    }
+    return maxIt;
+  }
+  inline bucket_const_iterator findMaxCarInBucket(const unsigned int bucketIndex) const {
+    assert(bucketIndex >= 0 && bucketIndex < buckets.size());
+    bucket_const_iterator maxIt = buckets[bucketIndex].end();
+    for (bucket_const_iterator it = buckets[bucketIndex].begin(); it != buckets[bucketIndex].end(); ++it) {
+      if (maxIt == buckets[bucketIndex].end() || compareGreater(*it, *maxIt)) { maxIt = it; }
     }
     return maxIt;
   }
@@ -200,7 +239,7 @@ public:
   iterator getNextCarInFront(const iterator currentCarIt, const int laneOffset = 0) {
     // search for next car in own bucket
     unsigned int currentBucket = findBucketIndex(currentCarIt->getLane() + laneOffset, currentCarIt->getDistance());
-    bucket_iterator nextCar    = findMinCarInBucket(currentBucket, currentCarIt->getDistance());
+    bucket_iterator nextCar    = findMinCarInBucket(currentBucket, *currentCarIt);
 
     // search for next car in next buckets until such a car is found
     while (nextCar == buckets[currentBucket].end()) {
@@ -214,7 +253,7 @@ public:
   const_iterator getNextCarInFront(const const_iterator currentCarIt, const int laneOffset = 0) const {
     // search for next car in own bucket
     unsigned int currentBucket    = findBucketIndex(currentCarIt->getLane() + laneOffset, currentCarIt->getDistance());
-    bucket_const_iterator nextCar = findMinCarInBucket(currentBucket, currentCarIt->getDistance());
+    bucket_const_iterator nextCar = findMinCarInBucket(currentBucket, *currentCarIt);
 
     // if this is the first car in the bucket find the next non-empty in front of the current bucket in this lane
     if (nextCar == buckets[currentBucket].end()) {
@@ -239,7 +278,7 @@ public:
   iterator getNextCarBehind(const iterator currentCarIt, const int laneOffset = 0) {
     // search for next car in own bucket
     int currentBucket       = findBucketIndex(currentCarIt->getLane() + laneOffset, currentCarIt->getDistance());
-    bucket_iterator nextCar = findMaxCarInBucket(currentBucket, currentCarIt->getDistance());
+    bucket_iterator nextCar = findMaxCarInBucket(currentBucket, *currentCarIt);
 
     // if this is the last car in the bucket find the next non-empty behind the current bucket in this lane
     if (nextCar == buckets[currentBucket].end()) {
@@ -254,7 +293,7 @@ public:
   const_iterator getNextCarBehind(const const_iterator currentCarIt, const int laneOffset = 0) const {
     // search for next car in own bucket
     int currentBucket             = findBucketIndex(currentCarIt->getLane() + laneOffset, currentCarIt->getDistance());
-    bucket_const_iterator nextCar = findMaxCarInBucket(currentBucket, currentCarIt->getDistance());
+    bucket_const_iterator nextCar = findMaxCarInBucket(currentBucket, *currentCarIt);
 
     // if this is the last car in the bucket find the next non-empty behind the current bucket in this lane
     if (nextCar == buckets[currentBucket].end()) {
@@ -313,8 +352,8 @@ public:
    */
   void updateCarsAndRestoreConsistency() {
     AllCarIterable iterable(*this);
-    iterator carIt = AllCarIterable(*this).end();
-    for (int i = 0; i < getCarCount(); ++i) { // for all cars on the street
+    iterator carIt = allIterable().end();
+    for (unsigned i = 0; i < getCarCount(); ++i) { // for all cars on the street
       carIt--;
       carIt->update(); // update car to new state and position
 

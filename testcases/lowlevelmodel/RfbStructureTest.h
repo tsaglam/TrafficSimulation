@@ -15,18 +15,28 @@ using namespace snowhouse;
 template <class Iterable>
 void checkIterable(Iterable iterable, const std::vector<unsigned> &shouldContain,
     const std::vector<unsigned> &mightContain     = std::vector<unsigned>(),
-    const std::vector<unsigned> &shouldNotContain = std::vector<unsigned>()) {
-  std::map<unsigned, bool> shouldContainMap;
+    const std::vector<unsigned> &shouldNotContain = std::vector<unsigned>(), const bool noDuplicates = true) {
+  std::map<unsigned, bool> shouldContainMap, mightContainMap;
   for (auto id : shouldContain) { shouldContainMap.insert(std::pair<unsigned, bool>(id, false)); }
+  for (auto id : mightContain) { mightContainMap.insert(std::pair<unsigned, bool>(id, false)); }
 
   for (auto car : iterable) {
     unsigned id = car.getId();
     AssertThat(shouldNotContain, Is().Not().Containing(id)); // does not contain ids it should not contain
-    // all contained ids are either necessary or at least allowed to be contained
     auto findShouldContain = shouldContainMap.find(id);
-    assert(findShouldContain != shouldContainMap.end() ||
-           std::find(mightContain.begin(), mightContain.end(), id) != mightContain.end());
-    findShouldContain->second = true; // mark contained ids
+    auto findMightContain  = mightContainMap.find(id);
+    // all contained ids are either necessary or at least allowed to be contained
+    assert(findShouldContain != shouldContainMap.end() || findMightContain != mightContainMap.end());
+
+    if (noDuplicates) { // check for duplicates if wanted
+      // if the id is in shouldContain, ensure that is is not yet visited
+      assert(findShouldContain == shouldContainMap.end() || findShouldContain->second == false);
+      // if the id is in mightContain, ensure that is is not yet visited
+      assert(findMightContain == mightContainMap.end() || findMightContain->second == false);
+    }
+    // mark id as visited
+    if (findShouldContain != shouldContainMap.end()) { findShouldContain->second = true; }
+    if (findMightContain != mightContainMap.end()) { findMightContain->second = true; }
   }
 
   for (auto const &kv : shouldContainMap) { AssertThat(kv.second, Is().True()); }
@@ -94,10 +104,20 @@ void constructorAndConstMembersTest() {
 
 /*
  * Ensure that the allIterable visits each car on the street exactly once and that the number of visited cars is equal
- * to getCarCount. Try different states of the street including special cases and inbetween states.
+ * to getCarCount. Try different states of the street including special cases and in-between states.
  */
+
+// Case 1: Empty street
 template <template <typename Car> typename Street>
-void allIterableTest() {
+void allIterableTest1() {
+  Street<LowLevelCar> street(3, 10);
+  std::vector<unsigned> expectedCarIds;
+  street.incorporateInsertedCars();
+  checkIterable(street.allIterable(), expectedCarIds);
+}
+// Case 2: 1 lane street, multiple cars in succession
+template <template <typename Car> typename Street>
+void allIterableTest2() {
   Street<LowLevelCar> street(1, 10);
   std::vector<unsigned> expectedCarIds(10);
   for (int i = 0; i < 10; ++i) {
@@ -107,12 +127,82 @@ void allIterableTest() {
   street.incorporateInsertedCars();
   checkIterable(street.allIterable(), expectedCarIds);
 }
+// Case 3: 3 lane street, multiple cars in succession on each lane
+template <template <typename Car> typename Street>
+void allIterableTest3() {
+  const unsigned carCount     = 30;
+  const unsigned laneCount    = 3;
+  const unsigned streetLength = 10;
+  Street<LowLevelCar> street(laneCount, streetLength);
+  std::vector<unsigned> expectedCarIds(carCount);
+  for (unsigned i = 0; i < carCount; ++i) {
+    street.insertCar(createCar(i, i % laneCount, i % streetLength));
+    expectedCarIds[i] = i;
+  }
+  street.incorporateInsertedCars();
+  checkIterable(street.allIterable(), expectedCarIds);
+}
+// Case 4: 3 lane street, multiple overlapping cars on each lane
+template <template <typename Car> typename Street>
+void allIterableTest4() {
+  const unsigned carCount     = 30;
+  const unsigned laneCount    = 3;
+  const unsigned streetLength = 10;
+  Street<LowLevelCar> street(laneCount, streetLength);
+  std::vector<unsigned> expectedCarIds(carCount);
+  for (unsigned i = 0; i < carCount; ++i) {
+    street.insertCar(createCar(i, i % laneCount, laneCount));
+    expectedCarIds[i] = i;
+  }
+  street.incorporateInsertedCars();
+  checkIterable(street.allIterable(), expectedCarIds);
+}
+// Case 5: 3 lane street, interim state: some cars are inserted but not yet incorporated while others are fully
+// incorporated
+template <template <typename Car> typename Street>
+void allIterableTest5() {
+  const unsigned carCount     = 30;
+  const unsigned laneCount    = 3;
+  const unsigned streetLength = 10;
+  Street<LowLevelCar> street(laneCount, streetLength);
+  std::vector<unsigned> expectedCarIds, allowedCarIds;
+  for (unsigned i = 0; i < carCount / 2; ++i) {
+    street.insertCar(createCar(i, i % laneCount, laneCount));
+    expectedCarIds.push_back(i);
+  }
+  street.incorporateInsertedCars();
+  for (unsigned i = carCount / 2; i < carCount; ++i) {
+    street.insertCar(createCar(i, i % laneCount, laneCount));
+    allowedCarIds.push_back(i);
+  }
+  checkIterable(street.allIterable(), expectedCarIds, allowedCarIds);
+}
+// Case 6: 3 lane street, interim state: some cars are departed but not yet removed
+// incorporated
+template <template <typename Car> typename Street>
+void allIterableTest6() {
+  Street<LowLevelCar> street(1, 10);
+  std::vector<unsigned> expectedCarIds, allowedCarIds;
+  expectedCarIds = {0, 1, 2, 3, 4};
+
+  for (int i = 0; i < 5; ++i) { street.insertCar(createCar(i, 0, 2 * i)); }
+  street.incorporateInsertedCars();
+  checkIterable(street.allIterable(), expectedCarIds);
+
+  expectedCarIds = {0, 1, 2};
+  allowedCarIds  = {3, 4};
+  for (LowLevelCar &car : street.allIterable()) { car.setNext(0, car.getDistance() * 2, 0); }
+  street.updateCarsAndRestoreConsistency();
+  checkIterable(street.allIterable(), expectedCarIds, allowedCarIds);
+}
 
 /*
  * Test if the getNextCarInFront/Behind functions return the correct car.
  * - check neighbors on both the own lane an neighboring lanes
  * - try different special cases such as no existing neighbors, a neighbor at the same position etc.
  */
+
+// Case 1: 1 lane street, multiple cars in succession
 template <template <typename Car> typename Street>
 void getNextCarTest1() {
   // Set-Up: create street and insert cars
@@ -129,6 +219,7 @@ void getNextCarTest1() {
   checkNeighbors(street, neighbors);
 }
 
+// Case 2: 3 lane street, one car with a neighbor in each direction and lane
 template <template <typename Car> typename Street>
 void getNextCarTest2() {
   //   0123456789
@@ -155,14 +246,155 @@ void getNextCarTest2() {
   checkNeighbors(street, neighbors);
 }
 
+// Case 3: 3 lane street, one car, no neighbors
+template <template <typename Car> typename Street>
+void getNextCarTest3() {
+  //   0123456789
+  // 0:
+  // 1:    0
+  // 2:
+  Street<LowLevelCar> street(3, 10);
+  street.insertCar(createCar(0, 1, 4));
+  street.incorporateInsertedCars();
+
+  std::vector<NeighborDef> neighbors;
+  neighbors.push_back(NeighborDef(0, -1, -1, inFront));
+  neighbors.push_back(NeighborDef(0, -1, 0, inFront));
+  neighbors.push_back(NeighborDef(0, -1, 1, inFront));
+  neighbors.push_back(NeighborDef(0, -1, -1, behind));
+  neighbors.push_back(NeighborDef(0, -1, 0, behind));
+  neighbors.push_back(NeighborDef(0, -1, 1, behind));
+  checkNeighbors(street, neighbors);
+}
+
+// Case 4: 1 lane street, three cars at the same position
+template <template <typename Car> typename Street>
+void getNextCarTest4() {
+  Street<LowLevelCar> street(1, 10);
+  for (int i = 0; i < 3; ++i) { street.insertCar(createCar(i, 0, 0)); }
+  street.incorporateInsertedCars();
+
+  std::vector<NeighborDef> neighbors;
+  neighbors.push_back(NeighborDef(0, -1, 0, inFront));
+  neighbors.push_back(NeighborDef(0, 1, 0, behind));
+  neighbors.push_back(NeighborDef(1, 0, 0, inFront));
+  neighbors.push_back(NeighborDef(1, 2, 0, behind));
+  neighbors.push_back(NeighborDef(2, 1, 0, inFront));
+  neighbors.push_back(NeighborDef(2, -1, 0, behind));
+  checkNeighbors(street, neighbors);
+}
+
+// Case 5: 3 lane street, one car per lane, each car at the same distance
+template <template <typename Car> typename Street>
+void getNextCarTest5() {
+  //   0123456789
+  // 0:    0
+  // 1:    1
+  // 2:    2
+  Street<LowLevelCar> street(3, 10);
+  street.insertCar(createCar(0, 0, 4));
+  street.insertCar(createCar(1, 1, 4));
+  street.insertCar(createCar(2, 2, 4));
+  street.incorporateInsertedCars();
+
+  std::vector<NeighborDef> neighbors;
+  neighbors.push_back(NeighborDef(0, -1, 0, inFront));
+  neighbors.push_back(NeighborDef(0, -1, 0, behind));
+  neighbors.push_back(NeighborDef(0, -1, 1, inFront));
+  neighbors.push_back(NeighborDef(0, 1, 1, behind));
+
+  neighbors.push_back(NeighborDef(1, 0, -1, inFront));
+  neighbors.push_back(NeighborDef(1, -1, -1, behind));
+  neighbors.push_back(NeighborDef(1, -1, 0, inFront));
+  neighbors.push_back(NeighborDef(1, -1, 0, behind));
+  neighbors.push_back(NeighborDef(1, -1, 1, inFront));
+  neighbors.push_back(NeighborDef(1, 2, 1, behind));
+
+  neighbors.push_back(NeighborDef(2, 1, -1, inFront));
+  neighbors.push_back(NeighborDef(2, -1, -1, behind));
+  neighbors.push_back(NeighborDef(2, -1, 0, inFront));
+  neighbors.push_back(NeighborDef(2, -1, 0, behind));
+  checkNeighbors(street, neighbors);
+}
+
 /*
- * Test if the iterator returned by the getNextCarInFront/Behind functions works as intendet.
+ * Test if the iterator returned by the getNextCarInFront/Behind functions works as intended.
  * (i.e. ?)
  * - check neighbors on both the own lane an neighboring lanes
  * - try different special cases such as no existing neighbors, a neighbor at the same position etc.
  */
+
 template <template <typename Car> typename Street>
-void getNextCarIteratorTest() {}
+void getNextCarIteratorTest1() {
+  Street<LowLevelCar> street(3, 10);
+  // Lane 0
+  street.insertCar(createCar(0, 0, 0));
+  street.insertCar(createCar(1, 0, 4));
+  street.insertCar(createCar(2, 0, 7.5));
+  street.insertCar(createCar(3, 0, 8));
+  // Lane 1
+  street.insertCar(createCar(4, 1, 0.5));
+  street.insertCar(createCar(5, 1, 2.5));
+  street.insertCar(createCar(6, 1, 4));
+  street.insertCar(createCar(7, 1, 5.5));
+  street.insertCar(createCar(8, 1, 7.5));
+  // Lane 2
+  for (unsigned i = 0; i < 10; ++i) { street.insertCar(createCar(i + 9, 2, i)); }
+  street.incorporateInsertedCars();
+
+  const unsigned carCount = street.getCarCount();
+  AssertThat(carCount, Is().EqualTo((unsigned)19));
+  const unsigned laneCount = 3;
+  std::vector<std::vector<unsigned>> visitedCars(carCount);
+
+  for (unsigned carId = 0; carId < carCount; ++carId) {
+    auto carIt = street.allIterable().begin();
+    while (carIt->getId() != carId) { ++carIt; }
+    visitedCars[carId].push_back(carId);
+    // Neighbors on own and other lanes
+    std::vector<typename Street<LowLevelCar>::const_iterator> inFront(laneCount);
+    std::vector<typename Street<LowLevelCar>::const_iterator> behind(laneCount);
+    inFront[0] = street.getNextCarInFront(carIt, 0 - carIt->getLane());
+    behind[0]  = street.getNextCarBehind(carIt, 0 - carIt->getLane());
+    inFront[1] = street.getNextCarInFront(carIt, 1 - carIt->getLane());
+    behind[1]  = street.getNextCarBehind(carIt, 1 - carIt->getLane());
+    inFront[2] = street.getNextCarInFront(carIt, 2 - carIt->getLane());
+    behind[2]  = street.getNextCarBehind(carIt, 2 - carIt->getLane());
+
+    for (unsigned lane = 0; lane < laneCount; ++lane) {
+      if (behind[lane] == street.allIterable().end() || inFront[lane] == street.allIterable().end()) { continue; }
+      auto inFrontOfBehind = street.getNextCarInFront(behind[lane]);
+      auto behindInFront   = street.getNextCarBehind(inFront[lane]);
+      if (inFrontOfBehind == street.allIterable().end() || behindInFront == street.allIterable().end()) { continue; }
+      if (lane == carIt->getLane()) {
+        AssertThat(inFrontOfBehind->getId(), Is().EqualTo(carIt->getId()));
+        AssertThat(behindInFront->getId(), Is().EqualTo(carIt->getId()));
+      } else {
+        AssertThat(inFrontOfBehind->getId(), Is().EqualTo(inFront[lane]->getId()));
+        AssertThat(behindInFront->getId(), Is().EqualTo(behind[lane]->getId()));
+      }
+    }
+
+    // Iterate from neighbors to front of street and mark cars as visited
+    for (unsigned lane = 0; lane < laneCount; ++lane) {
+      while (inFront[lane] != street.allIterable().end()) {
+        visitedCars[carId].push_back(inFront[lane]->getId());
+        ++inFront[lane];
+      }
+    }
+
+    // Iterate from neighbors to back of street and mark cars as visited
+    for (unsigned lane = 0; lane < laneCount; ++lane) {
+      while (behind[lane] != street.allIterable().end()) {
+        visitedCars[carId].push_back(behind[lane]->getId());
+        if (behind[lane] == street.allIterable().begin()) { break; }
+        --behind[lane];
+      }
+    }
+
+    checkIterable(street.allIterable(), visitedCars[carId]);
+  }
+}
 
 /*
  * Add new cars to the street (with insertCar and incorporateInsertedCars). Test whether all cars are at the correct

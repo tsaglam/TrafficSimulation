@@ -18,7 +18,7 @@ public:
       typename std::vector<Bucket>::iterator>;
 
 private:
-  const buckets_iterator beginBucket, endBucket;
+  buckets_iterator beginBucket, endBucket;
   buckets_iterator currentBucket;
   bucket_iterator currentPositionInBucket;
 
@@ -40,6 +40,7 @@ private:
   }
 
   friend class BucketList<Car>;
+  friend class bucket_list_iterator<Bucket, Car, !Const>;
 
   unsigned getCurrentBucket() const { return currentBucket - beginBucket; }
 
@@ -48,7 +49,7 @@ private:
     Car removed = *currentPositionInBucket; // create copy of the current car TODO correct?
     // remove car and move currentPositionInBucket to next element
     currentPositionInBucket = currentBucket->erase(currentPositionInBucket);
-    if (currentPositionInBucket == currentBucket.end()) {
+    if (currentPositionInBucket == currentBucket->end()) {
       currentBucket = findNextNonEmptyBucket(); // find next bucket
       if (currentBucket == endBucket) {
         state = END;
@@ -72,9 +73,11 @@ private:
 
 public:
   bucket_list_iterator() = default;
-  bucket_list_iterator(const bucket_list_iterator<Bucket, Car, false>& it)
+  bucket_list_iterator(const bucket_list_iterator<Bucket, Car, false> &it)
       : beginBucket(it.beginBucket), endBucket(it.endBucket), currentBucket(it.currentBucket),
-        currentPositionInBucket(it.currentPositionInBucket), state(it.state) {}
+        currentPositionInBucket(it.currentPositionInBucket), state(STANDARD) {
+    if (it.state == END) { state = END; }
+  }
   bucket_list_iterator(const buckets_iterator beginBucket, const buckets_iterator endBucket)
       : beginBucket(beginBucket), endBucket(endBucket), currentBucket(beginBucket),
         currentPositionInBucket(currentBucket->begin()), state(STANDARD) {
