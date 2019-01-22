@@ -6,7 +6,6 @@
 #include "LowLevelStreet.h"
 #include "RfbStructure.h"
 #include "SimulationData.h"
-#include "ParallelTrafficLightRoutine.h"
 
 template <template <typename Vehicle> typename RfbStructure>
 class TrafficLightRoutine {
