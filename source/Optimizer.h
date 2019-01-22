@@ -44,12 +44,14 @@ private:
   /**
    * Iterate over all cars on all streets and sum their travel distance to the total travel distance.
    * Store the computed distance in lastTravelDistance
+   * * @param[in]  simulator          The simulator running the simulation (and holding the low level model)
    */
-  void calculateTravelDistance() {
+  void calculateTravelDistance(
+      const Simulator<RfbStructure, SignalingRoutine, IDMRoutine, ConsistencyRoutine> &simulator) {
     double travelDistance = 0;
-    // for (auto &street : domainModel.getStreets()) { // TODO fix this
-    //   for (const auto &car : street.allIterable()) { travelDistance += car.getTravelDistance(); }
-    // }
+    for (auto &street : simulator.getData().getStreets()) {
+      for (const auto &car : street.allIterable()) { travelDistance += car.getTravelDistance(); }
+    }
     lastTravelDistance = travelDistance;
   }
 
@@ -64,7 +66,7 @@ private:
     Simulator<RfbStructure, SignalingRoutine, IDMRoutine, ConsistencyRoutine> simulator(domainModel);
     simulator.performSteps(stepCount);
 
-    calculateTravelDistance();                              // compute the traveled distance
+    calculateTravelDistance(simulator);                     // compute the traveled distance
     if (lastTravelDistance < minTravelDistance) { return; } // check whether the minimum travel distance is reached
     improveTrafficLights();                                 // optimize the traffic lights based on the evaluation
   }

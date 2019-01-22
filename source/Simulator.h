@@ -83,6 +83,8 @@ public:
 
     writeChangesToDomainModel();
   }
+
+  const SimulationData<RfbStructure>& getData() const { return data; }
 };
 
 #endif
