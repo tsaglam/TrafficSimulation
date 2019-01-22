@@ -8,6 +8,7 @@
 #include "JSONWriter.h"
 #include "NaiveStreetDataStructure.h"
 #include "NullRoutine.h"
+#include "Optimizer.h"
 #include "Simulator.h"
 #include "TrafficLightRoutine.h"
 
@@ -18,12 +19,25 @@ int main() {
 
   jsonReader.readInto(domainModel);
 
-  Simulator<NaiveStreetDataStructure, TrafficLightRoutine, IDMRoutine, ConsistencyRoutine> simulator(domainModel);
-  simulator.performSteps(jsonReader.getTimeSteps());
+  bool optimizeTrafficLights = false; // TODO replace with enum and set based on the input
+  if (optimizeTrafficLights) {
+    // Optimizer<NaiveStreetDataStructure, TrafficLightRoutine, IDMRoutine, ConsistencyRoutine> optimizer(
+    //     domainModel, jsonReader.getTimeSteps(), jsonReader.getMinTravelDistance());
+    Optimizer<NaiveStreetDataStructure, TrafficLightRoutine, IDMRoutine, ConsistencyRoutine> optimizer(
+        domainModel, jsonReader.getTimeSteps(), 0); // TODO replace with above when implemented
+    optimizer.optimizeTrafficLights();
 
-  JSONWriter jsonWriter(std::cout);
+    JSONWriter jsonWriter(std::cout);
 
-  jsonWriter.writeVehicles(domainModel);
+    // jsonWriter.writeSignals(domainModel); TODO uncomment when implemented
+  } else { // run a standard simulation
+    Simulator<NaiveStreetDataStructure, TrafficLightRoutine, IDMRoutine, ConsistencyRoutine> simulator(domainModel);
+    simulator.performSteps(jsonReader.getTimeSteps());
+
+    JSONWriter jsonWriter(std::cout);
+
+    jsonWriter.writeVehicles(domainModel);
+  }
 
   return 0;
 }
