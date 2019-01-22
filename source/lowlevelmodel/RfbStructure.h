@@ -132,8 +132,6 @@ public:
   public:
     beyonds_iterator begin() const;
     beyonds_iterator end() const;
-    const_beyonds_iterator begin() const;
-    const_beyonds_iterator end() const;
 
     const_beyonds_iterator cbegin() const;
     const_beyonds_iterator cend() const;
