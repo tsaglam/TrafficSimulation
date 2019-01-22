@@ -45,10 +45,14 @@ private:
    * requests and old duration. If the new duration is less than the minimum duration of 5 or the relative duration
    * defined in 'relativeRescaleDurationLimit' the total duration of that junction is increased.
    */
-  void improveTrafficLights() {
+  void improveTrafficLights(
+      const Simulator<RfbStructure, SignalingRoutine, IDMRoutine, OptimizationRoutine, ConsistencyRoutine> &simulator) {
+    // get request vectors from the OptimizationRoutine
+    std::vector<std::vector<CardinalDirection>> requestedGreenLights;
+    // const std::vector<std::vector<CardinalDirection>> &requestedGreenLights =
+    //     simulator.getOptimizationRoutine().getRequestedGreenLights(); TODO uncomment when routine is implemented
     for (auto const &junction : domainModel.getJunctions()) {
-      // TODO get wish vector from OptimizationRoutine
-      std::vector<CardinalDirection> requestedGreenLightDirection;
+      std::vector<CardinalDirection> &requestedGreenLightDirection = requestedGreenLights[junction->getId()];
 
       // Determine percentage of green light requests per direction
       std::vector<double> requestPercentage(4, 0);
@@ -116,7 +120,7 @@ private:
 
     calculateTravelDistance(simulator);                     // compute the traveled distance
     if (lastTravelDistance < minTravelDistance) { return; } // check whether the minimum travel distance is reached
-    improveTrafficLights();                                 // optimize the traffic lights based on the evaluation
+    improveTrafficLights(simulator);                        // optimize the traffic lights based on the evaluation
   }
 
 public:
