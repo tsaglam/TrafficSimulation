@@ -13,6 +13,7 @@ class Optimizer {
   double lastTravelDistance = 0;
   const double minTravelDistance;
   const unsigned stepCount;
+  const double relativeRescaleDurationLimit = 0;
 
 private:
   /**
@@ -30,14 +31,55 @@ private:
           initialSignals.push_back(Junction::Signal(connectedStreet.getDirection(), signalDuration));
         }
       }
-      // junction.setSignals(initialSignals); TODO uncomment when implemented in the domain model
+      // junction->setSignals(initialSignals); TODO uncomment when implemented in the domain model
     }
   }
 
+  /**
+   * Improves the traffic light durations base on the observations made during the last simulation.
+   * Retrieves the requested green lights from the OptimizationRoutine sets the new signal durations as mean of the
+   * requests and old duration. If the new duration is less than the minimum duration of 5 or the relative duration
+   * defined in 'relativeRescaleDurationLimit' the total duration of that junction is increased.
+   */
   void improveTrafficLights() {
     for (auto const &junction : domainModel.getJunctions()) {
-      std::vector<Junction::Signal> newSignals;
-      // TODO compute new signals based on the old signals and the evaluation
+      // TODO get wish vector from OptimizationRoutine
+      std::vector<CardinalDirection> requestedGreenLightDirection;
+
+      // Determine percentage of green light requests per direction
+      std::vector<double> requestPercentage(4, 0);
+      for (auto direction : requestedGreenLightDirection) { ++requestPercentage[direction]; }
+      for (unsigned i = 0; i < 4; ++i) { requestPercentage[i] /= requestedGreenLightDirection.size(); }
+
+      // Get the old signals and determine their total duration
+      std::vector<Junction::Signal> oldSignals = junction->getSignals();
+      std::vector<unsigned> signalDurations;
+      double totalSignalsDuration = 0;
+      for (const auto signal : oldSignals) { totalSignalsDuration += signal.getDuration(); }
+
+      double rescaleValue         = 1.0;
+      double absoluteRescaleLimit = std::min(5.0, totalSignalsDuration * relativeRescaleDurationLimit);
+
+      // Determine duration of the new signals
+      for (const auto &signal : oldSignals) {
+        double oldPercentage = signal.getDuration() / totalSignalsDuration;
+        double newPercentage = (oldPercentage + requestPercentage[signal.getDirection()]) * 0.5;
+        unsigned newDuration = totalSignalsDuration * newPercentage;
+        signalDurations.push_back(newDuration);
+        if (newDuration < absoluteRescaleLimit) { rescaleValue = std::max(rescaleValue, std::ceil(5.0 / newDuration)); }
+      }
+
+      // Rescale the total duration by the rescaleValue if necessary
+      if (rescaleValue != 1.0) {
+        for (unsigned i = 0; i < signalDurations.size(); ++i) { signalDurations[i] *= rescaleValue; }
+      }
+
+      // Create new signals vector
+      std::vector<Junction::Signal> newSignals(signalDurations.size());
+      for (unsigned i = 0; i < signalDurations.size(); ++i) {
+        newSignals[i] = Junction::Signal(oldSignals[i].getDirection(), signalDurations[i]);
+      }
+
       // junction.setSignals(newSignals); TODO uncomment when implemented in the domain model
     }
   }
@@ -64,7 +106,8 @@ private:
   void runOptimizationCycle() {
     // domainModel.reset(); // reset cars to initial position TODO uncomment when implemented in the domain model
     // run a complete simulation using a newly initialized simulator, evaluate the traffic lights during the simulation
-    Simulator<RfbStructure, SignalingRoutine, IDMRoutine, OptimizationRoutine, ConsistencyRoutine> simulator(domainModel);
+    Simulator<RfbStructure, SignalingRoutine, IDMRoutine, OptimizationRoutine, ConsistencyRoutine> simulator(
+        domainModel);
     simulator.performSteps(stepCount);
 
     calculateTravelDistance(simulator);                     // compute the traveled distance
