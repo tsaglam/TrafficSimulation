@@ -87,7 +87,12 @@ public:
     writeChangesToDomainModel();
   }
 
-  const SimulationData<RfbStructure>& getData() const { return data; }
+  const SimulationData<RfbStructure> &getData() const { return data; }
+
+  const SignalingRoutine<RfbStructure> &getSignalingRoutine() const { return signalingRoutine; }
+  const IDMRoutine<RfbStructure> &getIDMRoutine() const { return idmRoutine; }
+  const OptimizationRoutine<RfbStructure> &getOptimizationRoutine() const { return optimizationRoutine; }
+  const ConsistencyRoutine<RfbStructure> &getConsistencyRoutine() const { return consistencyRoutine; }
 };
 
 #endif
