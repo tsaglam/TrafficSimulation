@@ -32,8 +32,10 @@ public:
     int threads          = omp_get_num_threads();
     int workload         = model.getJunctions().size();
     int minimalBlockSize = workload / threads / BLOCK_SIZE_FACTOR;
+    const auto &junctions = model.getJunctions();
     #pragma omp parallel for schedule(guided, minimalBlockSize)
-    for (auto const &junction : model.getJunctions()) {
+    for(std::size_t i = 0; i < junctions.size(); i++) {
+      const auto &junction = junctions[i];
       bool lightChanged = junction->nextStep();
       if (lightChanged) {
         // Turn previous red:
