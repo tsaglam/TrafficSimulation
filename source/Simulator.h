@@ -37,6 +37,7 @@
 template <template <typename Vehicle> typename RfbStructure,
     template <template <typename Vehicle> typename _RfbStructure> typename SignalingRoutine,
     template <template <typename Vehicle> typename _RfbStructure> typename IDMRoutine,
+    template <template <typename Vehicle> typename _RfbStructure> typename OptimizationRoutine,
     template <template <typename Vehicle> typename _RfbStructure> typename ConsistencyRoutine>
 class Simulator {
 private:
@@ -46,6 +47,7 @@ private:
 
   SignalingRoutine<RfbStructure> signalingRoutine;
   IDMRoutine<RfbStructure> idmRoutine;
+  OptimizationRoutine<RfbStructure> optimizationRoutine;
   ConsistencyRoutine<RfbStructure> consistencyRoutine;
 
 private:
@@ -60,13 +62,14 @@ private:
   void computeStep() {
     signalingRoutine.perform();
     idmRoutine.perform();
+    optimizationRoutine.perform();
     consistencyRoutine.perform();
   }
 
 public:
   Simulator(DomainModel &_domainModel)
       : data(_domainModel), lowLevelInitialised(false), signalingRoutine(data), idmRoutine(data),
-        consistencyRoutine(data) {}
+        optimizationRoutine(data), consistencyRoutine(data) {}
 
   void performStep() {
     if (!lowLevelInitialised) initialiseLowLevel();

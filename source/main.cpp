@@ -23,7 +23,7 @@ int main() {
   if (optimizeTrafficLights) {
     // Optimizer<NaiveStreetDataStructure, TrafficLightRoutine, IDMRoutine, ConsistencyRoutine> optimizer(
     //     domainModel, jsonReader.getTimeSteps(), jsonReader.getMinTravelDistance());
-    Optimizer<NaiveStreetDataStructure, TrafficLightRoutine, IDMRoutine, ConsistencyRoutine> optimizer(
+    Optimizer<NaiveStreetDataStructure, TrafficLightRoutine, IDMRoutine, NullRoutine, ConsistencyRoutine> optimizer(
         domainModel, jsonReader.getTimeSteps(), 0); // TODO replace with above when implemented
     optimizer.optimizeTrafficLights();
 
@@ -31,7 +31,7 @@ int main() {
 
     // jsonWriter.writeSignals(domainModel); TODO uncomment when implemented
   } else { // run a standard simulation
-    Simulator<NaiveStreetDataStructure, TrafficLightRoutine, IDMRoutine, ConsistencyRoutine> simulator(domainModel);
+    Simulator<NaiveStreetDataStructure, TrafficLightRoutine, IDMRoutine, NullRoutine, ConsistencyRoutine> simulator(domainModel);
     simulator.performSteps(jsonReader.getTimeSteps());
 
     JSONWriter jsonWriter(std::cout);

@@ -6,6 +6,7 @@
 template <template <typename Vehicle> typename RfbStructure,
     template <template <typename Vehicle> typename _RfbStructure> typename SignalingRoutine,
     template <template <typename Vehicle> typename _RfbStructure> typename IDMRoutine,
+    template <template <typename Vehicle> typename _RfbStructure> typename OptimizationRoutine,
     template <template <typename Vehicle> typename _RfbStructure> typename ConsistencyRoutine>
 class Optimizer {
   DomainModel &domainModel;
@@ -47,7 +48,7 @@ private:
    * * @param[in]  simulator          The simulator running the simulation (and holding the low level model)
    */
   void calculateTravelDistance(
-      const Simulator<RfbStructure, SignalingRoutine, IDMRoutine, ConsistencyRoutine> &simulator) {
+      const Simulator<RfbStructure, SignalingRoutine, IDMRoutine, OptimizationRoutine, ConsistencyRoutine> &simulator) {
     double travelDistance = 0;
     for (auto &street : simulator.getData().getStreets()) {
       for (const auto &car : street.allIterable()) { travelDistance += car.getTravelDistance(); }
@@ -63,7 +64,7 @@ private:
   void runOptimizationCycle() {
     // domainModel.reset(); // reset cars to initial position TODO uncomment when implemented in the domain model
     // run a complete simulation using a newly initialized simulator, evaluate the traffic lights during the simulation
-    Simulator<RfbStructure, SignalingRoutine, IDMRoutine, ConsistencyRoutine> simulator(domainModel);
+    Simulator<RfbStructure, SignalingRoutine, IDMRoutine, OptimizationRoutine, ConsistencyRoutine> simulator(domainModel);
     simulator.performSteps(stepCount);
 
     calculateTravelDistance(simulator);                     // compute the traveled distance
