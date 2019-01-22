@@ -30,3 +30,23 @@ void modelCreationTest2() {
   AssertThat(model.getStreets().size(), Is().EqualTo((unsigned int)10));
   AssertThat(model.getJunctions().size(), Is().EqualTo((unsigned int)10));
 }
+
+void resetAllVehiclesTest() {
+  DomainModel model = DomainModel();
+  // create 10 model elements each and add them to model:
+  for (int i = 0; i < 10; ++i) {
+    model.addVehicle(createTestVehicle());
+  }
+  // change and verify position of every single one:
+  for (auto const &vehicle : model.getVehicles()) {
+    Vehicle::Position position = vehicle->getPosition();
+    vehicle->setPosition(*position.getStreet(), 1, 44.4);
+    AssertThat( vehicle->getPosition().getDistance(), Is().EqualTo(44.4));
+  }
+  // reset to starting point and verify:
+  model.resetVehiclePositions();
+  for (auto const &vehicle : model.getVehicles()) {
+    AssertThat( vehicle->getPosition().getDistance(), Is().EqualTo(33.3));
+  }
+  
+}

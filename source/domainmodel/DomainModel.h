@@ -18,6 +18,8 @@ private:
 public:
   DomainModel() = default;
 
+  void resetVehiclePositions();
+
   // methods for building the domain model:
   Vehicle &addVehicle(const Vehicle &vehicle);
   Street &addStreet(const Street &street);

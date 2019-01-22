@@ -51,6 +51,7 @@ int main() {
   // DomainModel:
   RUN(modelCreationTest);
   RUN(modelCreationTest2);
+  RUN(resetAllVehiclesTest);
   // Routines:
   RUN(trafficLightRoutineTest);
   RUN(takeTurnTest);

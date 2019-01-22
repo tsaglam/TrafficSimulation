@@ -2,6 +2,12 @@
 
 #include <memory>
 
+void DomainModel::resetVehiclePositions() {
+  for (auto const &vehicle : vehicles) {
+    vehicle->resetPosition();
+  }
+}
+
 Vehicle &DomainModel::addVehicle(const Vehicle &vehicle) {
   vehicles.emplace_back(new Vehicle(vehicle));
   vehicles.back()->id = vehicles.size() - 1;
