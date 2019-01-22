@@ -30,4 +30,7 @@ void setPositionTest() {
   Vehicle::Position newPosition = Vehicle::Position(*position.getStreet(), 1, 55.5);
   vehicle.setPosition(newPosition);
   AssertThat(vehicle.getPosition().getDistance(), Is().EqualTo(55.5));
+  // reset position to original state
+  vehicle.resetPosition();
+  AssertThat(position.getDistance(), Is().EqualTo(33.3));
 }

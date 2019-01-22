@@ -88,6 +88,12 @@ public:
    */
   bool nextStep();
 
+  /**
+   * @brief      Gives the junction new signals, resets the current signal and the current timer.
+   * @param[in]  newSignals  The new signals.
+   */
+  void setSignals(std::vector<Signal> newSignals);
+
   // access methods:
   id_type getId() const;
   int getExternalId() const;

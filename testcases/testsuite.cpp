@@ -48,9 +48,11 @@ int main() {
   RUN(trafficLightTest);
   RUN(junctionWithoutTrafficLightsTest);
   RUN(previousSignalTest);
+  RUN(setSignalTest);
   // DomainModel:
   RUN(modelCreationTest);
   RUN(modelCreationTest2);
+  RUN(resetAllVehiclesTest);
   // Routines:
   RUN(trafficLightRoutineTest);
   RUN(takeTurnTest);

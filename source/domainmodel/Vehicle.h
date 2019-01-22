@@ -35,6 +35,7 @@ private:
   double politeness;
   std::vector<TurnDirection> route;
   Position position;
+  Position startingPosition;
   int directionIndex;
 
 public:
@@ -59,6 +60,11 @@ public:
    * @param[in]  distance  is the new distance on the street in meters.
    */
   void setPosition(Street &street, unsigned int lane, double distance);
+
+  /**
+   * @brief      Sets the car back to its original position.
+   */
+  void resetPosition();
 
   /**
    * @brief      Returns the next direction of the route. Keeps automatically track of the route cycle, therefore this

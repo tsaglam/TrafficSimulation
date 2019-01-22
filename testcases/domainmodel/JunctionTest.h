@@ -9,7 +9,7 @@ using namespace snowhouse;
 /*
  * adds four incoming and four outgoing streets to a junction.
  */
-void addStreets(Junction &junction, DomainModel& model) {
+void addStreets(Junction &junction, DomainModel &model) {
   Junction other = createTestJunction();
   // clang-format off
   for (CardinalDirection dir = CardinalDirection::NORTH; dir <= CardinalDirection::WEST;
@@ -55,6 +55,22 @@ void trafficLightTest() {
   for (int i = 0; i < 40; ++i) { AssertThat(testJunction.nextStep(), Is().EqualTo(false)); }
   AssertThat(testJunction.nextStep(), Is().EqualTo(true));
   AssertThat(testJunction.getCurrentSignal().getDirection(), Is().EqualTo(CardinalDirection::NORTH));
+}
+
+/**
+ * Cycles through the traffic light states. Simulates a total of 104 steps, and changes green light four times until
+ * back to the northern traffic light.
+ */
+void setSignalTest() {
+  Junction testJunction = createTestJunction();
+  AssertThat(testJunction.getCurrentSignal().getDirection(), Is().EqualTo(CardinalDirection::NORTH));
+  for (int i = 0; i < 10; ++i) { AssertThat(testJunction.nextStep(), Is().EqualTo(false)); }
+  AssertThat(testJunction.nextStep(), Is().EqualTo(true));
+  AssertThat(testJunction.getCurrentSignal().getDirection(), Is().EqualTo(CardinalDirection::EAST));
+  const std::vector<Junction::Signal> signals{Junction::Signal(CardinalDirection::NORTH, 50)};
+  testJunction.setSignals(signals);
+  AssertThat(testJunction.getCurrentSignal().getDirection(), Is().EqualTo(CardinalDirection::NORTH));
+  for (int i = 0; i < 50; ++i) { AssertThat(testJunction.nextStep(), Is().EqualTo(false)); }
 }
 
 /**

@@ -12,7 +12,7 @@ Vehicle::Vehicle(id_type _id, int _externalId, double _targetVelocity, double _m
     const std::vector<TurnDirection> &_route, const Position &_position)
     : id(_id), externalId(_externalId), targetVelocity(_targetVelocity), maxAcceleration(_maxAcceleration),
       targetDeceleration(_targetDeceleration), minDistance(_minDistance), targetHeadway(_targetHeadway),
-      politeness(_politeness), route(_route), position(_position) {
+      politeness(_politeness), route(_route), position(_position), startingPosition(_position) {
   directionIndex = 0;
 }
 
@@ -21,7 +21,7 @@ Vehicle::Vehicle(id_type _id, int _externalId, double _targetVelocity, double _m
     std::vector<TurnDirection> &&_route, const Position &_position)
     : id(_id), externalId(_externalId), targetVelocity(_targetVelocity), maxAcceleration(_maxAcceleration),
       targetDeceleration(_targetDeceleration), minDistance(_minDistance), targetHeadway(_targetHeadway),
-      politeness(_politeness), route(_route), position(_position) {
+      politeness(_politeness), route(_route), position(_position), startingPosition(_position) {
   directionIndex = 0;
 }
 
@@ -30,6 +30,10 @@ void Vehicle::setPosition(const Position &_position) { position = _position; }
 void Vehicle::setPosition(Street &street, unsigned int lane, double distance) {
   Vehicle::Position position(street, lane, distance);
   setPosition(position);
+}
+
+void Vehicle::resetPosition() {
+  position = startingPosition; // reset to state after object creation.
 }
 
 TurnDirection Vehicle::getNextDirection() {
