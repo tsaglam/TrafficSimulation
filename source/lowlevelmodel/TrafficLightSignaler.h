@@ -328,11 +328,11 @@ public:
 
   class ConstAllCarIterable {
   public:
-    const_iterator begin() const { return const_iterator(signaler.rfb.allIterable().begin()); }
-    const_iterator end() const { return const_iterator(signaler.rfb.allIterable().end()); }
+    const_iterator begin() const { return const_iterator(signaler.rfb.constAllIterable().begin()); }
+    const_iterator end() const { return const_iterator(signaler.rfb.constAllIterable().end()); }
 
-    const_iterator cbegin() const { return const_iterator(signaler.rfb.allIterable().cbegin()); }
-    const_iterator cend() const { return const_iterator(signaler.rfb.allIterable().cend()); }
+    const_iterator cbegin() const { return const_iterator(signaler.rfb.constAllIterable().cbegin()); }
+    const_iterator cend() const { return const_iterator(signaler.rfb.constAllIterable().cend()); }
 
   private:
     friend class TrafficLightSignaler;
