@@ -48,11 +48,10 @@ private:
   void improveTrafficLights(
       const Simulator<RfbStructure, SignalingRoutine, IDMRoutine, OptimizationRoutine, ConsistencyRoutine> &simulator) {
     // get request vectors from the OptimizationRoutine
-    std::vector<std::vector<CardinalDirection>> requestedGreenLights;
-    // const std::vector<std::vector<CardinalDirection>> &requestedGreenLights =
-    //     simulator.getOptimizationRoutine().getRequestedGreenLights(); TODO uncomment when routine is implemented
+    const std::vector<std::vector<CardinalDirection>> &requestedGreenLights =
+        simulator.getOptimizationRoutine().getRequestedGreenLights();
     for (auto const &junction : domainModel.getJunctions()) {
-      std::vector<CardinalDirection> &requestedGreenLightDirection = requestedGreenLights[junction->getId()];
+      const std::vector<CardinalDirection> &requestedGreenLightDirection = requestedGreenLights[junction->getId()];
 
       // Determine percentage of green light requests per direction
       std::vector<double> requestPercentage(4, 0);
