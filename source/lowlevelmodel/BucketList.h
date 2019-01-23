@@ -80,8 +80,8 @@ public:
 
   using reverse_category = rfbstructure_buckets_tag;
 
-  using BeyondsCarIterable      = bucket_iterator;
-  using ConstBeyondsCarIterable = bucket_const_iterator;
+  using BeyondsCarIterable      = Bucket;
+  using ConstBeyondsCarIterable = const Bucket;
   using iterator                = bucket_list_iterator<Bucket, Car>;
   using const_iterator          = bucket_list_iterator<Bucket, Car, true>;
 
@@ -411,9 +411,9 @@ public:
    *
    * @return     An iterable object for all cars beyond this street.
    */
-  inline BeyondsCarIterable beyondsIterable() { return BeyondsCarIterable(*this); }
-  inline ConstBeyondsCarIterable beyondsIterable() const { return ConstBeyondsCarIterable(*this); }
-  inline ConstBeyondsCarIterable constBeyondsIterable() const { return ConstBeyondsCarIterable(*this); }
+  inline BeyondsCarIterable beyondsIterable() { return departedCars; }
+  inline ConstBeyondsCarIterable beyondsIterable() const { return departedCars; }
+  inline ConstBeyondsCarIterable constBeyondsIterable() const { return departedCars; }
 
   /**
    * @brief      Removes all cars which are currently "beyond the street".
