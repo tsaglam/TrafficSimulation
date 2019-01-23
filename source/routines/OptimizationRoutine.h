@@ -118,9 +118,10 @@ private:
    * @return     The direction of the incoming street with maximal potential travel distance.
    */
   CardinalDirection determineOptimalGreenLight(const Junction &junction) const {
-    double maxPotentialTravelDistance = -1.0;
+    double maxPotentialTravelDistance    = -1.0;
     CardinalDirection requestedDirection = NORTH;
     for (const auto &street : junction.getIncomingStreets()) {
+      if (!street.isConnected()) { continue; } // skip non-existent streets
       double potentialTravelDistance =
           determinePotentialTravelDistance(street.getStreet()->getId(), reverse_category());
       if (potentialTravelDistance > maxPotentialTravelDistance) {
