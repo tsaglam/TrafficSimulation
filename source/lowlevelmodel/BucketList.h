@@ -78,7 +78,7 @@ public:
   using bucket_iterator       = typename Bucket::iterator;
   using bucket_const_iterator = typename Bucket::const_iterator;
 
-  using reverse_category = rfbstructure_reversible_sorted_iterator_tag;
+  using reverse_category = rfbstructure_buckets_tag;
 
   using BeyondsCarIterable      = bucket_iterator;
   using ConstBeyondsCarIterable = bucket_const_iterator;
