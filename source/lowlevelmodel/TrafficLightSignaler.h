@@ -349,13 +349,13 @@ private:
   ConcreteRfbStructure &rfb;
   Signal signal;
   LowLevelCar trafficLightCar;
-  double trafficLightOffset;
+  double trafficLightPosition;
 
 public:
   TrafficLightSignaler(ConcreteRfbStructure &_rfb, double _streetLength, const LowLevelCar &_trafficLightCar,
       double _trafficLightOffset, unsigned int _lane = 0, double _velocity = 0.0, Signal _signal = GREEN)
-      : rfb(_rfb), signal(_signal), trafficLightCar(_trafficLightCar), trafficLightOffset(_trafficLightOffset) {
-    trafficLightCar.setPosition(_lane, _streetLength - _trafficLightOffset, _velocity);
+      : rfb(_rfb), signal(_signal), trafficLightCar(_trafficLightCar), trafficLightPosition(_streetLength - _trafficLightOffset) {
+    trafficLightCar.setPosition(_lane, trafficLightPosition, _velocity);
   }
   TrafficLightSignaler(ConcreteRfbStructure &_rfb, const LowLevelCar &_trafficLightCar, double _trafficLightOffset,
       unsigned int _lane = 0, double _velocity = 0.0, Signal _signal = GREEN)
@@ -368,7 +368,7 @@ public:
   TrafficLightSignaler(const TrafficLightSignaler &other, ConcreteRfbStructure &_rfb)
       : rfb(_rfb), signal(other.signal), trafficLightCar(other.trafficLightCar) {}
 
-  double getTrafficLightOffset() const { return trafficLightOffset; }
+  double getTrafficLightPosition() const { return trafficLightPosition; }
 
   /**
    * Retrieves the value of the signal.

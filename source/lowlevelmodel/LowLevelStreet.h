@@ -134,7 +134,7 @@ public:
    * RfbStructure accessors which forward to signaler.
    */
 
-  double getTrafficLightOffset() const { return signaler.getTrafficLightOffset(); }
+  double getTrafficLightPosition() const { return signaler.getTrafficLightPosition(); }
 
   typename TrafficLightSignaler<RfbStructure>::AllCarIterable allIterable() { return signaler.allIterable(); }
 
