@@ -119,7 +119,7 @@ private:
    */
   CardinalDirection determineOptimalGreenLight(const Junction &junction) const {
     double maxPotentialTravelDistance = -1.0;
-    CardinalDirection requestedDirection;
+    CardinalDirection requestedDirection = NORTH;
     for (const auto &street : junction.getIncomingStreets()) {
       double potentialTravelDistance =
           determinePotentialTravelDistance(street.getStreet()->getId(), reverse_category());
