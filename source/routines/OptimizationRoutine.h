@@ -16,8 +16,23 @@ private:
   // contains for each junction a vector of requested green light directions per time step
   std::vector<std::vector<CardinalDirection>> requestedGreenLights;
 
+  double determinePotentialTravelDistance(const LowLevelStreet<RfbStructure>& street) const {
+    // TODO implement this
+    return street.getLength();
+  }
+
   CardinalDirection determineOptimalGreenLight(const Junction &junction) const {
-    return junction.getSignals().front().getDirection(); // TODO replace with heuristic
+    double maxPotentialTravelDistance = -1.0;
+    CardinalDirection requestedDirection;
+    for (const auto& incomingStreet : junction.getIncomingStreets()) {
+      const auto& lowLevelStreet = data.getStreet(incomingStreet.getStreet()->getId());
+      double potentialTravelDistance = determinePotentialTravelDistance(lowLevelStreet);
+      if (potentialTravelDistance > maxPotentialTravelDistance) {
+        maxPotentialTravelDistance = potentialTravelDistance;
+        requestedDirection = incomingStreet.getDirection();
+      }
+    }
+    return requestedDirection;
   }
 
 public:
