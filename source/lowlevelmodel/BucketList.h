@@ -124,11 +124,27 @@ public:
   inline double getSectionLength() const { return sectionLength; }
 
   /**
+   * @brief      Gets the number of sections (i.e. the number of buckets per lane).
+   * @return     The section count.
+   */
+  inline unsigned getSectionCount() const { return buckets.size(); }
+
+  /**
    * @brief      Gets the number cars on this street (in the current direction).
    * Cars beyond the street and cars that are inserted but not incorporated are not considered.
    * @return     The number cars on this street.
    */
   inline unsigned int getCarCount() const { return carCount; }
+
+  /**
+   * Returns a reference to the bucket representing the given section on the given lane.
+   * @param[in]  sectionIndex  The section index
+   * @param[in]  lane          The lane
+   * @return     The bucket as const reference.
+   */
+  const Bucket &getBucket(const unsigned sectionIndex, const unsigned lane) const {
+    return buckets[sectionIndex * laneCount + lane];
+  }
 
   // ------- Access to Neighboring Cars -------
 
