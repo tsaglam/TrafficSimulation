@@ -75,9 +75,6 @@ private:
 
 public:
   bucket_list_iterator() = default;
-  bucket_list_iterator(const bucket_list_iterator<Bucket, Car, false> &it)
-      : beginBucket(it.beginBucket), endBucket(it.endBucket), currentBucket(it.currentBucket),
-        currentPositionInBucket(it.currentPositionInBucket), state(it.state) {}
   bucket_list_iterator(const buckets_iterator beginBucket, const buckets_iterator endBucket)
       : beginBucket(beginBucket), endBucket(endBucket), currentBucket(beginBucket),
         currentPositionInBucket(currentBucket->begin()), state(STANDARD) {
