@@ -84,9 +84,32 @@ private:
    * @param[in]  <unnamed>  Trait to allow different implementations for different RfbStructures
    * @return     The potential travel distance of all cars within the traffic light zone on the given street.
    */
-  double determinePotentialTravelDistance(const LowLevelStreet<RfbStructure> &street, rfbstructure_buckets_tag) const {
-    // TODO implement this
-    return street.getLength();
+  double determinePotentialTravelDistance(const unsigned streetId, rfbstructure_buckets_tag) const {
+    double potentialTravelDistance = 0;
+    const double speedLimit        = getStreet(streetId).getSpeedLimit();
+
+    auto rfb = getLowLevelStreet().getUnderlyingDataStructure();
+    for (unsigned lane = 0; lane < getStreet(streetId).getLanes(); ++lane) { // for each lane
+      double contextualVelocity = speedLimit;
+      double currentDistance    = getLowLevelStreet().getLength();
+      // for each section, i.e. each bucket in the current lane
+      for (unsigned section = rfb.getSectionCount() - 1; section >= 0; --section) {
+        auto bucket = rfb.getBucket(section, lane); // retrieve the current bucket
+
+        // stop once the end of the traffic light zone is reached, i.e. the bucket does not overlap with the zone
+        currentDistance -= rfb.getSectionLength();
+        if (!isInTrafficLightZone(currentDistance, streetId)) { break; }
+
+        // compute bucket wise contextual velocity
+        for (auto car : bucket) { contextualVelocity = std::min(contextualVelocity, car.getTargetVelocity()); }
+        // compute potential travel distance in the current step and bucket
+        for (auto car : bucket) {
+          double actualVelocity = car.getNextVelocity();
+          potentialTravelDistance += std::max(actualVelocity, contextualVelocity);
+        }
+      }
+    }
+    return potentialTravelDistance;
   }
 
   /**
