@@ -19,6 +19,7 @@ private:
   // contains for each junction a vector of requested green light directions per time step
   std::vector<std::vector<CardinalDirection>> requestedGreenLights;
   const double trafficLightZoneMultiplier = 1.0; // TODO choose parameters
+  // Is multiplied with the speed limit to determine the size of the traffic light zone
 
   // Simplified getters for the street and low level street by id
   const Street &getStreet(const unsigned streetId) const { return data.getDomainModel().getStreet(streetId); }
@@ -40,6 +41,19 @@ private:
     double maxDistanceToTrafficLight = trafficLightZoneMultiplier * getStreet(streetId).getSpeedLimit();
     return (trafficLightPosition - maxDistanceToTrafficLight) <= distance;
   }
+
+  /**
+   * Determines the potential travel distance of all cars within the traffic light zone on the given street.
+   * The potential travel distance is defined as the sum of the actual travel distance and the potentially lost
+   * distance. The potentially lost distance is the difference between the contextual velocity and the actual velocity
+   * in the current time step. Negative potentially lost distances are set to 0. The contextual velocity of a car is
+   * defined as the minimum of the target velocity, the speed limit and the contextual velocity of the car in front.
+   * Computing the potential travel distance of a car can be simplified to max(actual velocity, contextual velocity).
+   * The traffic light zone is defined by the isInTrafficLightZone() function.
+   * @param[in]  streetId   The street identifier
+   * @param[in]  <unnamed>  Trait to allow different implementations for different RfbStructures
+   * @return     The potential travel distance of all cars within the traffic light zone on the given street.
+   */
   double determinePotentialTravelDistance(const unsigned streetId, rfbstructure_reversible_sorted_iterator_tag) const {
     double potentialTravelDistance = 0;
     double speedLimit              = getStreet(streetId).getSpeedLimit();
@@ -62,11 +76,24 @@ private:
     return potentialTravelDistance;
   }
 
+  /**
+   * This is a specialization of determinePotentialTravelDistance for bucket-based RfbStructures.
+   * As before, the potential travel distance of all cars within the traffic light zone on the given street is computed.
+   * However, the contextual velocity is computed bucket-wise to avoid unnecessary sorting of the unsorted buckets.
+   * @param[in]  streetId   The street identifier
+   * @param[in]  <unnamed>  Trait to allow different implementations for different RfbStructures
+   * @return     The potential travel distance of all cars within the traffic light zone on the given street.
+   */
   double determinePotentialTravelDistance(const LowLevelStreet<RfbStructure> &street, rfbstructure_buckets_tag) const {
     // TODO implement this
     return street.getLength();
   }
 
+  /**
+   * Determines the optimal green light for a given junction in the current step based o the potential travel distance.
+   * @param[in]  junction  The junction
+   * @return     The direction of the incoming street with maximal potential travel distance.
+   */
   CardinalDirection determineOptimalGreenLight(const Junction &junction) const {
     double maxPotentialTravelDistance = -1.0;
     CardinalDirection requestedDirection;
