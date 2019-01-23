@@ -25,7 +25,7 @@ private:
   bucket_iterator currentPositionInBucket;
 
   buckets_iterator findNextNonEmptyBucket(const bool includingCurrent = false) const {
-    if ((includingCurrent && !currentBucket->empty()) || currentBucket == endBucket) { return currentBucket; }
+    if (currentBucket == endBucket || (includingCurrent && !currentBucket->empty())) { return currentBucket; }
     buckets_iterator nextBucket = currentBucket + 1;
     while (nextBucket != endBucket && nextBucket->empty()) { ++nextBucket; }
     return nextBucket;
@@ -33,6 +33,7 @@ private:
 
   buckets_iterator findPreviousNonEmptyBucket(const bool includingCurrent = false) const {
     if (includingCurrent && !currentBucket->empty()) { return currentBucket; }
+    if (currentBucket == beginBucket) { return endBucket; }
     buckets_iterator previousBucket = currentBucket - 1;
     while (previousBucket->empty()) {
       if (previousBucket == beginBucket) { return endBucket; }
