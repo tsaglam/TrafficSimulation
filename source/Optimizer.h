@@ -35,7 +35,7 @@ private:
           initialSignals.push_back(Junction::Signal(connectedStreet.getDirection(), signalDuration));
         }
       }
-      // junction->setSignals(initialSignals); TODO uncomment when implemented in the domain model
+      junction->setSignals(initialSignals);
     }
   }
 
@@ -88,7 +88,7 @@ private:
         newSignals[i] = Junction::Signal(oldSignals[i].getDirection(), signalDurations[i]);
       }
 
-      // junction.setSignals(newSignals); TODO uncomment when implemented in the domain model
+      junction->setSignals(newSignals);
     }
   }
 
@@ -112,7 +112,7 @@ private:
    * Otherwise optimizes the traffic lights based on the evaluation.
    */
   void runOptimizationCycle() {
-    // domainModel.reset(); // reset cars to initial position TODO uncomment when implemented in the domain model
+    domainModel.resetVehiclePositions(); // reset cars to initial position
     // run a complete simulation using a newly initialized simulator, evaluate the traffic lights during the simulation
     Simulator<RfbStructure, SignalingRoutine, IDMRoutine, OptimizationRoutine, ConsistencyRoutine> simulator(
         domainModel);
