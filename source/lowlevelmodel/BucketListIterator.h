@@ -25,7 +25,7 @@ private:
   bucket_iterator currentPositionInBucket;
 
   buckets_iterator findNextNonEmptyBucket(const bool includingCurrent = false) const {
-    if ((includingCurrent && !currentBucket->empty()) || currentBucket == endBucket) { return currentBucket; }
+    if (currentBucket == endBucket || (includingCurrent && !currentBucket->empty())) { return currentBucket; }
     buckets_iterator nextBucket = currentBucket + 1;
     while (nextBucket != endBucket && nextBucket->empty()) { ++nextBucket; }
     return nextBucket;
@@ -33,6 +33,7 @@ private:
 
   buckets_iterator findPreviousNonEmptyBucket(const bool includingCurrent = false) const {
     if (includingCurrent && !currentBucket->empty()) { return currentBucket; }
+    if (currentBucket == beginBucket) { return endBucket; }
     buckets_iterator previousBucket = currentBucket - 1;
     while (previousBucket->empty()) {
       if (previousBucket == beginBucket) { return endBucket; }
@@ -75,9 +76,6 @@ private:
 
 public:
   bucket_list_iterator() = default;
-  bucket_list_iterator(const bucket_list_iterator<Bucket, Car, false> &it)
-      : beginBucket(it.beginBucket), endBucket(it.endBucket), currentBucket(it.currentBucket),
-        currentPositionInBucket(it.currentPositionInBucket), state(it.state) {}
   bucket_list_iterator(const buckets_iterator beginBucket, const buckets_iterator endBucket)
       : beginBucket(beginBucket), endBucket(endBucket), currentBucket(beginBucket),
         currentPositionInBucket(currentBucket->begin()), state(STANDARD) {
@@ -90,9 +88,9 @@ public:
     }
   }
   bucket_list_iterator(const buckets_iterator beginBucket, const buckets_iterator endBucket,
-      buckets_iterator initialBucket, bucket_iterator currentPositionInBucket)
+      buckets_iterator initialBucket, bucket_iterator currentPositionInBucket, iterator_state state = STANDARD)
       : beginBucket(beginBucket), endBucket(endBucket), currentBucket(initialBucket),
-        currentPositionInBucket(currentPositionInBucket), state(STANDARD) {
+        currentPositionInBucket(currentPositionInBucket), state(state) {
     buckets_iterator it = findNextNonEmptyBucket(true);
     if (it == endBucket) {
       setToEnd();
@@ -105,6 +103,11 @@ public:
   bucket_list_iterator(const buckets_iterator beginBucket, const buckets_iterator endBucket, int)
       : beginBucket(beginBucket), endBucket(endBucket), currentBucket(endBucket),
         currentPositionInBucket((endBucket - 1)->end()), state(END) {}
+
+  operator bucket_list_iterator<Bucket, Car, true>() const {
+    return bucket_list_iterator<Bucket, Car, true>(
+        beginBucket, endBucket, currentBucket, currentPositionInBucket, state);
+  }
 
   reference operator*() const { return currentPositionInBucket.operator*(); }
   pointer operator->() const { return currentPositionInBucket.operator->(); }

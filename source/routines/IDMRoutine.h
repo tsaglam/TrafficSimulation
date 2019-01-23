@@ -209,6 +209,7 @@ private:
     const double nextVelocity = std::max(car.getVelocity() + nextAcceleration, 0.0);
     const double nextDistance = car.getDistance() + nextVelocity;
     car.setNext(nextLane, nextDistance, nextVelocity);
+    car.updateTravelDistance(nextVelocity); // in this step, the car traveled a distance of 'nextVelocity' meters
   }
 };
 

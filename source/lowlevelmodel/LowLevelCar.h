@@ -54,6 +54,8 @@ private:
   double nextDistance;
   double nextVelocity;
 
+  double travelDistance = 0.0; // total distance traveled by this car in the current simulation
+
 public:
   LowLevelCar() = default;
   LowLevelCar(unsigned int _id, unsigned int _externalId, double _targetVelocity, double _maxAcceleration,
@@ -63,9 +65,10 @@ public:
         politeness(_politeness), length(_length) {}
   LowLevelCar(unsigned int _id, unsigned int _externalId, double _targetVelocity, double _maxAcceleration,
       double _accelerationDivisor, double _minDistance, double _targetHeadway, double _politeness, double _length,
-      unsigned int _lane, double _distance, double _velocity = 0.0)
+      unsigned int _lane, double _distance, double _velocity = 0.0, double _travelDistance = 0.0)
       : LowLevelCar(_id, _externalId, _targetVelocity, _maxAcceleration, _accelerationDivisor, _minDistance,
             _targetHeadway, _politeness, _length) {
+    travelDistance = _travelDistance;
     setPosition(_lane, _distance, _velocity);
     setNext(_lane, _distance, _velocity);
   }
@@ -116,6 +119,8 @@ public:
   double getPoliteness() const { return politeness; }
   double getLength() const { return length; }
 
+  double getNextVelocity() const { return nextVelocity; }
+
   void setNextBaseAcceleration(double acceleration) { nextBaseAcceleration = acceleration; }
   double getNextBaseAcceleration() const { return nextBaseAcceleration; }
   void setNext(unsigned int lane, double distance, double velocity) {
@@ -123,6 +128,10 @@ public:
     nextDistance = distance;
     nextVelocity = velocity;
   }
+
+  // Interface for measuring the traveled distance per car for the traffic light optimization
+  void updateTravelDistance(const double additionalDistance) { travelDistance += additionalDistance; }
+  double getTravelDistance() const { return travelDistance; }
 };
 
 #endif

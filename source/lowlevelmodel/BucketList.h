@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "BucketListIterator.h"
+#include "RfbStructureTraits.h"
 
 template <class Car>
 class BucketList {
@@ -77,8 +78,10 @@ public:
   using bucket_iterator       = typename Bucket::iterator;
   using bucket_const_iterator = typename Bucket::const_iterator;
 
-  using BeyondsCarIterable      = bucket_iterator;
-  using ConstBeyondsCarIterable = bucket_const_iterator;
+  using reverse_category = rfbstructure_buckets_tag;
+
+  using BeyondsCarIterable      = Bucket;
+  using ConstBeyondsCarIterable = const Bucket;
   using iterator                = bucket_list_iterator<Bucket, Car>;
   using const_iterator          = bucket_list_iterator<Bucket, Car, true>;
 
@@ -96,7 +99,7 @@ public:
     inline iterator_type end() const { return _end; }
   };
 
-  template<bool Const>
+  template <bool Const>
   friend class _AllCarIterable;
   using AllCarIterable      = _AllCarIterable<>;
   using ConstAllCarIterable = _AllCarIterable<true>;
@@ -121,11 +124,27 @@ public:
   inline double getSectionLength() const { return sectionLength; }
 
   /**
+   * @brief      Gets the number of sections (i.e. the number of buckets per lane).
+   * @return     The section count.
+   */
+  inline unsigned getSectionCount() const { return buckets.size(); }
+
+  /**
    * @brief      Gets the number cars on this street (in the current direction).
    * Cars beyond the street and cars that are inserted but not incorporated are not considered.
    * @return     The number cars on this street.
    */
   inline unsigned int getCarCount() const { return carCount; }
+
+  /**
+   * Returns a reference to the bucket representing the given section on the given lane.
+   * @param[in]  sectionIndex  The section index
+   * @param[in]  lane          The lane
+   * @return     The bucket as const reference.
+   */
+  const Bucket &getBucket(const unsigned sectionIndex, const unsigned lane) const {
+    return buckets[sectionIndex * laneCount + lane];
+  }
 
   // ------- Access to Neighboring Cars -------
 
@@ -392,9 +411,9 @@ public:
    *
    * @return     An iterable object for all cars beyond this street.
    */
-  inline BeyondsCarIterable beyondsIterable() { return BeyondsCarIterable(*this); }
-  inline ConstBeyondsCarIterable beyondsIterable() const { return ConstBeyondsCarIterable(*this); }
-  inline ConstBeyondsCarIterable constBeyondsIterable() const { return ConstBeyondsCarIterable(*this); }
+  inline BeyondsCarIterable beyondsIterable() { return departedCars; }
+  inline ConstBeyondsCarIterable beyondsIterable() const { return departedCars; }
+  inline ConstBeyondsCarIterable constBeyondsIterable() const { return departedCars; }
 
   /**
    * @brief      Removes all cars which are currently "beyond the street".

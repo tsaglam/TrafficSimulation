@@ -134,6 +134,8 @@ public:
    * RfbStructure accessors which forward to signaler.
    */
 
+  double getTrafficLightPosition() const { return signaler.getTrafficLightPosition(); }
+
   typename TrafficLightSignaler<RfbStructure>::AllCarIterable allIterable() { return signaler.allIterable(); }
 
   typename TrafficLightSignaler<RfbStructure>::ConstAllCarIterable allIterable() const {
@@ -219,6 +221,8 @@ public:
   }
 
   void removeBeyonds() { rfb.removeBeyonds(); }
+
+  const ConcreteRfbStructure& getUnderlyingDataStructure() const { return rfb; }
 };
 
 #endif
