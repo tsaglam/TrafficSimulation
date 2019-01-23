@@ -52,8 +52,10 @@ public:
   NaiveStreetDataStructure(unsigned int laneCount, double length) : laneCount(laneCount), length(length) {}
 
   // ------- Iterator & Iterable type defs -------
-  using iterator       = typename std::vector<Car>::iterator;
-  using const_iterator = typename std::vector<Car>::const_iterator;
+  using iterator               = typename std::vector<Car>::iterator;
+  using const_iterator         = typename std::vector<Car>::const_iterator;
+  using reverse_iterator       = typename std::vector<Car>::reverse_iterator;
+  using const_reverse_iterator = typename std::vector<Car>::const_reverse_iterator;
 
   using reverse_category = rfbstructure_reversible_sorted_iterator_tag;
 
@@ -62,17 +64,19 @@ public:
 
   template <bool Const = false>
   class _AllCarIterable {
-    using IteratorType    = std::conditional_t<Const, const_iterator, iterator>;
-    using StreetReference = std::conditional_t<Const, NaiveStreetDataStructure const &, NaiveStreetDataStructure &>;
-    const IteratorType _begin;
-    const IteratorType _end;
+    using IteratorType        = std::conditional_t<Const, const_iterator, iterator>;
+    using ReverseIteratorType = std::conditional_t<Const, const_reverse_iterator, reverse_iterator>;
+    using StreetReference     = std::conditional_t<Const, NaiveStreetDataStructure const &, NaiveStreetDataStructure &>;
+    StreetReference &dataStructure;
 
   public:
-    _AllCarIterable(StreetReference &dataStructure)
-        : _begin(dataStructure.carsOnStreet.begin()), _end(dataStructure.carsOnStreet.end()) {}
+    _AllCarIterable(StreetReference &dataStructure) : dataStructure(dataStructure) {}
 
-    inline IteratorType begin() const { return _begin; }
-    inline IteratorType end() const { return _end; }
+    inline IteratorType begin() const { return dataStructure.carsOnStreet.begin(); }
+    inline IteratorType end() const { return dataStructure.carsOnStreet.end(); }
+
+    inline ReverseIteratorType rbegin() const { return dataStructure.carsOnStreet.rbegin(); }
+    inline ReverseIteratorType rend() const { return dataStructure.carsOnStreet.rend(); }
   };
 
   template <bool Const = false>

@@ -59,8 +59,8 @@ private:
     double speedLimit              = getStreet(streetId).getSpeedLimit();
     std::vector<double> contextualVelocity(getStreet(streetId).getLanes(), speedLimit);
 
-    auto streetIterable = getLowLevelStreet(streetId).allIterable();
-    for (auto carIt = streetIterable.end() - 1; carIt >= streetIterable.begin(); --carIt) {
+    auto streetIterable = getLowLevelStreet(streetId).getUnderlyingDataStructure().allIterable();
+    for (auto carIt = streetIterable.rbegin(); carIt != streetIterable.rend(); ++carIt) {
       // stop once the end of the traffic light zone is reached
       if (!isInTrafficLightZone(carIt->getDistance(), streetId)) { break; }
       unsigned lane = carIt->getLane();
