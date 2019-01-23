@@ -200,8 +200,8 @@ public:
     BaseIterator<RfbIterator, Const> operator-(const difference_type &n) const {
       switch (state) {
       case PROXY: return BaseIterator<RfbIterator, Const>(dest - n);
-      case SPECIAL: *this;
-      default: *this;
+      case SPECIAL: return *this;
+      default: return *this;
       }
     }
 
