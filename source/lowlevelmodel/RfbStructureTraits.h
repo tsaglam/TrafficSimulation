@@ -1,8 +1,11 @@
 #ifndef RFB_STRUCTURE_TRAITS
 #define RFB_STRUCTURE_TRAITS
 
-template<template <typename Vehicle> typename RfbStructure>
+#include "LowLevelCar.h"
+
+template <template <typename Vehicle> typename RfbStructure>
 struct rfbstructure_traits {
+  using Vehicle          = LowLevelCar;
   using reverse_category = typename RfbStructure<Vehicle>::reverse_category;
 };
 
