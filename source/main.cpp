@@ -13,33 +13,43 @@
 #include "Simulator.h"
 #include "TrafficLightRoutine.h"
 
+int main_simulate(JSONReader &jsonReader, DomainModel &domainModel, JSONWriter &jsonWriter) {
+  Simulator<NaiveStreetDataStructure, TrafficLightRoutine, IDMRoutine, NullRoutine, ConsistencyRoutine> simulator(
+      domainModel);
+  simulator.performSteps(jsonReader.getTimeSteps());
+
+  jsonWriter.writeVehicles(domainModel);
+
+  return 0;
+}
+
+int main_optimize(JSONReader &jsonReader, DomainModel &domainModel, JSONWriter &jsonWriter) {
+  const unsigned maximumOptimizationCycles = 10; // TODO remove when debugging finished
+  const double minimumTraveldistance       = jsonReader.getMinTravelDistance();
+
+  Optimizer<NaiveStreetDataStructure, TrafficLightRoutine, IDMRoutine, OptimizationRoutine, ConsistencyRoutine, false>
+      optimizer(domainModel, jsonReader.getTimeSteps(), minimumTraveldistance, maximumOptimizationCycles);
+  optimizer.optimizeTrafficLights();
+
+  jsonWriter.writeSignals(domainModel);
+
+  return 0;
+}
+
 int main() {
   DomainModel domainModel;
 
   JSONReader jsonReader(std::cin);
+  JSONWriter jsonWriter(std::cout);
 
   jsonReader.readInto(domainModel);
 
-  bool optimizeTrafficLights = false; // TODO replace with enum and set based on the input
-  if (optimizeTrafficLights) {
-    const unsigned maximumOptimizationCycles = 10;  // TODO remove when debugging finished
-    const double minimumTraveldistance       = 100; // TODO replace when implemented
-    Optimizer<NaiveStreetDataStructure, TrafficLightRoutine, IDMRoutine, OptimizationRoutine, ConsistencyRoutine, false>
-        optimizer(domainModel, jsonReader.getTimeSteps(), minimumTraveldistance, maximumOptimizationCycles);
-    optimizer.optimizeTrafficLights();
-
-    JSONWriter jsonWriter(std::cout);
-
-    // jsonWriter.writeSignals(domainModel); TODO uncomment when implemented
-  } else { // run a standard simulation
-    Simulator<NaiveStreetDataStructure, TrafficLightRoutine, IDMRoutine, NullRoutine, ConsistencyRoutine> simulator(
-        domainModel);
-    simulator.performSteps(jsonReader.getTimeSteps());
-
-    JSONWriter jsonWriter(std::cout);
-
-    jsonWriter.writeVehicles(domainModel);
+  switch (jsonReader.getMode()) {
+  case JSONReader::SIMULATE: return main_simulate(jsonReader, domainModel, jsonWriter);
+  case JSONReader::OPTIMIZE: return main_optimize(jsonReader, domainModel, jsonWriter);
+  default: {
+    std::cerr << "Unknown execution mode." << std::endl;
+    return 1;
   }
-
-  return 0;
+  }
 }

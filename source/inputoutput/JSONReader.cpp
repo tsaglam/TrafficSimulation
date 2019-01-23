@@ -28,13 +28,25 @@ JSONReader::Road::Road(
 JSONReader::JSONReader(std::istream &_in) : in(_in), hasBeenRead(false) {}
 
 unsigned int JSONReader::getTimeSteps() const {
-  if (!hasBeenRead) throw JSONReader::Exception("No input has been read yet");
+  if (!hasBeenRead) throw JSONReader::Exception("No input has been read yet.");
 
   return timeSteps;
 }
 
+JSONReader::Mode JSONReader::getMode() const {
+  if (!hasBeenRead) throw JSONReader::Exception("No input has been read yet.");
+
+  return mode;
+}
+
+unsigned int JSONReader::getMinTravelDistance() const {
+  if (!hasBeenRead) throw JSONReader::Exception("No input has been read yet.");
+
+  return minTravelDistance;
+}
+
 void JSONReader::readInto(DomainModel &domainModel) {
-  if (hasBeenRead) throw JSONReader::Exception("Attempting to read input although input has already been read");
+  if (hasBeenRead) throw JSONReader::Exception("Attempting to read input although input has already been read.");
 
   json input;
 
@@ -43,11 +55,22 @@ void JSONReader::readInto(DomainModel &domainModel) {
 
   timeSteps = input["time_steps"].get<unsigned int>();
 
+  if (input.count("optimize_signals") > 0) {
+    if (input["optimize_signals"].get<bool>())
+      mode = JSONReader::OPTIMIZE;
+    else
+      mode = JSONReader::SIMULATE;
+  } else {
+    mode = JSONReader::SIMULATE;
+  }
+
+  if (mode == JSONReader::OPTIMIZE) minTravelDistance = input["min_travel_distance"].get<unsigned int>();
+
   std::map<int, Junction *> junctionsMap;
   std::map<int, Vehicle *> vehiclesMap;
 
   for (const auto &inputJunction : input["junctions"]) {
-    Junction junction = readJunction(inputJunction);
+    Junction junction = readJunction(inputJunction, mode);
 
     if (junctionsMap.count(junction.getExternalId()) > 0)
       throw JSONReader::Exception("Duplicate Junction ID encountered.");
@@ -85,23 +108,26 @@ void JSONReader::readInto(DomainModel &domainModel) {
   hasBeenRead = true;
 }
 
-Junction JSONReader::readJunction(const json &inputJunction) const {
+Junction JSONReader::readJunction(const json &inputJunction, JSONReader::Mode mode) const {
   int externalId = inputJunction["id"].get<int>();
   int x          = inputJunction["x"].get<int>();
   int y          = inputJunction["y"].get<int>();
 
   std::vector<Junction::Signal> signals;
-  signals.reserve(inputJunction["signals"].size());
 
-  for (const auto &inputSignal : inputJunction["signals"]) {
-    // 0->North, 1->East, 2->South, 3->West
-    unsigned int direction = inputSignal["dir"].get<unsigned int>();
-    if (direction > WEST) throw JSONReader::Exception("Invalid direction in signals list");
-    // Input in s
-    unsigned int time = inputSignal["time"].get<unsigned int>();
+  if (mode == JSONReader::SIMULATE) {
+    signals.reserve(inputJunction["signals"].size());
 
-    Junction::Signal signal(static_cast<CardinalDirection>(direction), time);
-    signals.push_back(signal);
+    for (const auto &inputSignal : inputJunction["signals"]) {
+      // 0->North, 1->East, 2->South, 3->West
+      unsigned int direction = inputSignal["dir"].get<unsigned int>();
+      if (direction > WEST) throw JSONReader::Exception("Invalid direction in signals list.");
+      // Input in s
+      unsigned int time = inputSignal["time"].get<unsigned int>();
+
+      Junction::Signal signal(static_cast<CardinalDirection>(direction), time);
+      signals.push_back(signal);
+    }
   }
 
   return Junction(0, externalId, x, y, std::move(signals));
@@ -138,7 +164,7 @@ Vehicle JSONReader::readVehicle(const json &inputVehicle, const std::map<int, Ju
   double targetHeadway = inputVehicle["target_headway"].get<double>();
   // Input in range [0.0, 1.0]
   double politeness = inputVehicle["politeness"].get<double>();
-  if (politeness < 0.0 || politeness > 1.0) throw JSONReader::Exception("Invalid politeness in vehicle details");
+  if (politeness < 0.0 || politeness > 1.0) throw JSONReader::Exception("Invalid politeness in vehicle details.");
 
   // starting position via junction IDs
   int fromJunctionId = inputVehicle["start"]["from"].get<int>();
@@ -163,13 +189,13 @@ Vehicle JSONReader::readVehicle(const json &inputVehicle, const std::map<int, Ju
       break;
     }
   }
-  if (!found) throw JSONReader::Exception("Unknown Junction ID in vehicle position specification: no such street");
+  if (!found) throw JSONReader::Exception("Unknown Junction ID in vehicle position specification: no such street.");
 
   if (lane >= street->getLanes())
-    throw JSONReader::Exception("Invalid lane in vehicle position specification: no such lane on street");
+    throw JSONReader::Exception("Invalid lane in vehicle position specification: no such lane on street.");
 
   if (distance < 0 || distance > street->getLength())
-    throw JSONReader::Exception("Invalid distance in vehicle position specification: not on street");
+    throw JSONReader::Exception("Invalid distance in vehicle position specification: not on street.");
 
   Vehicle::Position position(*street, lane, distance);
 
@@ -179,7 +205,7 @@ Vehicle JSONReader::readVehicle(const json &inputVehicle, const std::map<int, Ju
   for (const auto &inputTurn : inputVehicle["route"]) {
     // turn order: 0->uturn, 1->left, 2->straight, 3->right
     unsigned int turnDirection = inputTurn.get<unsigned int>();
-    if (turnDirection > RIGHT) throw JSONReader::Exception("Invalid turn direction in vehicle route");
+    if (turnDirection > RIGHT) throw JSONReader::Exception("Invalid turn direction in vehicle route.");
     route.push_back(static_cast<TurnDirection>(turnDirection));
   }
 
