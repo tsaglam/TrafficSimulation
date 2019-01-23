@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <vector>
 
+#include "RfbStructureTraits.h"
 #include "utils.h"
 
 template <class Car>
@@ -53,6 +54,8 @@ public:
   // ------- Iterator & Iterable type defs -------
   using iterator       = typename std::vector<Car>::iterator;
   using const_iterator = typename std::vector<Car>::const_iterator;
+
+  using reverse_category = rfbstructure_reversible_sorted_iterator_tag;
 
   friend class _AllCarIterable;
   friend class _BeyondsCarIterable;

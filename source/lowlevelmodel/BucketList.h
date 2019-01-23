@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "BucketListIterator.h"
+#include "RfbStructureTraits.h"
 
 template <class Car>
 class BucketList {
@@ -77,6 +78,8 @@ public:
   using bucket_iterator       = typename Bucket::iterator;
   using bucket_const_iterator = typename Bucket::const_iterator;
 
+  using reverse_category = rfbstructure_reversible_sorted_iterator_tag;
+
   using BeyondsCarIterable      = bucket_iterator;
   using ConstBeyondsCarIterable = bucket_const_iterator;
   using iterator                = bucket_list_iterator<Bucket, Car>;
@@ -96,7 +99,7 @@ public:
     inline iterator_type end() const { return _end; }
   };
 
-  template<bool Const>
+  template <bool Const>
   friend class _AllCarIterable;
   using AllCarIterable      = _AllCarIterable<>;
   using ConstAllCarIterable = _AllCarIterable<true>;
