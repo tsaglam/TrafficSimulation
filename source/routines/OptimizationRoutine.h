@@ -88,10 +88,10 @@ private:
     double potentialTravelDistance = 0;
     const double speedLimit        = getStreet(streetId).getSpeedLimit();
 
-    auto rfb = getLowLevelStreet().getUnderlyingDataStructure();
+    auto rfb = getLowLevelStreet(streetId).getUnderlyingDataStructure();
     for (unsigned lane = 0; lane < getStreet(streetId).getLanes(); ++lane) { // for each lane
       double contextualVelocity = speedLimit;
-      double currentDistance    = getLowLevelStreet().getLength();
+      double currentDistance    = getLowLevelStreet(streetId).getLength();
       // for each section, i.e. each bucket in the current lane
       for (unsigned section = rfb.getSectionCount() - 1; section >= 0; --section) {
         auto bucket = rfb.getBucket(section, lane); // retrieve the current bucket
