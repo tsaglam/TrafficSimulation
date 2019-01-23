@@ -119,6 +119,8 @@ public:
   double getPoliteness() const { return politeness; }
   double getLength() const { return length; }
 
+  double getNextVelocity() const { return nextVelocity; }
+
   void setNextBaseAcceleration(double acceleration) { nextBaseAcceleration = acceleration; }
   double getNextBaseAcceleration() const { return nextBaseAcceleration; }
   void setNext(unsigned int lane, double distance, double velocity) {
