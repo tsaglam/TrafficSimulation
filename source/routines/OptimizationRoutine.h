@@ -12,16 +12,54 @@
 template <template <typename Vehicle> typename RfbStructure>
 class OptimizationRoutine {
   using reverse_category = typename rfbstructure_traits<RfbStructure>::reverse_category;
+  using Vehicle          = LowLevelCar;
 
 private:
   SimulationData<RfbStructure> &data;
   // contains for each junction a vector of requested green light directions per time step
   std::vector<std::vector<CardinalDirection>> requestedGreenLights;
+  const double trafficLightZoneMultiplier = 1.0; // TODO choose parameters
 
-  double determinePotentialTravelDistance(
-      const LowLevelStreet<RfbStructure> &street, rfbstructure_reversible_sorted_iterator_tag) const {
-    // TODO implement this
-    return street.getLength();
+  // Simplified getters for the street and low level street by id
+  const Street &getStreet(const unsigned streetId) const { return data.getDomainModel().getStreet(streetId); }
+  const LowLevelStreet<RfbStructure> &getLowLevelStreet(const unsigned streetId) const {
+    return data.getStreet(streetId);
+  }
+
+  /**
+   * Returns whether the given car on the given street is within the zone affected by the traffic light.
+   * This zone is defined as the area beginning at position x before the traffic light with
+   * x = speed limit of the street * trafficLightZoneMultiplier
+   * The zone ends at the end of the street.
+   * @param[in]  car     The car
+   * @param[in]  street  The street containing the given car
+   * @return     True if in traffic light zone, False otherwise.
+   */
+  bool isInTrafficLightZone(const Vehicle &car, const unsigned streetId) const {
+    double trafficLightPosition      = getLowLevelStreet(streetId).getTrafficLightPosition();
+    double maxDistanceToTrafficLight = trafficLightZoneMultiplier * getStreet(streetId).getSpeedLimit();
+    return (trafficLightPosition - maxDistanceToTrafficLight) <= car.getDistance();
+  }
+  double determinePotentialTravelDistance(const unsigned streetId, rfbstructure_reversible_sorted_iterator_tag) const {
+    double potentialTravelDistance = 0;
+    double speedLimit              = getStreet(streetId).getSpeedLimit();
+    std::vector<double> contextualVelocity(getStreet(streetId).getLanes(), speedLimit);
+
+    auto streetIterable = getLowLevelStreet(streetId).allIterable();
+    for (auto carIt = streetIterable.end() - 1; carIt >= streetIterable.begin(); --carIt) {
+      // stop once the end of the traffic light zone is reached
+      if (!isInTrafficLightZone(*carIt, streetId)) { break; }
+      unsigned lane = carIt->getLane();
+
+      // compute contextual and actual velocity
+      double targetVelocity    = data.getDomainModel().getVehicle(carIt->getId()).getTargetVelocity();
+      contextualVelocity[lane] = std::min(targetVelocity, contextualVelocity[lane]);
+      double actualVelocity    = carIt->getNextVelocity();
+
+      // compute potential travel distance in the current step
+      potentialTravelDistance += std::max(actualVelocity, contextualVelocity[lane]);
+    }
+    return potentialTravelDistance;
   }
 
   double determinePotentialTravelDistance(const LowLevelStreet<RfbStructure> &street, rfbstructure_buckets_tag) const {
@@ -32,12 +70,12 @@ private:
   CardinalDirection determineOptimalGreenLight(const Junction &junction) const {
     double maxPotentialTravelDistance = -1.0;
     CardinalDirection requestedDirection;
-    for (const auto &incomingStreet : junction.getIncomingStreets()) {
-      const auto &lowLevelStreet     = data.getStreet(incomingStreet.getStreet()->getId());
-      double potentialTravelDistance = determinePotentialTravelDistance(lowLevelStreet, reverse_category());
+    for (const auto &street : junction.getIncomingStreets()) {
+      double potentialTravelDistance =
+          determinePotentialTravelDistance(street.getStreet()->getId(), reverse_category());
       if (potentialTravelDistance > maxPotentialTravelDistance) {
         maxPotentialTravelDistance = potentialTravelDistance;
-        requestedDirection         = incomingStreet.getDirection();
+        requestedDirection         = street.getDirection();
       }
     }
     return requestedDirection;
