@@ -66,7 +66,7 @@ private:
       unsigned lane = carIt->getLane();
 
       // compute contextual and actual velocity
-      double targetVelocity    = data.getDomainModel().getVehicle(carIt->getId()).getTargetVelocity();
+      double targetVelocity    = carIt->getTargetVelocity();
       contextualVelocity[lane] = std::min(targetVelocity, contextualVelocity[lane]);
       double actualVelocity    = carIt->getNextVelocity();
 
