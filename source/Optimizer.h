@@ -5,19 +5,22 @@
 #include "Junction.h"
 #include "Simulator.h"
 
+#include <iomanip>
+#include <iostream>
 #include <vector>
 
 template <template <typename Vehicle> typename RfbStructure,
     template <template <typename Vehicle> typename _RfbStructure> typename SignalingRoutine,
     template <template <typename Vehicle> typename _RfbStructure> typename IDMRoutine,
     template <template <typename Vehicle> typename _RfbStructure> typename OptimizationRoutine,
-    template <template <typename Vehicle> typename _RfbStructure> typename ConsistencyRoutine>
+    template <template <typename Vehicle> typename _RfbStructure> typename ConsistencyRoutine, bool debug = false>
 class Optimizer {
   DomainModel &domainModel;
   double lastTravelDistance = 0;
   const double minTravelDistance;
   const unsigned stepCount;
   const double relativeRescaleDurationLimit = 0;
+  unsigned maxCycles;
 
 private:
   /**
@@ -129,8 +132,15 @@ public:
    * @param[in]  _stepCount          The number of steps the simulation is run
    * @param[in]  _minTravelDistance  The minimum travel distance that has to be reached by the sum of all cars
    */
-  Optimizer(DomainModel &_domainModel, const unsigned _stepCount, const double _minTravelDistance)
-      : domainModel(_domainModel), minTravelDistance(_minTravelDistance), stepCount(_stepCount) {}
+  Optimizer(
+      DomainModel &_domainModel, const unsigned _stepCount, const double _minTravelDistance, unsigned _maxCycles = -1)
+      : domainModel(_domainModel), minTravelDistance(_minTravelDistance), stepCount(_stepCount), maxCycles(_maxCycles) {
+  }
+
+  void printOptimizationProgress(const unsigned cycleCount) const {
+    std::cerr << "Optimization Cycle " << std::setw(4) << cycleCount << "    travel distance " << std::setw(8)
+              << std::fixed << std::setprecision(2) << lastTravelDistance << "\n";
+  }
 
   /**
    * Computes a signal order and duration such that all cars in the simulation travel at least a distance of
@@ -140,7 +150,12 @@ public:
    */
   void optimizeTrafficLights() {
     setInitialTrafficLights();
-    while (lastTravelDistance < minTravelDistance) { runOptimizationCycle(); }
+    unsigned optimizationCycleCount = 0;
+    while (lastTravelDistance < minTravelDistance && optimizationCycleCount < maxCycles) {
+      runOptimizationCycle();
+      ++optimizationCycleCount;
+      if (debug) { printOptimizationProgress(optimizationCycleCount); }
+    }
   }
 };
 
