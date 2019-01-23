@@ -779,13 +779,13 @@ parser.add_argument(
     '--output-path',
     default = '-',
     help = 'Write generated output to files instead of to stdout. '
-           'A total of the passed --number files. '
+           'A total of the passed --number files are generated. '
            'If the special value "-" is passed, the output is written to '
            'stdout (this is the default). '
            'Variables available for substitution: '
            '{seed} the seed for the current file in hex representation, '
            '{n} the number of files to be generated,'
-           '{i} the index of the current file (starting at 0).'
+           '{i} the index of the current file (starting at 0).',
 )
 
 
