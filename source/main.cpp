@@ -20,11 +20,11 @@ int main() {
 
   jsonReader.readInto(domainModel);
 
-  bool optimizeTrafficLights = true; // TODO replace with enum and set based on the input
+  bool optimizeTrafficLights = false; // TODO replace with enum and set based on the input
   if (optimizeTrafficLights) {
-    const unsigned maximumOptimizationCycles = 10;
+    const unsigned maximumOptimizationCycles = 10;  // TODO remove when debugging finished
     const double minimumTraveldistance       = 100; // TODO replace when implemented
-    Optimizer<NaiveStreetDataStructure, TrafficLightRoutine, IDMRoutine, OptimizationRoutine, ConsistencyRoutine, true>
+    Optimizer<NaiveStreetDataStructure, TrafficLightRoutine, IDMRoutine, OptimizationRoutine, ConsistencyRoutine, false>
         optimizer(domainModel, jsonReader.getTimeSteps(), minimumTraveldistance, maximumOptimizationCycles);
     optimizer.optimizeTrafficLights();
 
