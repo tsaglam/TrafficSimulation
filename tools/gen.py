@@ -262,7 +262,7 @@ class Gridder(Implementable):
     def _build_exposed_lists(self, junction_cls=Junction, road_cls=Road):
         self.junctions = list(
             junction_cls.from_coordinates(x, y, id=i)
-            for (i, (x, y)) in enumerate(self._junctions),
+            for (i, (x, y)) in enumerate(self._junctions)
         )
 
         ind = self._junctions.index
@@ -272,7 +272,7 @@ class Gridder(Implementable):
             road_cls.from_junctions(
                 lookup(a),
                 lookup(b),
-            ) for (a, b) in self._roads,
+            ) for (a, b) in self._roads
         )
 
         for road in self.roads:
@@ -305,7 +305,7 @@ class CompleteGridder(Gridder):
         y_gen = range(0, self.height, self.spacing)
 
         self._junctions.extend(
-            (x, y) for x in x_gen for y in y_gen,
+            (x, y) for x in x_gen for y in y_gen
         )
 
         for (x, y) in self._junctions:
