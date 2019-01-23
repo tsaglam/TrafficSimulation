@@ -24,6 +24,7 @@ private:
 public:
   JSONWriter(std::ostream &out);
   void writeVehicles(DomainModel &domainModel);
+  void writeSignals(DomainModel &domainModel);
 };
 
 #endif

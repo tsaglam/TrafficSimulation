@@ -21,6 +21,8 @@ public:
     virtual const char *what() const throw();
   };
 
+  enum Mode { SIMULATE, OPTIMIZE };
+
 private:
   /**
    * Represents a two-directional road as read from the JSON input.
@@ -43,6 +45,8 @@ private:
   std::istream &in;
   bool hasBeenRead;
   unsigned int timeSteps;
+  unsigned int minTravelDistance;
+  Mode mode;
 
 private:
   /**
@@ -61,14 +65,28 @@ private:
    */
   CardinalDirection relativeDirection(Junction &origin, Junction &other) const;
 
-  Junction readJunction(const nlohmann::json &inputJunction) const;
+  Junction readJunction(const nlohmann::json &inputJunction, Mode mode) const;
   Road readRoad(const nlohmann::json &inputRoad, const std::map<int, Junction *> &junctionsMap) const;
   Vehicle readVehicle(const nlohmann::json &inputVehicle, const std::map<int, Junction *> &junctionsMap) const;
 
 public:
   JSONReader(std::istream &in);
   void readInto(DomainModel &domainModel);
+  /**
+   * Returns the time_steps specified in a file read.
+   * Calling this method is only valid after a file has been read.
+   */
   unsigned int getTimeSteps() const;
+  /**
+   * Returns the execution mode specified by the file read.
+   * Calling this method is only valid after a file has been read.
+   */
+  Mode getMode() const;
+  /**
+   * Returns the min_travel_distance specified in a file read.
+   * Calling this method is only valid after a file has been read and the mode is OPTIMIZE.
+   */
+  unsigned int getMinTravelDistance() const;
 };
 
 #endif
