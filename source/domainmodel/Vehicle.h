@@ -66,6 +66,8 @@ public:
    */
   void resetPosition();
 
+  void checkPosition();
+
   /**
    * @brief      Returns the next direction of the route. Keeps automatically track of the route cycle, therefore this
    * method should only be called if the vehicle is actually moved.

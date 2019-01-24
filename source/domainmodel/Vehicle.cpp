@@ -25,16 +25,29 @@ Vehicle::Vehicle(id_type _id, int _externalId, double _targetVelocity, double _m
   directionIndex = 0;
 }
 
-void Vehicle::setPosition(const Position &_position) { position = _position; }
+void Vehicle::setPosition(const Position &_position) {
+  position = _position;
+  checkPosition();
+}
 
 void Vehicle::setPosition(Street &street, unsigned int lane, double distance) {
   Vehicle::Position position(street, lane, distance);
   setPosition(position);
+  checkPosition();
 }
 
 void Vehicle::resetPosition() {
-  position = startingPosition; // reset to state after object creation.
+  position       = startingPosition; // reset to state after object creation.
   directionIndex = 0;
+  checkPosition();
+}
+
+void Vehicle::checkPosition() {
+  if (position.getLane() >= position.getStreet()->getLanes()) {
+    throw std::invalid_argument("Invalid vehicle position, lane does not exist on street!");
+  } else if (position.getDistance() > position.getStreet()->getLength()) {
+    throw std::invalid_argument("Invalid vehicle position, distance cannot be higher than length!");
+  }
 }
 
 TurnDirection Vehicle::getNextDirection() {
