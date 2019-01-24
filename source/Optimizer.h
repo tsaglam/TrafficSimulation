@@ -67,8 +67,9 @@ private:
       double totalSignalsDuration = 0;
       for (const auto signal : oldSignals) { totalSignalsDuration += signal.getDuration(); }
 
-      double rescaleValue         = 1.0;
-      double absoluteRescaleLimit = std::min(5.0, totalSignalsDuration * relativeRescaleDurationLimit);
+      const double rescaleValue        = 1.3;
+      bool rescale                     = false;
+      double absoluteRescaleLimit      = std::max(5.0, totalSignalsDuration * relativeRescaleDurationLimit);
 
       // Determine duration of the new signals
       for (const auto &signal : oldSignals) {
@@ -76,12 +77,14 @@ private:
         double newPercentage = (oldPercentage + requestPercentage[signal.getDirection()]) * 0.5;
         unsigned newDuration = totalSignalsDuration * newPercentage;
         signalDurations.push_back(newDuration);
-        if (newDuration < absoluteRescaleLimit) { rescaleValue = std::max(rescaleValue, std::ceil(5.0 / newDuration)); }
+        if (newDuration < absoluteRescaleLimit) { rescale = true; }
       }
 
       // Rescale the total duration by the rescaleValue if necessary
-      if (rescaleValue != 1.0) {
-        for (unsigned i = 0; i < signalDurations.size(); ++i) { signalDurations[i] *= rescaleValue; }
+      if (rescale) {
+        for (unsigned i = 0; i < signalDurations.size(); ++i) {
+          signalDurations[i] = std::max(5.0, signalDurations[i] * rescaleValue);
+        }
       }
 
       // Create new signals vector
