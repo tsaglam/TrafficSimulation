@@ -127,7 +127,11 @@ public:
    * @brief      Gets the number of sections (i.e. the number of buckets per lane).
    * @return     The section count.
    */
-  inline unsigned getSectionCount() const { return buckets.size(); }
+  inline unsigned getSectionCount() const {
+    assert(buckets.size() > 0);
+    assert(buckets.size() / laneCount);
+    return buckets.size() / laneCount;
+  }
 
   /**
    * @brief      Gets the number cars on this street (in the current direction).
@@ -143,6 +147,8 @@ public:
    * @return     The bucket as const reference.
    */
   const Bucket &getBucket(const unsigned sectionIndex, const unsigned lane) const {
+    assert(sectionIndex < getSectionCount());
+    assert(lane < laneCount);
     return buckets[sectionIndex * laneCount + lane];
   }
 

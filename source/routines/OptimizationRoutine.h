@@ -110,7 +110,7 @@ private:
       double contextualVelocity = speedLimit;
       double currentDistance    = getLowLevelStreet(streetId).getLength();
       // for each section, i.e. each bucket in the current lane
-      for (unsigned section = rfb.getSectionCount() - 1; section >= 0; --section) {
+      for (int section = rfb.getSectionCount() - 1; section >= 0; --section) {
         auto bucket = rfb.getBucket(section, lane); // retrieve the current bucket
 
         // stop once the end of the traffic light zone is reached, i.e. the bucket does not overlap with the zone
