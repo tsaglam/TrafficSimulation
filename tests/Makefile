@@ -6,6 +6,7 @@ SOLUTIONS_DIR ?= $(OUTPUTS_DIR)
 SOLUTIONS_POSTFIX ?= .sol
 RUNNER ?= ../traffic_sim.dbg
 JQ ?= jq
+DIFF ?= diff
 MKTEMP ?= mktemp
 
 # Remove trailing slashes to not mess with find
@@ -28,7 +29,7 @@ $(CLEAN_OUTPUTS_DIR)/%$(OUTPUTS_POSTFIX): $(CLEAN_INPUTS_DIR)/%
 	$(eval NORMALISED_SOLUTION := $(shell $(MKTEMP)))
 	$(JQ) -S . $< >$(NORMALISED_OUTPUT)
 	$(JQ) -S . $(@:/nonexisting/%=$(CLEAN_SOLUTIONS_DIR)/%) >$(NORMALISED_SOLUTION)
-	diff $(NORMALISED_SOLUTION) $(NORMALISED_OUTPUT)
+	$(DIFF) $(NORMALISED_SOLUTION) $(NORMALISED_OUTPUT) || true
 	$(RM) $(NORMALISED_OUTPUT) $(NORMALISED_SOLUTION)
 
 all:
