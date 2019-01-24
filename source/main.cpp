@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include "ConsistencyRoutine.h"
+#include "ParallelConsistencyRoutine.h"
 #include "DomainModel.h"
 #include "IDMRoutine.h"
 #include "InitialTrafficLightStrategies.h"
@@ -16,7 +17,7 @@
 #include "TrafficLightRoutine.h"
 
 int main_simulate(JSONReader &jsonReader, DomainModel &domainModel, JSONWriter &jsonWriter) {
-  Simulator<NaiveStreetDataStructure, ParallelTrafficLightRoutine, IDMRoutine, NullRoutine, ConsistencyRoutine> simulator(
+  Simulator<NaiveStreetDataStructure, ParallelTrafficLightRoutine, IDMRoutine, NullRoutine, ParallelConsistencyRoutine> simulator(
       domainModel);
   simulator.performSteps(jsonReader.getTimeSteps());
 
