@@ -48,9 +48,9 @@ private:
 
 private:
   id_type id;
-  int externalId;
-  int x;
-  int y;
+  const int externalId;
+  const int x;
+  const int y;
   std::vector<Signal> signals;
   std::array<ConnectedStreet, 4> incomingStreets = {
       {ConnectedStreet(false, nullptr, NORTH), ConnectedStreet(false, nullptr, EAST),

@@ -26,16 +26,16 @@ public:
 
 private:
   id_type id;
-  int externalId;
-  double targetVelocity;
-  double maxAcceleration;
-  double targetDeceleration;
-  double minDistance;
-  double targetHeadway;
-  double politeness;
-  std::vector<TurnDirection> route;
+  const int externalId;
+  const double targetVelocity;
+  const double maxAcceleration;
+  const double targetDeceleration;
+  const double minDistance;
+  const double targetHeadway;
+  const double politeness;
+  const std::vector<TurnDirection> route;
   Position position;
-  Position startingPosition;
+  const Position startingPosition;
   int directionIndex;
 
 public:
