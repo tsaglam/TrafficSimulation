@@ -1,18 +1,23 @@
 {
-  "time_step": {
+  "globals": {
     "kind": "random",
     "spec": {
-      "kind": "static",
-      "spec": {
-        "value": 100000
+      "time_steps": {
+        "kind": "static",
+        "spec": {
+          "value": 10
+        }
+      },
+      "optimize_signals": {
+        "value": false
       }
     }
   },
   "grid": {
     "kind": "complete",
     "spec": {
-      "width": 10,
-      "height": 10,
+      "width": 3,
+      "height": 3,
       "spacing": 2
     }
   },
@@ -52,7 +57,7 @@
       "number": {
         "kind": "static",
         "spec": {
-          "value": 4000
+          "value": 10
         }
       },
       "target_velocity": {
