@@ -125,9 +125,9 @@ private:
         domainModel);
     simulator.performSteps(stepCount);
 
-    calculateTravelDistance(simulator);                     // compute the traveled distance
-    if (lastTravelDistance < minTravelDistance) { return; } // check whether the minimum travel distance is reached
-    improveTrafficLights(simulator);                        // optimize the traffic lights based on the evaluation
+    calculateTravelDistance(simulator);                      // compute the traveled distance
+    if (lastTravelDistance >= minTravelDistance) { return; } // check whether the minimum travel distance is reached
+    improveTrafficLights(simulator);                         // optimize the traffic lights based on the evaluation
   }
 
 public:
