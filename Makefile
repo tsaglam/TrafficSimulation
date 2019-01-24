@@ -2,13 +2,25 @@
 
 UNAME := $(shell uname)
 
+FILE_EXTENSION =
+FILE_EXTENSION_DBG = .dbg
+FILE_EXTENSION_TEST = .test
+
 ifdef OMP
 LDFLAGS += -lomp
+FILE_EXTENSION = .omp
+FILE_EXTENSION_DBG = .dbg.omp
+FILE_EXTENSION_TEST = .test.omp
 ifeq ($(UNAME), Darwin)
 OMP_FLAGS = -DOMP -Xpreprocessor -fopenmp
 else
 OMP_FLAGS = -DOMP -fopenmp
 endif
+else ifdef CUDA
+FILE_EXTENSION = .cuda
+FILE_EXTENSION_DBG = .dbg.cuda
+FILE_EXTENSION_TEST = .test.cuda
+# TODO: set compiler and linker flags
 endif
 
 BUILD_DIR ?= ./build
@@ -16,14 +28,14 @@ SRC_DIRS ?= ./source
 TEST_DIRS ?= ./testcases
 
 SRCS := $(shell find $(SRC_DIRS) -name "*.cpp")
-OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
+OBJS := $(SRCS:%=$(BUILD_DIR)/%$(FILE_EXTENSION).o)
 DEPS := $(OBJS:.o=.d)
 
 TEST_SRCS := $(shell find $(TEST_DIRS) -name "*.cpp") $(shell find $(SRC_DIRS) -name "*.cpp")
-TEST_OBJS := $(filter-out ./build/./source/main.cpp.test.o, $(TEST_SRCS:%=$(BUILD_DIR)/%.test.o))
+TEST_OBJS := $(filter-out ./build/./source/main.cpp$(FILE_EXTENSION_TEST).o, $(TEST_SRCS:%=$(BUILD_DIR)/%$(FILE_EXTENSION_TEST).o))
 TEST_DEPS := $(TEST_OBJS:.o=.d)
 
-DBG_OBJS := $(SRCS:%=$(BUILD_DIR)/%.dbg.o)
+DBG_OBJS := $(SRCS:%=$(BUILD_DIR)/%$(FILE_EXTENSION_DBG).o)
 DBG_DEPS := $(DBG_OBJS:.o=.d)
 
 INC_DIRS := $(shell find $(SRC_DIRS) -type d)
@@ -38,15 +50,15 @@ TEST_CPPFLAGS ?= $(DBG_CPPFLAGS)
 
 all: traffic_sim
 
-traffic_sim: $(BUILD_DIR)/traffic_sim
+traffic_sim: $(BUILD_DIR)/traffic_sim$(FILE_EXTENSION)
 	ln -sfn $< $@ # create symlink for pipeline
 
 # link all to traffic_sim
-$(BUILD_DIR)/traffic_sim: $(OBJS)
+$(BUILD_DIR)/traffic_sim$(FILE_EXTENSION): $(OBJS)
 	$(CXX) $(CPPFLAGS) $(OBJS) -o $@ $(LDFLAGS)
 
 # compile .cpp source files
-$(BUILD_DIR)/%.cpp.o: %.cpp
+$(BUILD_DIR)/%.cpp$(FILE_EXTENSION).o: %.cpp
 	$(MKDIR_P) $(dir $@)
 	$(CXX) $(CPPFLAGS) -c $< -o $@
 
@@ -54,29 +66,29 @@ $(BUILD_DIR)/%.cpp.o: %.cpp
 
 debug: traffic_sim.dbg
 
-traffic_sim.dbg: $(BUILD_DIR)/traffic_sim.dbg
+traffic_sim.dbg: $(BUILD_DIR)/traffic_sim$(FILE_EXTENSION_DBG)
 	ln -sfn $< $@ # create symlink
 
 # link all to traffic_sim
-$(BUILD_DIR)/traffic_sim.dbg: $(DBG_OBJS)
+$(BUILD_DIR)/traffic_sim$(FILE_EXTENSION_DBG): $(DBG_OBJS)
 	$(CXX) $(DBG_CPPFLAGS) $(DBG_OBJS) -o $@ $(LDFLAGS)
 
 # compile .cpp source files
-$(BUILD_DIR)/%.cpp.dbg.o: %.cpp
+$(BUILD_DIR)/%.cpp$(FILE_EXTENSION_DBG).o: %.cpp
 	$(MKDIR_P) $(dir $@)
 	$(CXX) $(DBG_CPPFLAGS) -c $< -o $@
 
 # Rules regarding the test executable
 
-test: $(BUILD_DIR)/testsuite
-	$(BUILD_DIR)/testsuite
+test: $(BUILD_DIR)/testsuite$(FILE_EXTENSION_TEST)
+	$(BUILD_DIR)/testsuite$(FILE_EXTENSION_TEST)
 
 # link all to traffic_sim
-$(BUILD_DIR)/testsuite: $(TEST_OBJS)
+$(BUILD_DIR)/testsuite$(FILE_EXTENSION_TEST): $(TEST_OBJS)
 	$(CXX) $(TEST_CPPFLAGS) $(TEST_OBJS) -o $@ $(LDFLAGS)
 
 # compile .cpp source files
-$(BUILD_DIR)/%.cpp.test.o: %.cpp
+$(BUILD_DIR)/%.cpp$(FILE_EXTENSION_TEST).o: %.cpp
 	$(MKDIR_P) $(dir $@)
 	$(CXX) $(TEST_CPPFLAGS) -c $< -o $@
 
