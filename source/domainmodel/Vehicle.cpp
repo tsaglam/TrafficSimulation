@@ -1,4 +1,5 @@
 #include "Vehicle.h"
+#include <sstream>
 
 Vehicle::Position::Position(Street &_street, unsigned int _lane, double _distance)
     : street(&_street), lane(_lane), distance(_distance) {}
@@ -42,11 +43,16 @@ void Vehicle::resetPosition() {
   checkPosition();
 }
 
-void Vehicle::checkPosition() {
+void Vehicle::checkPosition() { // TODO remove for final version
+  std::stringstream stream;
+  stream << "Invalid vehicle position for vehicle " << getId() << ", ";
   if (position.getLane() >= position.getStreet()->getLanes()) {
-    throw std::invalid_argument("Invalid vehicle position, lane does not exist on street!");
+    stream << "lane " << position.getLane() << " does not exist on street " << position.getStreet()->getId() << "!";
+    throw std::invalid_argument(stream.str());
   } else if (position.getDistance() > position.getStreet()->getLength()) {
-    throw std::invalid_argument("Invalid vehicle position, distance cannot be higher than length!");
+    stream << "distance is " << position.getDistance() << " but cannot be higher than length "
+           << position.getStreet()->getLength() << " of street " << position.getStreet()->getId() << "!";
+    throw std::invalid_argument(stream.str());
   }
 }
 
