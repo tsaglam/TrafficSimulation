@@ -106,12 +106,16 @@ class Junction(object):
         self.connections.append(connection)
 
     def export_json(self):
-        return {
+        export = {
             "id": self.id,
             "x": self.x,
             "y": self.y,
-            "signals": list(map(lambda x: x.export_json(), self.signals)),
         }
+
+        if self.signals is not None:
+            export["signals"] = list(map(lambda x: x.export_json(), self.signals))
+
+        return export
 
     @classmethod
     def from_coordinates(cls, x, y, id=None):
@@ -222,7 +226,7 @@ class Implementable(object):
 
     @classmethod
     def implementation_from_spec_dict(cls, dct):
-        return cls.implementation_from_dict(dct["kind"], dct["spec"])
+        return cls.implementation_from_dict(dct["kind"], dct.get("spec", dict()))
 
 
 class Gridder(Implementable):
@@ -369,6 +373,21 @@ class GaussSignaliser(Signaliser):
         )
 
 Signaliser.IMPLEMENTATIONS["gauss"] = GaussSignaliser
+
+
+class NoneSignaliser(Signaliser):
+    def __init__(self):
+        super(NoneSignaliser, self).__init__()
+
+    def __call__(self, junctions):
+        for junction in junctions:
+            junction.signals = None
+
+    @classmethod
+    def from_dict(cls, dct):
+        return cls()
+
+Signaliser.IMPLEMENTATIONS["none"] = NoneSignaliser
 
 
 class RoadPopulater(Implementable):
@@ -565,45 +584,79 @@ class RandomPositioner(Positioner):
 Positioner.IMPLEMENTATIONS["random"] = RandomPositioner
 
 
-class TimeStepper(Implementable):
+class GlobalsPopulater(Implementable):
     IMPLEMENTATIONS = dict()
 
     def __call__(self):
+        self.optimise_signals = self._draw_optimise_signals()
         self.time_steps = self._draw_time_steps()
-        return self.time_steps
+        self.min_travel_distance = self._draw_min_travel_distance()
+
+        return (
+            self.optimise_signals,
+            self.time_steps,
+            self.min_travel_distance,
+        )
+
+    def _draw_optimise_signals(self):
+        raise NotImplementedError
 
     def _draw_time_steps(self):
         raise NotImplementedError
 
+    def _draw_min_travel_distance(self):
+        raise NotImplementedError
 
-class RandomTimeStepper(TimeStepper):
-    def __init__(self, dist):
-        super(RandomTimeStepper, self).__init__()
-        self._dist = dist
+
+class RandomGlobalsPopulater(GlobalsPopulater):
+    def __init__(self, optimise_signals, time_steps_dist, min_travel_distance_dist):
+        super(GlobalsPopulater, self).__init__()
+        self._optimise_signals = optimise_signals
+        self._time_steps_dist = time_steps_dist
+        self._min_travel_distance_dist = min_travel_distance_dist
+
+    def _draw_optimise_signals(self):
+        return self._optimise_signals
 
     def _draw_time_steps(self):
-        return self._dist()
+        return self._time_steps_dist()
+
+    def _draw_min_travel_distance(self):
+        if self._min_travel_distance_dist is None:
+            return None
+        else:
+            return self._min_travel_distance_dist()
 
     @classmethod
     def from_dict(cls, dct):
+        min_travel_distance_dct = dct.get("min_travel_distance", None)
+        if min_travel_distance_dct is None:
+            min_travel_distance_dist = None
+        else:
+            min_travel_distance_dist = distribution_from_spec_dict(
+                min_travel_distance_dct,
+            )
+
         return cls(
-            distribution_from_spec_dict(dct)
+            dct["optimize_signals"]["value"],
+            distribution_from_spec_dict(dct["time_steps"]),
+            min_travel_distance_dist,
         )
 
-TimeStepper.IMPLEMENTATIONS["random"] = RandomTimeStepper
+GlobalsPopulater.IMPLEMENTATIONS["random"] = RandomGlobalsPopulater
 
 
 class Generator(object):
     def __init__(
         self,
-        time_stepper,
+        globals_populater,
         gridder,
         signaliser,
         road_populater,
         car_generator,
         positioner,
     ):
-        self._time_stepper = time_stepper
+        self._globals_populater = globals_populater
         self._gridder = gridder
         self._signaliser = signaliser
         self._road_populater = road_populater
@@ -634,7 +687,10 @@ class Generator(object):
 
 
     def __call__(self):
-        self.time_steps = self._time_stepper()
+        self._globals_populater()
+        self.time_steps = self._globals_populater.time_steps
+        self.min_travel_distance = self._globals_populater.min_travel_distance
+        self.optimise_signals = self._globals_populater.optimise_signals
 
         self.junctions, self.roads = self._gridder()
         self._signaliser(self.junctions)
@@ -645,7 +701,8 @@ class Generator(object):
         self._positioner(self.cars, self.junctions, self.roads)
 
     def export_json(self):
-        return {
+        export = {
+            "optimize_signals": self.optimise_signals,
             "time_steps": self.time_steps,
             "junctions": list(map(
                 lambda junction: junction.export_json(),
@@ -661,10 +718,15 @@ class Generator(object):
             )),
         }
 
+        if self.min_travel_distance is not None:
+            export["min_travel_distance"] = self.min_travel_distance
+
+        return export
+
     @classmethod
     def from_dict(cls, dct):
         return cls(
-            TimeStepper.implementation_from_spec_dict(dct["time_step"]),
+            GlobalsPopulater.implementation_from_spec_dict(dct["globals"]),
             Gridder.implementation_from_spec_dict(dct["grid"]),
             Signaliser.implementation_from_spec_dict(dct["signal"]),
             RoadPopulater.implementation_from_spec_dict(dct["road"]),
@@ -748,7 +810,7 @@ def distribution_from_dict(kind, dct):
         return lambda: value
 
 def distribution_from_spec_dict(dct):
-    return distribution_from_dict(dct["kind"], dct["spec"])
+    return distribution_from_dict(dct["kind"], dct.get("spec", dict()))
 
 
 parser = argparse.ArgumentParser(
