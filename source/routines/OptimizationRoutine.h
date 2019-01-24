@@ -18,7 +18,7 @@ private:
   SimulationData<RfbStructure> &data;
   // contains for each junction a vector of requested green light directions per time step
   std::vector<std::vector<CardinalDirection>> requestedGreenLights;
-  const double trafficLightZoneMultiplier = 1.0; // TODO choose parameters
+  const double trafficLightZoneMultiplier = 10.0; // TODO choose parameters
   // Is multiplied with the speed limit to determine the size of the traffic light zone
 
   // Simplified getters for the street and low level street by id
