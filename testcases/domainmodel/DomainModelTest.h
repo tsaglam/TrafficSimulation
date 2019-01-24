@@ -44,9 +44,9 @@ void resetAllVehiclesTest() {
     AssertThat( vehicle->getPosition().getDistance(), Is().EqualTo(44.4));
   }
   // reset to starting point and verify:
-  model.resetVehiclePositions();
+  model.resetModel();
   for (auto const &vehicle : model.getVehicles()) {
     AssertThat( vehicle->getPosition().getDistance(), Is().EqualTo(33.3));
   }
-  
+
 }

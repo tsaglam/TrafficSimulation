@@ -114,7 +114,7 @@ private:
    * Otherwise optimizes the traffic lights based on the evaluation.
    */
   void runOptimizationCycle() {
-    domainModel.resetVehiclePositions(); // reset cars to initial position
+    domainModel.resetModel(); // reset cars and signals to initial state
     // run a complete simulation using a newly initialized simulator, evaluate the traffic lights during the simulation
     Simulator<RfbStructure, SignalingRoutine, IDMRoutine, OptimizationRoutine, ConsistencyRoutine> simulator(
         domainModel);
