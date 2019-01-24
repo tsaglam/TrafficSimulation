@@ -39,7 +39,7 @@ void Junction::initJunction() {
     currentTimer = -1;
   } else {
     signalIndex  = 0;
-    currentTimer = getCurrentSignal().getDuration();
+    currentTimer = getCurrentSignal().getDuration() + 1; // TODO is this really correct?
   }
 }
 
