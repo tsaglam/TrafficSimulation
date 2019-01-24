@@ -1,4 +1,5 @@
 #include "Vehicle.h"
+#include <sstream>
 
 Vehicle::Position::Position(Street &_street, unsigned int _lane, double _distance)
     : street(&_street), lane(_lane), distance(_distance) {}
@@ -25,16 +26,34 @@ Vehicle::Vehicle(id_type _id, int _externalId, double _targetVelocity, double _m
   directionIndex = 0;
 }
 
-void Vehicle::setPosition(const Position &_position) { position = _position; }
+void Vehicle::setPosition(const Position &_position) {
+  position = _position;
+  checkPosition();
+}
 
 void Vehicle::setPosition(Street &street, unsigned int lane, double distance) {
   Vehicle::Position position(street, lane, distance);
   setPosition(position);
+  checkPosition();
 }
 
 void Vehicle::resetPosition() {
-  position = startingPosition; // reset to state after object creation.
+  position       = startingPosition; // reset to state after object creation.
   directionIndex = 0;
+  checkPosition();
+}
+
+void Vehicle::checkPosition() { // TODO remove for final version
+  std::stringstream stream;
+  stream << "Invalid vehicle position for vehicle " << getId() << ", ";
+  if (position.getLane() >= position.getStreet()->getLanes()) {
+    stream << "lane " << position.getLane() << " does not exist on street " << position.getStreet()->getId() << "!";
+    throw std::invalid_argument(stream.str());
+  } else if (position.getDistance() > position.getStreet()->getLength()) {
+    stream << "distance is " << position.getDistance() << " but cannot be higher than length "
+           << position.getStreet()->getLength() << " of street " << position.getStreet()->getId() << "!";
+    throw std::invalid_argument(stream.str());
+  }
 }
 
 TurnDirection Vehicle::getNextDirection() {

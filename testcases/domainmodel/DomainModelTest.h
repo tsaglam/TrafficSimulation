@@ -35,18 +35,21 @@ void resetAllVehiclesTest() {
   DomainModel model = DomainModel();
   // create 10 model elements each and add them to model:
   for (int i = 0; i < 10; ++i) {
-    model.addVehicle(createTestVehicle());
+    Street &street = model.addStreet(createTestStreet());
+    const Vehicle::Position firstPosition(street, 0, 33.3);
+    const std::vector<TurnDirection> route{TurnDirection::STRAIGHT};
+    Vehicle vehicle(0, 0, 45.0, 1.0, 1.0, 10.0, 5.0, 0.5, route, firstPosition);
+    model.addVehicle(vehicle);
   }
   // change and verify position of every single one:
   for (auto const &vehicle : model.getVehicles()) {
     Vehicle::Position position = vehicle->getPosition();
-    vehicle->setPosition(*position.getStreet(), 1, 44.4);
-    AssertThat( vehicle->getPosition().getDistance(), Is().EqualTo(44.4));
+    vehicle->setPosition(*position.getStreet(), 0, 44.4);
+    AssertThat(vehicle->getPosition().getDistance(), Is().EqualTo(44.4));
   }
   // reset to starting point and verify:
   model.resetModel();
   for (auto const &vehicle : model.getVehicles()) {
-    AssertThat( vehicle->getPosition().getDistance(), Is().EqualTo(33.3));
+    AssertThat(vehicle->getPosition().getDistance(), Is().EqualTo(33.3));
   }
-
 }
