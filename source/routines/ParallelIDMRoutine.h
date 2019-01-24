@@ -234,14 +234,13 @@ private:
       AccelerationComputer accelerationComputer, car_iterator carIt, const int laneOffset) {
     LowLevelStreet<RfbStructure> &street = accelerationComputer.getStreet();
 
-    // PENDING [computeIsSpaceTrafficLightCar]
-
     // Retrieve next car behind the car in question if a lane change would take place.
     car_iterator laneChangeCarBehindIt = street.getNextCarBehind(carIt, laneOffset);
     // Retrieve next car in front of the car in question if a lane change would take place.
     car_iterator laneChangeCarInFrontIt = street.getNextCarInFront(carIt, laneOffset);
 
-    if (!computeIsSpace(accelerationComputer, carIt, laneChangeCarBehindIt, laneChangeCarInFrontIt))
+    if (!computeIsSpace(accelerationComputer, carIt, laneChangeCarBehindIt.getThisOrNotSpecialCarBehind(),
+            laneChangeCarInFrontIt.getThisOrNotSpecialCarInFront()))
       return LaneChangeValues();
 
     const double acceleration = accelerationComputer(carIt, laneChangeCarInFrontIt);

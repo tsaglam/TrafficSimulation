@@ -301,7 +301,10 @@
 
    `PENDING [computeIsSpaceTrafficLightCar]`
 
-   **Status**: Pending
+   After asking for clarification, the supervisors explained, that the traffic
+   light car should not be considered as a car in the isSpace logic.
+
+   **Status**: Implemented
 
  * Two cars in the same space: What is the distanceDelta?
 
