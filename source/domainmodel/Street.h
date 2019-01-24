@@ -12,9 +12,9 @@ private:
 
 private:
   id_type id;
-  unsigned int lanes;
-  double speedLimit;
-  double length;
+  const unsigned int lanes;
+  const double speedLimit;
+  const double length;
   Junction &from;
   Junction &to;
 

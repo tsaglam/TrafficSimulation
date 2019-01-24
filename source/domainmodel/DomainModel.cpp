@@ -2,10 +2,9 @@
 
 #include <memory>
 
-void DomainModel::resetVehiclePositions() {
-  for (auto const &vehicle : vehicles) {
-    vehicle->resetPosition();
-  }
+void DomainModel::resetModel() {
+  for (auto const &vehicle : vehicles) { vehicle->resetPosition(); }
+  for (auto const &junction : junctions) { junction->initJunction(); }
 }
 
 Vehicle &DomainModel::addVehicle(const Vehicle &vehicle) {
