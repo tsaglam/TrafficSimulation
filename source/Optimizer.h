@@ -68,14 +68,16 @@ private:
       for (const auto signal : oldSignals) { totalSignalsDuration += signal.getDuration(); }
 
       const double rescaleValue        = 1.3;
+      const double requestImpactFactor = 0.1;
       bool rescale                     = false;
       double absoluteRescaleLimit      = std::max(5.0, totalSignalsDuration * relativeRescaleDurationLimit);
 
       // Determine duration of the new signals
       for (const auto &signal : oldSignals) {
         double oldPercentage = signal.getDuration() / totalSignalsDuration;
-        double newPercentage = (oldPercentage + requestPercentage[signal.getDirection()]) * 0.5;
-        unsigned newDuration = totalSignalsDuration * newPercentage;
+        double newPercentage =
+            (1 - requestImpactFactor) * oldPercentage + requestImpactFactor * requestPercentage[signal.getDirection()];
+        unsigned newDuration = std::round(totalSignalsDuration * newPercentage);
         signalDurations.push_back(newDuration);
         if (newDuration < absoluteRescaleLimit) { rescale = true; }
       }
