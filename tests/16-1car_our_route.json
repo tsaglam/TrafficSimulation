@@ -1,0 +1,36 @@
+{
+"time_steps" : 100,
+"junctions" : [
+  {"id" : 0, "x" : 1, "y" : 1, "signals" : [{"dir" : 2, "time" : 100}]},
+  {"id" : 1, "x" : 2, "y" : 1, "signals" : [{"dir" : 3, "time" : 100}]},
+  {"id" : 2, "x" : 2, "y" : 2, "signals" : [{"dir" : 0, "time" : 100}]},
+  {"id" : 3, "x" : 1, "y" : 2, "signals" : [{"dir" : 1, "time" : 100}]},
+  {"id" : 4, "x" : 1, "y" : 0, "signals" : [{"dir" : 2, "time" : 100}]},
+  {"id" : 5, "x" : 0, "y" : 1, "signals" : [{"dir" : 1, "time" : 100}]},
+  {"id" : 6, "x" : 0, "y" : 2, "signals" : [{"dir" : 1, "time" : 100}]},
+  {"id" : 7, "x" : 2, "y" : 0, "signals" : [{"dir" : 2, "time" : 100}]},
+  {"id" : 8, "x" : 1, "y" : 3, "signals" : [{"dir" : 0, "time" : 100}]},
+  {"id" : 9, "x" : 3, "y" : 1, "signals" : [{"dir" : 3, "time" : 100}]},
+  {"id" : 10, "x" : 3, "y" : 2, "signals" : [{"dir" : 3, "time" : 100}]},
+  {"id" : 11, "x" : 2, "y" : 3, "signals" : [{"dir" : 0, "time" : 100}]}
+  ],
+"roads" : [
+  {"junction1" : 0, "junction2" : 1, "lanes" : 1, "limit" : 100},
+  {"junction1" : 1, "junction2" : 2, "lanes" : 1, "limit" : 100},
+  {"junction1" : 2, "junction2" : 3, "lanes" : 1, "limit" : 100},
+  {"junction1" : 3, "junction2" : 0, "lanes" : 1, "limit" : 100},
+  {"junction1" : 0, "junction2" : 4, "lanes" : 1, "limit" : 100},
+  {"junction1" : 0, "junction2" : 5, "lanes" : 1, "limit" : 100},
+  {"junction1" : 1, "junction2" : 7, "lanes" : 1, "limit" : 100},
+  {"junction1" : 1, "junction2" : 9, "lanes" : 1, "limit" : 100},
+  {"junction1" : 2, "junction2" : 10, "lanes" : 1, "limit" : 100},
+  {"junction1" : 2, "junction2" : 11, "lanes" : 1, "limit" : 100},
+  {"junction1" : 3, "junction2" : 6, "lanes" : 1, "limit" : 100},
+  {"junction1" : 3, "junction2" : 8, "lanes" : 1, "limit" : 100}
+],
+"cars" : [
+  {"id" : 0, "target_velocity" : 50, "max_acceleration" : 2, "target_deceleration" : 3, "min_distance" : 3, "target_headway" : 2, "politeness" : 0.3,
+    "start" : {"from" : 0, "to" : 1, "lane" : 0, "distance" : 20},
+    "route" : [3]}
+]
+}
