@@ -34,6 +34,7 @@ void Vehicle::setPosition(Street &street, unsigned int lane, double distance) {
 
 void Vehicle::resetPosition() {
   position = startingPosition; // reset to state after object creation.
+  directionIndex = 0;
 }
 
 TurnDirection Vehicle::getNextDirection() {
