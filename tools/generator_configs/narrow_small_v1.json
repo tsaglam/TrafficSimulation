@@ -1,0 +1,115 @@
+{
+  "globals": {
+    "kind": "random",
+    "spec": {
+      "time_steps": {
+        "kind": "static",
+        "spec": {
+          "value": 10000
+        }
+      },
+      "optimize_signals": {
+        "value": true
+      },
+      "min_travel_distance": {
+        "kind": "static",
+        "spec": {
+          "value": 40000000
+        }
+      }
+    }
+  },
+  "grid": {
+    "kind": "complete",
+    "spec": {
+      "width": 2,
+      "height": 100,
+      "spacing": 2
+    }
+  },
+  "signal": {
+    "kind": "gauss",
+    "spec": {
+      "mu": 11,
+      "sigma": 2,
+      "min": 5,
+      "max": 20
+    }
+  },
+  "road": {
+    "kind": "random",
+    "spec": {
+      "lanes": {
+        "kind": "static",
+        "spec": {
+          "value": 1
+        }
+      },
+      "limit": {
+        "kind": "static",
+        "spec": {
+          "value": 70
+        }
+      }
+    }
+  },
+  "car": {
+    "kind": "random",
+    "spec": {
+      "number": {
+        "kind": "static",
+        "spec": {
+          "value": 1584
+        }
+      },
+      "target_velocity": {
+        "kind": "static",
+        "spec": {
+          "value": 70
+        }
+      },
+      "max_acceleration": {
+        "kind": "static",
+        "spec": {
+          "value": 2.0
+        }
+      },
+      "target_deceleration": {
+        "kind": "static",
+        "spec": {
+          "value": 3.0
+        }
+      },
+      "min_distance": {
+        "kind": "static",
+        "spec": {
+          "value": 3.0
+        }
+      },
+      "target_headway": {
+        "kind": "static",
+        "spec": {
+          "value": 2.0
+        }
+      },
+      "politeness": {
+        "kind": "static",
+        "spec": {
+          "value": 0.5
+        }
+      },
+      "route_length": {
+        "kind": "static",
+        "spec": {
+          "value": 5
+        }
+      }
+    }
+  },
+  "position": {
+    "kind": "random",
+    "spec": {
+      "density_model": "lane_length"
+    }
+  }
+}
