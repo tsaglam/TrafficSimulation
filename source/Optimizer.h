@@ -19,7 +19,6 @@ class Optimizer {
   double lastTravelDistance = 0;
   const double minTravelDistance;
   const unsigned stepCount;
-  const double relativeRescaleDurationLimit = 0;
   unsigned maxCycles;
 
 private:
@@ -39,63 +38,6 @@ private:
         }
       }
       junction->setSignals(initialSignals);
-    }
-  }
-
-  /**
-   * Improves the traffic light durations base on the observations made during the last simulation.
-   * Retrieves the requested green lights from the OptimizationRoutine sets the new signal durations as mean of the
-   * requests and old duration. If the new duration is less than the minimum duration of 5 or the relative duration
-   * defined in 'relativeRescaleDurationLimit' the total duration of that junction is increased.
-   */
-  void improveTrafficLights(
-      const Simulator<RfbStructure, SignalingRoutine, IDMRoutine, OptimizationRoutine, ConsistencyRoutine> &simulator) {
-    // get request vectors from the OptimizationRoutine
-    const std::vector<std::vector<CardinalDirection>> &requestedGreenLights =
-        simulator.getOptimizationRoutine().getRequestedGreenLights();
-    for (auto const &junction : domainModel.getJunctions()) {
-      const std::vector<CardinalDirection> &requestedGreenLightDirection = requestedGreenLights[junction->getId()];
-
-      // Determine percentage of green light requests per direction
-      std::vector<double> requestPercentage(4, 0);
-      for (auto direction : requestedGreenLightDirection) { ++requestPercentage[direction]; }
-      for (unsigned i = 0; i < 4; ++i) { requestPercentage[i] /= requestedGreenLightDirection.size(); }
-
-      // Get the old signals and determine their total duration
-      std::vector<Junction::Signal> oldSignals = junction->getSignals();
-      std::vector<unsigned> signalDurations;
-      double totalSignalsDuration = 0;
-      for (const auto signal : oldSignals) { totalSignalsDuration += signal.getDuration(); }
-
-      const double rescaleValue        = 1.3;
-      const double requestImpactFactor = 0.1;
-      bool rescale                     = false;
-      double absoluteRescaleLimit      = std::max(5.0, totalSignalsDuration * relativeRescaleDurationLimit);
-
-      // Determine duration of the new signals
-      for (const auto &signal : oldSignals) {
-        double oldPercentage = signal.getDuration() / totalSignalsDuration;
-        double newPercentage =
-            (1 - requestImpactFactor) * oldPercentage + requestImpactFactor * requestPercentage[signal.getDirection()];
-        unsigned newDuration = std::round(totalSignalsDuration * newPercentage);
-        signalDurations.push_back(newDuration);
-        if (newDuration < absoluteRescaleLimit) { rescale = true; }
-      }
-
-      // Rescale the total duration by the rescaleValue if necessary
-      if (rescale) {
-        for (unsigned i = 0; i < signalDurations.size(); ++i) {
-          signalDurations[i] = std::max(5.0, signalDurations[i] * rescaleValue);
-        }
-      }
-
-      // Create new signals vector
-      std::vector<Junction::Signal> newSignals(signalDurations.size());
-      for (unsigned i = 0; i < signalDurations.size(); ++i) {
-        newSignals[i] = Junction::Signal(oldSignals[i].getDirection(), signalDurations[i]);
-      }
-
-      junction->setSignals(newSignals);
     }
   }
 
@@ -125,9 +67,9 @@ private:
         domainModel);
     simulator.performSteps(stepCount);
 
-    calculateTravelDistance(simulator);                      // compute the traveled distance
-    if (lastTravelDistance >= minTravelDistance) { return; } // check whether the minimum travel distance is reached
-    improveTrafficLights(simulator);                         // optimize the traffic lights based on the evaluation
+    calculateTravelDistance(simulator);                        // compute the traveled distance
+    if (lastTravelDistance >= minTravelDistance) { return; }   // check whether the minimum travel distance is reached
+    simulator.getOptimizationRoutine().improveTrafficLights(); // optimize the traffic lights based on the evaluation
   }
 
 public:
