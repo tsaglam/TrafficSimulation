@@ -17,7 +17,7 @@
 #include "TrafficLightRoutine.h"
 
 int main_simulate(JSONReader &jsonReader, DomainModel &domainModel, JSONWriter &jsonWriter) {
-  Simulator<NaiveStreetDataStructure, ParallelTrafficLightRoutine, IDMRoutine, NullRoutine, ParallelConsistencyRoutine> simulator(
+  Simulator<NaiveStreetDataStructure, TrafficLightRoutine, IDMRoutine, NullRoutine, ConsistencyRoutine> simulator(
       domainModel);
   simulator.performSteps(jsonReader.getTimeSteps());
 
