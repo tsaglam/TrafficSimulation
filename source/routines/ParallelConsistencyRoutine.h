@@ -22,17 +22,26 @@ public:
    * @brief      Ensures model consistency, updates cars that change streets (and their correlating street).
    */
   void perform() {
-    DomainModel &model = data.getDomainModel();
+    
 #pragma omp parallel for
+    for (std::size_t i = 0; i < data.getStreets().size(); i++) {
+      const auto &street = data.getStreets()[i];
+      street.updateCarsAndRestoreConsistency();
+    }
+
+    DomainModel &model = data.getDomainModel();
+    omp_lock_t lock[4];
+    for (int i = 0; i < 4; i++) { omp_init_lock(&(lock[i])); }
     for (auto &street : data.getStreets()) {
       // access domain model information for the low level street:
       Street &domStreet                 = model.getStreet(street.getId());
       Junction &domJunction             = domStreet.getTargetJunction();
       CardinalDirection originDirection = calculateOriginDirection(domJunction, domStreet);
-      // update low level  cars and restore consistency:
-      street.updateCarsAndRestoreConsistency();
       // for every low level car that changes streets:
       auto beyondsIterable = street.beyondsIterable();
+      // create openmp locks:
+
+#pragma omp parallel for shared(lock)
       for (auto vehicleIt = beyondsIterable.begin(); vehicleIt != beyondsIterable.end(); ++vehicleIt) {
         // get domain model car and desired/available domain model destination street:
         Vehicle &domVehicle                    = model.getVehicle(vehicleIt->getId());
@@ -41,23 +50,28 @@ public:
           destinationDirection = CardinalDirection((destinationDirection + 1) % 4);
         }
         Street *domDestinationStreet = domJunction.getOutgoingStreet(destinationDirection).getStreet();
-
-        // Copy the vehicle and adjust distance
+        // Copy the vehicle and adjust distance:
         LowLevelCar vehicle = *vehicleIt;
         int newLane         = std::min(vehicle.getLane(), domDestinationStreet->getLanes() - 1);
         vehicle.setNext(newLane, vehicle.getDistance() - street.getLength(), vehicle.getVelocity());
-
         // insert car on correlating low level destination street:
         LowLevelStreet<RfbStructure> &destinationStreet = data.getStreet(domDestinationStreet->getId());
-#pragma omp atomic
+        omp_set_lock(&(lock[destinationDirection]));
         destinationStreet.insertCar(vehicle);
+        omp_unset_lock(&(lock[destinationDirection]));
       }
       // remove all leaving cars from current street:
       street.removeBeyonds();
     }
-    // finally, incorperate every new car for every street:
+    for (int i = 0; i < 4; i++) { omp_destroy_lock(&(lock[i])); }
+
+// finally, incorperate every new car for every street:
 #pragma omp parallel for
-    for (auto &street : data.getStreets()) { street.incorporateInsertedCars(); }
+
+    for (std::size_t i = 0; i < data.getStreets().size(); i++) {
+      const auto &street = data.getStreets()[i];
+      street.incorporateInsertedCars();
+    }
   }
 
   /**
