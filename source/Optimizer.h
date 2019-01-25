@@ -16,11 +16,13 @@ template <template <typename Vehicle> typename RfbStructure,
     template <template <typename Vehicle> typename _RfbStructure> typename ConsistencyRoutine,
     typename InitialTrafficLightStrategy, bool debug = false>
 class Optimizer {
+  using SimulatorType = Simulator<RfbStructure, SignalingRoutine, IDMRoutine, OptimizationRoutine, ConsistencyRoutine>;
+
   DomainModel &domainModel;
-  double lastTravelDistance = 0;
   const double minTravelDistance;
   const unsigned stepCount;
-  unsigned maxCycles;
+  double lastTravelDistance = 0;
+  unsigned maxCycles        = -1;
 
 private:
   /** Set the initial traffic ligths based on the initial traffic light strategy. */
@@ -29,10 +31,9 @@ private:
   /**
    * Iterate over all cars on all streets and sum their travel distance to the total travel distance.
    * Store the computed distance in lastTravelDistance
-   * * @param[in]  simulator          The simulator running the simulation (and holding the low level model)
+   * @param[in]  simulator          The simulator running the simulation (and holding the low level model)
    */
-  void calculateTravelDistance(
-      const Simulator<RfbStructure, SignalingRoutine, IDMRoutine, OptimizationRoutine, ConsistencyRoutine> &simulator) {
+  void calculateTravelDistance(const SimulatorType &simulator) {
     double travelDistance = 0;
     for (auto &street : simulator.getData().getStreets()) {
       for (const auto &car : street.allIterable()) { travelDistance += car.getTravelDistance(); }
@@ -48,8 +49,7 @@ private:
   void runOptimizationCycle() {
     domainModel.resetModel(); // reset cars and signals to initial state
     // run a complete simulation using a newly initialized simulator, evaluate the traffic lights during the simulation
-    Simulator<RfbStructure, SignalingRoutine, IDMRoutine, OptimizationRoutine, ConsistencyRoutine> simulator(
-        domainModel);
+    SimulatorType simulator(domainModel);
     simulator.performSteps(stepCount);
 
     calculateTravelDistance(simulator);                        // compute the traveled distance
