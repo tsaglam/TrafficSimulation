@@ -6,8 +6,6 @@ FILE_EXTENSION =
 FILE_EXTENSION_DBG = .dbg
 FILE_EXTENSION_TEST = .test
 
-OMP = 1
-
 ifdef OMP
 LDFLAGS += -lomp
 FILE_EXTENSION = .omp
