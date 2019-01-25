@@ -85,7 +85,7 @@ Junction::Signal Junction::getPreviousSignal() const {
   int indexOfPrevious = (signalIndex + signals.size() - 1) % signals.size();
   return signals.at(indexOfPrevious);
 }
-std::vector<Junction::Signal> Junction::getSignals() const { return signals; }
+const std::vector<Junction::Signal> &Junction::getSignals() const { return signals; }
 const Junction::ConnectedStreet &Junction::getIncomingStreet(CardinalDirection direction) const {
   return incomingStreets[direction];
 }
