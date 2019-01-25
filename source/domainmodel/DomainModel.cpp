@@ -43,6 +43,10 @@ Junction &DomainModel::addJunction(Junction &&junction) {
   return *junctions.back();
 }
 
+void DomainModel::setGreenWave(bool _greenWave) { greenWave = _greenWave; }
+
+bool DomainModel::isGreenWave() { return greenWave; }
+
 /*
  * Access methods:
  */

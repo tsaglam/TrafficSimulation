@@ -15,6 +15,8 @@ private:
   std::vector<std::unique_ptr<Street>> streets;
   std::vector<std::unique_ptr<Junction>> junctions;
 
+  bool greenWave = false;
+
 public:
   DomainModel() = default;
 
@@ -27,6 +29,10 @@ public:
   Vehicle &addVehicle(Vehicle &&vehicle);
   Street &addStreet(Street &&street);
   Junction &addJunction(Junction &&junction);
+
+  // debug:
+  void setGreenWave(bool _greenWave);
+  bool isGreenWave();
 
   // access methods for the unique elements:
   Vehicle &getVehicle(id_type id);

@@ -101,7 +101,7 @@ public:
   int getY() const;
   Signal getCurrentSignal() const;  // is also the signal that is green
   Signal getPreviousSignal() const; // is also the last signal that has been green before the current
-  std::vector<Signal> getSignals() const;
+  const std::vector<Signal> &getSignals() const;
   const ConnectedStreet &getIncomingStreet(CardinalDirection direction) const;
   const ConnectedStreet &getOutgoingStreet(CardinalDirection direction) const;
   const std::array<ConnectedStreet, 4> &getIncomingStreets() const;
