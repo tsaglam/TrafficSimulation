@@ -22,15 +22,24 @@ public:
    */
   void perform() {
     DomainModel &model = data.getDomainModel();
-    for (auto const &junction : model.getJunctions()) {
-      bool lightChanged = junction->nextStep();
-      if (lightChanged) {
-        // Turn previous red:
-        Junction::Signal previous = junction->getPreviousSignal();
-        toggleStreetForSignal(previous, *junction);
-        // Turn current green:
-        Junction::Signal current = junction->getCurrentSignal();
-        toggleStreetForSignal(current, *junction);
+    if (model.isGreenWave()) { // debug mode
+      for (auto const &junction : model.getJunctions()) {
+        junction->nextStep();                              // simulate step anyway
+        for (auto const signal : junction->getSignals()) { // set all signals green:
+          setStreetForSignal(Signal::GREEN, signal, *junction);
+        }
+      }
+    } else {
+      for (auto const &junction : model.getJunctions()) {
+        bool lightChanged = junction->nextStep();
+        if (lightChanged) {
+          // Turn previous red:
+          Junction::Signal previous = junction->getPreviousSignal();
+          toggleStreetForSignal(previous, *junction);
+          // Turn current green:
+          Junction::Signal current = junction->getCurrentSignal();
+          toggleStreetForSignal(current, *junction);
+        }
       }
     }
   }
@@ -42,9 +51,22 @@ private:
    * @param      junction  Is the junction of the signal.
    */
   void toggleStreetForSignal(Junction::Signal signal, const Junction &junction) {
-    Street *domainModelStreet = junction.getIncomingStreet(signal.getDirection()).getStreet();
-    LowLevelStreet<RfbStructure> &street     = data.getStreet(domainModelStreet->getId());
+    Street *domainModelStreet            = junction.getIncomingStreet(signal.getDirection()).getStreet();
+    LowLevelStreet<RfbStructure> &street = data.getStreet(domainModelStreet->getId());
     street.switchSignal();
+  }
+
+  /**
+   * @brief      Sets the signal of the low level street correlating to the domain level street of a junction signal to
+   * a specific value.
+   * @param      value  Is the specific signal value to set.
+   * @param      signal  Is the specific signal.
+   * @param      junction  Is the junction of the signal.
+   */
+  void setStreetForSignal(Signal value, Junction::Signal signal, const Junction &junction) {
+    Street *domainModelStreet            = junction.getIncomingStreet(signal.getDirection()).getStreet();
+    LowLevelStreet<RfbStructure> &street = data.getStreet(domainModelStreet->getId());
+    street.setSignal(value);
   }
 
   SimulationData<RfbStructure> &data;
