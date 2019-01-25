@@ -4,6 +4,7 @@
 #include "ConsistencyRoutine.h"
 #include "DomainModel.h"
 #include "IDMRoutine.h"
+#include "InitialTrafficLightStrategies.h"
 #include "JSONReader.h"
 #include "JSONWriter.h"
 #include "NaiveStreetDataStructure.h"
@@ -27,7 +28,8 @@ int main_optimize(JSONReader &jsonReader, DomainModel &domainModel, JSONWriter &
   const unsigned maximumOptimizationCycles = 10; // TODO remove when debugging finished
   const double minimumTraveldistance       = jsonReader.getMinTravelDistance();
 
-  Optimizer<NaiveStreetDataStructure, TrafficLightRoutine, IDMRoutine, OptimizationRoutine, ConsistencyRoutine, false>
+  Optimizer<NaiveStreetDataStructure, TrafficLightRoutine, IDMRoutine, OptimizationRoutine, ConsistencyRoutine,
+      InitialTrafficLightsAllFive, false>
       optimizer(domainModel, jsonReader.getTimeSteps(), minimumTraveldistance, maximumOptimizationCycles);
   optimizer.optimizeTrafficLights();
 

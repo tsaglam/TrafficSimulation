@@ -93,6 +93,8 @@ public:
   const IDMRoutine<RfbStructure> &getIDMRoutine() const { return idmRoutine; }
   const OptimizationRoutine<RfbStructure> &getOptimizationRoutine() const { return optimizationRoutine; }
   const ConsistencyRoutine<RfbStructure> &getConsistencyRoutine() const { return consistencyRoutine; }
+
+  OptimizationRoutine<RfbStructure> &getOptimizationRoutine() { return optimizationRoutine; }
 };
 
 #endif

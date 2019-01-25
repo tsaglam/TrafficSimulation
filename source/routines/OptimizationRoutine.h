@@ -9,6 +9,21 @@
 #include "RfbStructureTraits.h"
 #include "SimulationData.h"
 
+/**
+ * Routine to improve the duration and order of the traffic light signals to increase the total distance traveled by all
+ * cars.
+ *
+ * @tparam     RfbStructure  The underlying data structure of the low level street
+ *
+ * Information for implementing alternative optimization routines:
+ * The following functions are required:
+ * OptimizationRoutine(SimulationData<RfbStructure> &data): constructor used by the simulator
+ * void perform(): is called once in each simulation step after the IDM and before the consistency routine
+ * void improveTrafficLights(): is called once per optimization cycle and should improve the traffic light signals in
+ * the domain model junctions to increase the total travel distance of all cars. May use information previously
+ * collected by perform() during the simulation.
+ * The OptimizationRoutine is reinitialized after each optimization cycle.
+ */
 template <template <typename Vehicle> typename RfbStructure>
 class OptimizationRoutine {
   using reverse_category = typename rfbstructure_traits<RfbStructure>::reverse_category;
@@ -20,6 +35,8 @@ private:
   std::vector<std::vector<CardinalDirection>> requestedGreenLights;
   const double trafficLightZoneMultiplier = 10.0; // TODO choose parameters
   // Is multiplied with the speed limit to determine the size of the traffic light zone
+
+  const double relativeRescaleDurationLimit = 0;
 
   // Simplified getters for the street and low level street by id
   const Street &getStreet(const unsigned streetId) const { return data.getDomainModel().getStreet(streetId); }
@@ -146,7 +163,58 @@ public:
     }
   }
 
-  const std::vector<std::vector<CardinalDirection>> &getRequestedGreenLights() const { return requestedGreenLights; }
+  /**
+   * Improves the traffic light durations base on the observations made during the last simulation.
+   * Retrieves the requested green lights from the OptimizationRoutine sets the new signal durations as mean of the
+   * requests and old duration. If the new duration is less than the minimum duration of 5 or the relative duration
+   * defined in 'relativeRescaleDurationLimit' the total duration of that junction is increased.
+   */
+  void improveTrafficLights() {
+    for (auto const &junction : data.getDomainModel().getJunctions()) {
+      const std::vector<CardinalDirection> &requestedGreenLightDirection = requestedGreenLights[junction->getId()];
+
+      // Determine percentage of green light requests per direction
+      std::vector<double> requestPercentage(4, 0);
+      for (auto direction : requestedGreenLightDirection) { ++requestPercentage[direction]; }
+      for (unsigned i = 0; i < 4; ++i) { requestPercentage[i] /= requestedGreenLightDirection.size(); }
+
+      // Get the old signals and determine their total duration
+      std::vector<Junction::Signal> oldSignals = junction->getSignals();
+      std::vector<unsigned> signalDurations;
+      double totalSignalsDuration = 0;
+      for (const auto signal : oldSignals) { totalSignalsDuration += signal.getDuration(); }
+
+      const double rescaleValue        = 1.3;
+      const double requestImpactFactor = 0.1;
+      bool rescale                     = false;
+      double absoluteRescaleLimit      = std::max(5.0, totalSignalsDuration * relativeRescaleDurationLimit);
+
+      // Determine duration of the new signals
+      for (const auto &signal : oldSignals) {
+        double oldPercentage = signal.getDuration() / totalSignalsDuration;
+        double newPercentage =
+            (1 - requestImpactFactor) * oldPercentage + requestImpactFactor * requestPercentage[signal.getDirection()];
+        unsigned newDuration = std::round(totalSignalsDuration * newPercentage);
+        signalDurations.push_back(newDuration);
+        if (newDuration < absoluteRescaleLimit) { rescale = true; }
+      }
+
+      // Rescale the total duration by the rescaleValue if necessary
+      if (rescale) {
+        for (unsigned i = 0; i < signalDurations.size(); ++i) {
+          signalDurations[i] = std::max(5.0, signalDurations[i] * rescaleValue);
+        }
+      }
+
+      // Create new signals vector
+      std::vector<Junction::Signal> newSignals(signalDurations.size());
+      for (unsigned i = 0; i < signalDurations.size(); ++i) {
+        newSignals[i] = Junction::Signal(oldSignals[i].getDirection(), signalDurations[i]);
+      }
+
+      junction->setSignals(newSignals);
+    }
+  }
 };
 
 #endif
