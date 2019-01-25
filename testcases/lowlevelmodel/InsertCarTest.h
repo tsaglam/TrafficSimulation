@@ -12,6 +12,8 @@
  * - all new cars at the beginning of the street -> new cars alternating with old cars
  * - sorted/unsorted input of cars
  */
+
+// Empty 1-lane street, insert mutliple cars sorted by id and position. No cars at the same position.
 template <template <typename Car> typename Street>
 void insertCarTest1() {
   Street<LowLevelCar> street(1, 10);
@@ -31,6 +33,7 @@ void insertCarTest1() {
   checkIterable(street.allIterable(), {0, 1, 2, 3, 4});
 }
 
+// Empty 1-lane street, insert mutliple cars not sorted by id or position. No cars at the same position.
 template <template <typename Car> typename Street>
 void insertCarTest2() {
   Street<LowLevelCar> street(1, 10);
@@ -58,6 +61,7 @@ void insertCarTest2() {
   checkIterable(street.allIterable(), {0, 1, 2, 3, 4});
 }
 
+// Empty 1-lane street, insert two cars at the same position.
 template <template <typename Car> typename Street>
 void insertCarTest3() {
   Street<LowLevelCar> street(1, 10);
@@ -77,6 +81,8 @@ void insertCarTest3() {
   checkIterable(street.allIterable(), {0, 1});
 }
 
+// Empty 3-lane street, insert mutliple cars with no specific order, some of them at the same distance on different
+// lanes, two cars at the same position (i.e. same distance on the same lane)
 template <template <typename Car> typename Street>
 void insertCarTest4() {
   Street<LowLevelCar> street(3, 10);
@@ -177,6 +183,8 @@ void insertCarTest4() {
   checkIterable(street.allIterable(), {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12});
 }
 
+// 1-lane street, insert cars in two steps, the cars of the last step are behind all cars inserted in the first step (in
+// terms of distance)
 template <template <typename Car> typename Street>
 void insertCarTest5() {
   Street<LowLevelCar> street(1, 10);
@@ -227,6 +235,8 @@ void insertCarTest5() {
   checkIterable(street.allIterable(), {0, 1, 2, 3, 4, 5, 6});
 }
 
+// 1-lane street, insert cars in two steps, the cars of the last step inserted alternatingly with the cars inserted in
+// the first step (in terms of distance)
 template <template <typename Car> typename Street>
 void insertCarTest6() {
   Street<LowLevelCar> street(1, 10);
@@ -286,6 +296,8 @@ void insertCarTest6() {
   checkIterable(street.allIterable(), {0, 1, 2, 3, 4, 5, 6, 7, 8, 9});
 }
 
+// 1-lane street, insert cars in two steps, the cars of the last step inserted alternatingly with the cars inserted in
+// the first step (in terms of distance)
 template <template <typename Car> typename Street>
 void insertCarTest7() {
   Street<LowLevelCar> street(1, 10);
@@ -340,6 +352,7 @@ void insertCarTest7() {
   checkIterable(street.allIterable(), {0, 1, 2, 3, 4, 5, 6, 7, 8});
 }
 
+// 3-lane street, insert cars in two steps, some cars are inserted at the same position
 template <template <typename Car> typename Street>
 void insertCarTest8() {
   Street<LowLevelCar> street(3, 10);
