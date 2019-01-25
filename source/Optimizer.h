@@ -13,7 +13,8 @@ template <template <typename Vehicle> typename RfbStructure,
     template <template <typename Vehicle> typename _RfbStructure> typename SignalingRoutine,
     template <template <typename Vehicle> typename _RfbStructure> typename IDMRoutine,
     template <template <typename Vehicle> typename _RfbStructure> typename OptimizationRoutine,
-    template <template <typename Vehicle> typename _RfbStructure> typename ConsistencyRoutine, bool debug = false>
+    template <template <typename Vehicle> typename _RfbStructure> typename ConsistencyRoutine,
+    typename InitialTrafficLightStrategy, bool debug = false>
 class Optimizer {
   DomainModel &domainModel;
   double lastTravelDistance = 0;
@@ -22,24 +23,8 @@ class Optimizer {
   unsigned maxCycles;
 
 private:
-  /**
-   * Determines simple initial traffic lights and sets them in the domain model.
-   * Each street has exactly one green phase with the minimum duration of 5 s.
-   * The order of the signals is equivalent to the order returned by Junction::getIncomingStreets().
-   * A signal is skipped if there is no connected street in that direction.
-   */
-  void setInitialTrafficLights() {
-    const unsigned signalDuration = 5;
-    for (auto const &junction : domainModel.getJunctions()) {
-      std::vector<Junction::Signal> initialSignals;
-      for (auto const &connectedStreet : junction->getIncomingStreets()) {
-        if (connectedStreet.isConnected()) {
-          initialSignals.push_back(Junction::Signal(connectedStreet.getDirection(), signalDuration));
-        }
-      }
-      junction->setSignals(initialSignals);
-    }
-  }
+  /** Set the initial traffic ligths based on the initial traffic light strategy. */
+  void setInitialTrafficLights() { InitialTrafficLightStrategy()(domainModel); }
 
   /**
    * Iterate over all cars on all streets and sum their travel distance to the total travel distance.
