@@ -21,8 +21,7 @@ public:
   /**
    * @brief      Ensures model consistency, updates cars that change streets (and their correlating street).
    */
-  void perform() {
-    
+  void perform() {  
 #pragma omp parallel for
     for (std::size_t i = 0; i < data.getStreets().size(); i++) {
       const auto &street = data.getStreets()[i];
