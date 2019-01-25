@@ -107,10 +107,7 @@ public:
   ParallelIDMRoutine(SimulationData<RfbStructure> &_data) : data(_data) {}
   void perform() {
 #pragma omp parallel for
-    for (std::size_t i = 0; i < data.getStreets().size(); i++) {
-      const auto &street = data.getStreets()[i];
-      processStreet(street);
-    }
+    for (std::size_t i = 0; i < data.getStreets().size(); i++) { processStreet(data.getStreets()[i]); }
   }
 
 private:

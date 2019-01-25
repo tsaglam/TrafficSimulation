@@ -7,7 +7,6 @@
 #include "RfbStructure.h"
 #include "SimulationData.h"
 #include <iostream>
-#include <omp.h>
 
 template <template <typename Vehicle> typename RfbStructure>
 class ParallelTrafficLightRoutine {
@@ -30,11 +29,8 @@ public:
    */
   void perform() {
     DomainModel &model   = data.getDomainModel();
-    // int threads          = omp_get_num_threads();
-    // int workload         = model.getJunctions().size();
-    // int minimalBlockSize = workload / threads / BLOCK_SIZE_FACTOR;
     const auto &junctions = model.getJunctions();
-#pragma omp parallel for // schedule(guided, minimalBlockSize)
+#pragma omp parallel for
     for (std::size_t i = 0; i < junctions.size(); i++) {
       const auto &junction = junctions[i];
       bool lightChanged    = junction->nextStep();
