@@ -32,19 +32,19 @@ public:
 
     DomainModel &model = data.getDomainModel();
     // create openmp locks:
-#ifdef OMP
-    omp_lock_t lock[4];
-    for (int i = 0; i < 4; i++) { omp_init_lock(&(lock[i])); }
-#endif
+    // #ifdef OMP
+    //     omp_lock_t lock[4];
+    //     for (int i = 0; i < 4; i++) { omp_init_lock(&(lock[i])); }
+    // #endif
     for (auto &street : data.getStreets()) {
       // access domain model information for the low level street:
       Street &domStreet                 = model.getStreet(street.getId());
       Junction &domJunction             = domStreet.getTargetJunction();
       CardinalDirection originDirection = calculateOriginDirection(domJunction, domStreet);
       // for every low level car that changes streets:
-      auto beyondsIterable = street.beyondsIterable();
+      auto beyondsIterable        = street.beyondsIterable();
       const unsigned iteratorSize = beyondsIterable.end() - beyondsIterable.begin();
-#pragma omp parallel for shared(lock, model, domJunction, originDirection, beyondsIterable, data)
+      //#pragma omp parallel for shared(lock, model, domJunction, originDirection, beyondsIterable, data)
       for (unsigned i = 0; i < iteratorSize; ++i) {
         auto vehicleIt = beyondsIterable.begin() + i;
         // get domain model car and desired/available domain model destination street:
@@ -60,20 +60,20 @@ public:
         vehicle.setNext(newLane, vehicle.getDistance() - street.getLength(), vehicle.getVelocity());
         // insert car on correlating low level destination street:
         LowLevelStreet<RfbStructure> &destinationStreet = data.getStreet(domDestinationStreet->getId());
-#ifdef OMP
-        omp_set_lock(&(lock[destinationDirection]));
-#endif
+        // #ifdef OMP
+        //         omp_set_lock(&(lock[destinationDirection]));
+        // #endif
         destinationStreet.insertCar(vehicle);
-#ifdef OMP
-        omp_unset_lock(&(lock[destinationDirection]));
-#endif
+        // #ifdef OMP
+        //         omp_unset_lock(&(lock[destinationDirection]));
+        // #endif
       }
       // remove all leaving cars from current street:
       street.removeBeyonds();
     }
-#ifdef OMP
-    for (int i = 0; i < 4; i++) { omp_destroy_lock(&(lock[i])); }
-#endif
+    // #ifdef OMP
+    //     for (int i = 0; i < 4; i++) { omp_destroy_lock(&(lock[i])); }
+    // #endif
 
 // finally, incorperate every new car for every street:
 #pragma omp parallel for
