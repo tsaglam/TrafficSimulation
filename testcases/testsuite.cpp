@@ -62,6 +62,7 @@ int main() {
   // RfbStructure - BucketList
   std::cout << "\n   BucketList\n";
   RUN(constructorAndConstMembersTest<BucketList>);
+  RUN(getNextCarIteratorTest1<BucketList>);
   std::cout << "\n";
   RUN(allIterableTest1<BucketList>);
   RUN(allIterableTest2<BucketList>);
@@ -85,14 +86,20 @@ int main() {
   RUN(insertCarTest7<BucketList>);
   RUN(insertCarTest8<BucketList>);
   std::cout << "\n";
-  RUN(getNextCarIteratorTest1<BucketList>);
-  RUN(consistencyTest<BucketList>);
-  RUN(beyondsIterableTest<BucketList>);
-  RUN(removeBeyondsTest<BucketList>);
+  RUN(consistencyTest1<BucketList>);
+  RUN(consistencyTest2<BucketList>);
+  RUN(consistencyTest3<BucketList>);
+  RUN(consistencyTest4<BucketList>);
+  RUN(consistencyTest5<BucketList>);
+  RUN(consistencyTest6<BucketList>);
+  RUN(consistencyTest7<BucketList>);
+  RUN(consistencyTest8<BucketList>);
+  RUN(consistencyTest9<BucketList>);
 
   // RfbStructure - NaiveStreetDataStructure
   std::cout << "\n   NaiveStreetDataStructure\n";
   RUN(constructorAndConstMembersTest<NaiveStreetDataStructure>);
+  RUN(getNextCarIteratorTest1<NaiveStreetDataStructure>);
   std::cout << "\n";
   RUN(allIterableTest1<NaiveStreetDataStructure>);
   RUN(allIterableTest2<NaiveStreetDataStructure>);
@@ -116,10 +123,15 @@ int main() {
   RUN(insertCarTest7<NaiveStreetDataStructure>);
   RUN(insertCarTest8<NaiveStreetDataStructure>);
   std::cout << "\n";
-  RUN(getNextCarIteratorTest1<NaiveStreetDataStructure>);
-  RUN(consistencyTest<NaiveStreetDataStructure>);
-  RUN(beyondsIterableTest<NaiveStreetDataStructure>);
-  RUN(removeBeyondsTest<NaiveStreetDataStructure>);
+  RUN(consistencyTest1<NaiveStreetDataStructure>);
+  RUN(consistencyTest2<NaiveStreetDataStructure>);
+  RUN(consistencyTest3<NaiveStreetDataStructure>);
+  RUN(consistencyTest4<NaiveStreetDataStructure>);
+  RUN(consistencyTest5<NaiveStreetDataStructure>);
+  RUN(consistencyTest6<NaiveStreetDataStructure>);
+  RUN(consistencyTest7<NaiveStreetDataStructure>);
+  RUN(consistencyTest8<NaiveStreetDataStructure>);
+  RUN(consistencyTest9<NaiveStreetDataStructure>);
 
   // Prints the test results and the number of failed tests:
   if (numberOfFailedTests == 0) {

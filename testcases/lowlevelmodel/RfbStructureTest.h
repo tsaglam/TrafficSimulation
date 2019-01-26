@@ -8,6 +8,7 @@
 #include "InsertCarTest.h"
 #include "GetNextCarTest.h"
 #include "AllIterableTest.h"
+#include "ConsistencyTest.h"
 
 /*
  * Create a street with the constructor setting laneCount and length.
@@ -100,35 +101,5 @@ void getNextCarIteratorTest1() {
     checkIterable(street.allIterable(), visitedCars[carId]);
   }
 }
-
-
-/*
- * Move cars by setting a new position, call updateCarsAndRestoreConsistency and test the consistency of the street
- * using the getNextCar functions.
- * Different test cases:
- * - no cars moved -> all cars moved
- * - all cars remain on street -> all cars left the street
- * - no cars on the street -> many cars on the street
- * - no change in the car order -> much change in the car order (per lane/per street)
- */
-template <template <typename Car> typename Street>
-void consistencyTest() {}
-
-/*
- * Test if the remove beyonds iterator contains all cars stored in this street with distance >= streetLength
- * Test cases:
- * - no/all cars departed
- * - car exactly at distance == streetLength
- * - different cars on different lanes with different beyonds distances
- */
-template <template <typename Car> typename Street>
-void beyondsIterableTest() {}
-
-/*
- * After calling removeBeyonds, the beyonds iterator is empty an all departed cars are removed from the street, i.e.
- * also not in the allIterable.
- */
-template <template <typename Car> typename Street>
-void removeBeyondsTest() {}
 
 #endif
