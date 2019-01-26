@@ -163,16 +163,21 @@ private:
 
     const double acceleration = accelerationComputer(carIt, laneChangeCarInFrontIt);
 
+    // If the acceleration after a lane change is smaller equal the base acceleration, don't indicate lane change
+    if (acceleration <= carIt->getNextBaseAcceleration()) return LaneChangeValues();
+
     // Compute acceleration deltas of cars behind the car in question.
     // This delta is used in the calculation of the lane change indicator.
     double carBehindAccelerationDeltas = 0.0;
 
+    // Retrieve next car in front of the car in question (no lange change).
+    car_iterator carInFrontIt = street.getNextCarInFront(carIt, 0);
     // Retrieve next car behind the car in question (no lange change).
     car_iterator carBehindIt = street.getNextCarBehind(carIt, 0);
 
     if (accelerationComputer.isNotEnd(carBehindIt)) {
       // If there is a car behind, then consider it in the acceleration delta
-      const double carBehindAcceleration = accelerationComputer(*carBehindIt, &*carIt);
+      const double carBehindAcceleration = accelerationComputer(carBehindIt, carInFrontIt);
       carBehindAccelerationDeltas += carBehindAcceleration - carBehindIt->getNextBaseAcceleration();
     }
 
