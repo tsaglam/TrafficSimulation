@@ -67,7 +67,12 @@ void Junction::addOutgoingStreet(Street &_street, CardinalDirection _direction) 
   outgoingStreets[_direction].street    = &_street;
 }
 
-void Junction::setSignals(std::vector<Signal> newSignals) {
+void Junction::setSignals(const std::vector<Signal> &newSignals) {
+  signals = newSignals;
+  initJunction(); // reset timer and current signal index
+}
+
+void Junction::setSignals(std::vector<Signal> &&newSignals) {
   signals = newSignals;
   initJunction(); // reset timer and current signal index
 }

@@ -92,7 +92,12 @@ public:
    * @brief      Gives the junction new signals, resets the current signal and the current timer.
    * @param[in]  newSignals  The new signals.
    */
-  void setSignals(std::vector<Signal> newSignals);
+  void setSignals(const std::vector<Signal> &newSignals);
+  /**
+   * @brief      Gives the junction new signals, resets the current signal and the current timer.
+   * @param[in]  newSignals  The new signals.
+   */
+  void setSignals(std::vector<Signal> &&newSignals);
 
   // access methods:
   id_type getId() const;
