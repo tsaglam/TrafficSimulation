@@ -377,16 +377,16 @@ public:
    */
   void updateCarsAndRestoreConsistency() {
     // for each bucket in reverse order
-    for (int bucketIndex = buckets.size() -1; bucketIndex >= 0; --bucketIndex) {
-      Bucket& currentBucket = buckets[bucketIndex];
-      auto carIt = currentBucket.begin();
-      while (carIt != currentBucket.end()) {
+    std::vector<bucket_iterator> eraseFromBucket;
+    for (int bucketIndex = buckets.size() - 1; bucketIndex >= 0; --bucketIndex) {
+      Bucket &currentBucket = buckets[bucketIndex];
+      for (auto carIt = currentBucket.begin(); carIt != currentBucket.end(); ++carIt) {
         carIt->update(); // update car to new state and position
 
         // if car is beyond street, move it from bucket to departedCars
         if (carIt->getDistance() >= streetLength) {
-          departedCars.push_back(*carIt);
-          carIt = currentBucket.erase(carIt);
+          departedCars.push_back(std::move(*carIt));
+          eraseFromBucket.push_back(carIt);
           continue;
         }
 
@@ -394,11 +394,11 @@ public:
         int newBucket = findBucketIndex(carIt->getLane(), carIt->getDistance());
         if (newBucket != bucketIndex) {
           buckets[newBucket].push_back(*carIt);
-          carIt = currentBucket.erase(carIt);
-          continue;
+          eraseFromBucket.push_back(carIt);
         }
-        ++carIt;
       }
+      for (auto &eraseIt : eraseFromBucket) { currentBucket.erase(eraseIt); }
+      eraseFromBucket.clear();
     }
   }
 
