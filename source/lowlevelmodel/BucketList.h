@@ -283,7 +283,7 @@ public:
     // if this is the first car in the bucket find the next non-empty in front of the current bucket in this lane
     if (nextCar == buckets[currentBucket].end()) {
       currentBucket += laneCount;
-      while (currentBucket < buckets.size() && buckets[currentBucket].size() == 0) { currentBucket += laneCount; }
+      while (currentBucket < buckets.size() && buckets[currentBucket].empty()) { currentBucket += laneCount; }
       // if end of street is reached return end iterator to represent no next car
       if (currentBucket >= buckets.size()) { return const_iterator(buckets.begin(), buckets.end(), 0); }
       nextCar = findMinCarInBucket(currentBucket); // otherwise return the first car of the next non-empty bucket
@@ -308,7 +308,7 @@ public:
     // if this is the last car in the bucket find the next non-empty behind the current bucket in this lane
     if (nextCar == buckets[currentBucket].end()) {
       currentBucket -= laneCount;
-      while (currentBucket >= 0 && buckets[currentBucket].size() == 0) { currentBucket -= laneCount; }
+      while (currentBucket >= 0 && buckets[currentBucket].empty()) { currentBucket -= laneCount; }
       // if start of street is reached return end iterator to represent no next car
       if (currentBucket < 0) { return iterator(buckets.begin(), buckets.end(), 0); }
       nextCar = findMaxCarInBucket(currentBucket); // otherwise return the last car of the next non-empty bucket
@@ -323,7 +323,7 @@ public:
     // if this is the last car in the bucket find the next non-empty behind the current bucket in this lane
     if (nextCar == buckets[currentBucket].end()) {
       currentBucket -= laneCount;
-      while (currentBucket >= 0 && buckets[currentBucket].size() == 0) { currentBucket -= laneCount; }
+      while (currentBucket >= 0 && buckets[currentBucket].empty()) { currentBucket -= laneCount; }
       // if start of street is reached return end iterator to represent no next car
       if (currentBucket < 0) { return const_iterator(buckets.begin(), buckets.end(), 0); }
       nextCar = findMaxCarInBucket(currentBucket); // otherwise return the last car of the next non-empty bucket
