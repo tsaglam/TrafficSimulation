@@ -167,12 +167,14 @@ private:
     // This delta is used in the calculation of the lane change indicator.
     double carBehindAccelerationDeltas = 0.0;
 
+    // Retrieve next car in front of the car in question (no lange change).
+    car_iterator carInFrontIt = street.getNextCarInFront(carIt, 0);
     // Retrieve next car behind the car in question (no lange change).
     car_iterator carBehindIt = street.getNextCarBehind(carIt, 0);
 
     if (accelerationComputer.isNotEnd(carBehindIt)) {
       // If there is a car behind, then consider it in the acceleration delta
-      const double carBehindAcceleration = accelerationComputer(*carBehindIt, &*carIt);
+      const double carBehindAcceleration = accelerationComputer(carBehindIt, carInFrontIt);
       carBehindAccelerationDeltas += carBehindAcceleration - carBehindIt->getNextBaseAcceleration();
     }
 
