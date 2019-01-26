@@ -216,7 +216,7 @@ public:
   void updateCarsAndRestoreConsistency() {
     for (iterator carIt = carsOnStreet.begin(); carIt != carsOnStreet.end();) {
       carIt->update();                     // update all cars
-      if (carIt->getDistance() > length) { // if the car left the street move it into departedCars
+      if (carIt->getDistance() >= length) { // if the car left the street move it into departedCars
         departedCars.push_back(*carIt);
         carIt = carsOnStreet.erase(carIt); // erases current car and increments carIt to the next car
       } else {

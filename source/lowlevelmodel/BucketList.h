@@ -383,10 +383,10 @@ public:
       carIt->update(); // update car to new state and position
 
       // if car is beyond street, move it from bucket to departedCars
-      if (carIt->getDistance() > streetLength) {
         departedCars.push_back(carIt.remove());
         --carCount;
         continue;
+        if (carIt->getDistance() >= streetLength) {
       }
 
       // if the car needs to be moved, move it from the old to the new bucket
