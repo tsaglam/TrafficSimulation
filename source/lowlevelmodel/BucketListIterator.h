@@ -47,22 +47,6 @@ private:
 
   unsigned getCurrentBucket() const { return currentBucket - beginBucket; }
 
-  Car remove() {
-    if (state == END) { return Car(); }     // TODO: calling remove on an end iterator is invalid
-    Car removed = *currentPositionInBucket; // create copy of the current car TODO correct?
-    // remove car and move currentPositionInBucket to next element
-    currentPositionInBucket = currentBucket->erase(currentPositionInBucket);
-    if (currentPositionInBucket == currentBucket->end()) {
-      currentBucket = findNextNonEmptyBucket(); // find next bucket
-      if (currentBucket == endBucket) {
-        state = END;
-      } else {
-        currentPositionInBucket = currentBucket->begin();
-      } // retrieve first element in new bucket
-    }
-    return removed;
-  }
-
   iterator_state state;
 
   // STANDARD: currentPositionInBucket is a valid element (not end()) in the currentBucket (!= endBucket)
