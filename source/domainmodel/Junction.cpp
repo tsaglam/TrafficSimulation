@@ -47,6 +47,7 @@ bool Junction::nextStep() {
   if (currentTimer == 0) {
     signalIndex  = (signalIndex + 1) % signals.size(); // next signal
     currentTimer = getCurrentSignal().getDuration();   // reset timer
+    currentTimer--;                                    // also decrement the timer, one tick
     return true;                                       // indicate signal change
   } else if (currentTimer > 0) {
     currentTimer--;
