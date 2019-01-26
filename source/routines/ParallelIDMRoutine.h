@@ -171,6 +171,9 @@ private:
 
     const double acceleration = accelerationComputer(carIt, laneChangeCarInFrontIt);
 
+    // If the acceleration after a lane change is smaller equal the base acceleration, don't indicate lane change
+    if (acceleration <= carIt->getNextBaseAcceleration()) return LaneChangeValues();
+
     // Compute acceleration deltas of cars behind the car in question.
     // This delta is used in the calculation of the lane change indicator.
     double carBehindAccelerationDeltas = 0.0;
