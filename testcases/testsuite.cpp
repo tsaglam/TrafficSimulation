@@ -4,8 +4,8 @@
 #include "domainmodel/JunctionTest.h"
 #include "domainmodel/VehicleTest.h"
 #include "lowlevelmodel/RfbStructureTest.h"
+#include "routines/ParallelTrafficLightRoutineTest.h"
 #include "routines/ConsistencyRoutineTest.h"
-#include "routines/TrafficLightRoutineTest.h"
 #include <../../snowhouse/snowhouse.h>
 #include <iostream>
 #include <regex>
@@ -55,6 +55,7 @@ int main() {
   RUN(resetAllVehiclesTest);
   // Routines:
   RUN(trafficLightRoutineTest);
+  RUN(parallelTrafficLightRoutineTest);
   RUN(takeTurnTest);
   RUN(calculateOriginDirectionTest);
 
