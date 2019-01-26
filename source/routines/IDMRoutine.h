@@ -161,7 +161,7 @@ private:
     if (!computeIsSpace(accelerationComputer, carIt, laneChangeCarBehindIt, laneChangeCarInFrontIt))
       return LaneChangeValues();
 
-    const double acceleration = accelerationComputer(carIt, laneOffset);
+    const double acceleration = accelerationComputer(carIt, laneChangeCarInFrontIt);
 
     // Compute acceleration deltas of cars behind the car in question.
     // This delta is used in the calculation of the lane change indicator.
