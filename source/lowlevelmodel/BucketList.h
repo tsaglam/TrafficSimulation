@@ -376,22 +376,29 @@ public:
    * to a higher lane and stayed within the same section.
    */
   void updateCarsAndRestoreConsistency() {
-    AllCarIterable iterable(*this);
-    iterator carIt = allIterable().end();
-    for (unsigned i = 0; i < getCarCount(); ++i) { // for all cars on the street
-      carIt--;
-      carIt->update(); // update car to new state and position
+    // for each bucket in reverse order
+    for (int bucketIndex = buckets.size() -1; bucketIndex >= 0; --bucketIndex) {
+      Bucket& currentBucket = buckets[bucketIndex];
+      auto carIt = currentBucket.begin();
+      while (carIt != currentBucket.end()) {
+        carIt->update(); // update car to new state and position
 
-      // if car is beyond street, move it from bucket to departedCars
-        departedCars.push_back(carIt.remove());
-        --carCount;
-        continue;
+        // if car is beyond street, move it from bucket to departedCars
         if (carIt->getDistance() >= streetLength) {
-      }
+          departedCars.push_back(*carIt);
+          carIt = currentBucket.erase(carIt);
+          continue;
+        }
 
-      // if the car needs to be moved, move it from the old to the new bucket
-      unsigned int newBucket = findBucketIndex(carIt->getLane(), carIt->getDistance());
-      if (newBucket != carIt.getCurrentBucket()) { buckets[newBucket].push_back(carIt.remove()); }
+        // if the car needs to be moved, move it from the old to the new bucket
+        int newBucket = findBucketIndex(carIt->getLane(), carIt->getDistance());
+        if (newBucket != bucketIndex) {
+          buckets[newBucket].push_back(*carIt);
+          carIt = currentBucket.erase(carIt);
+          continue;
+        }
+        ++carIt;
+      }
     }
   }
 
