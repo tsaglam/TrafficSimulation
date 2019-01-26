@@ -340,7 +340,7 @@ public:
    */
   inline void insertCar(Car &&car) {
     car.update();
-    buckets[findBucketIndex(car.getLane(), car.getDistance())].push_back(car);
+    buckets[findBucketIndex(car.getLane(), car.getDistance())].push_back(std::move(car));
     ++carCount;
   }
 
