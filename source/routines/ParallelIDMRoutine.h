@@ -115,12 +115,19 @@ private:
     // Initialise acceleration computer for use during computation
     AccelerationComputer accelerationComputer(street);
 
-    for (car_iterator carIt = street.allIterable().begin(); accelerationComputer.isNotEnd(carIt); ++carIt) {
+    auto streetIterable = street.allIterable();
+#pragma omp parallel for
+    for (unsigned i = 0; i < street.getCarCount(); ++i) {
+      auto carIt = streetIterable.begin() + i;
+      // for (car_iterator carIt = street.allIterable().begin(); accelerationComputer.isNotEnd(carIt); ++carIt) {
       const double baseAcceleration = accelerationComputer(carIt, 0);
       carIt->setNextBaseAcceleration(baseAcceleration);
     }
 
-    for (car_iterator carIt = street.allIterable().begin(); accelerationComputer.isNotEnd(carIt); ++carIt) {
+#pragma omp parallel for shared(street)
+    for (unsigned i = 0; i < street.getCarCount(); ++i) {
+      auto carIt = streetIterable.begin() + i;
+      // for (car_iterator carIt = street.allIterable().begin(); accelerationComputer.isNotEnd(carIt); ++carIt) {
       LaneChangeValues leftLaneChange;
       LaneChangeValues rightLaneChange;
 
