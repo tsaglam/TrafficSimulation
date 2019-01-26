@@ -32,7 +32,7 @@ private:
   std::vector<Bucket> buckets;
 
   /**  All cars that left this street (i.e. their distance is greater than the street length). */
-  Bucket departedCars;
+  std::vector<Car> departedCars;
 
   /**
    * The number of cars currently on the street. Includes cars inserted via insertCar even before
@@ -80,8 +80,8 @@ public:
 
   using reverse_category = rfbstructure_buckets_tag;
 
-  using BeyondsCarIterable      = Bucket;
-  using ConstBeyondsCarIterable = const Bucket;
+  using BeyondsCarIterable      = std::vector<Car> &;
+  using ConstBeyondsCarIterable = const std::vector<Car> &;
   using iterator                = bucket_list_iterator<Bucket, Car>;
   using const_iterator          = bucket_list_iterator<Bucket, Car, true>;
 
