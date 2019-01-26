@@ -42,17 +42,27 @@ void junctionCreationTest() {
  */
 void trafficLightTest() {
   Junction testJunction = createTestJunction();
+  // Step 0, special case: Initialisation
+  AssertThat(testJunction.nextStep(), Is().EqualTo(false));
   AssertThat(testJunction.getCurrentSignal().getDirection(), Is().EqualTo(CardinalDirection::NORTH));
-  for (int i = 0; i < 10; ++i) { AssertThat(testJunction.nextStep(), Is().EqualTo(false)); }
+  // Steps 1 to 9
+  for (int i = 1; i < 10; ++i) { AssertThat(testJunction.nextStep(), Is().EqualTo(false)); }
+  // Step 10: Switch
   AssertThat(testJunction.nextStep(), Is().EqualTo(true));
   AssertThat(testJunction.getCurrentSignal().getDirection(), Is().EqualTo(CardinalDirection::EAST));
-  for (int i = 0; i < 20; ++i) { AssertThat(testJunction.nextStep(), Is().EqualTo(false)); }
+  // Steps 11 to 29
+  for (int i = 1; i < 20; ++i) { AssertThat(testJunction.nextStep(), Is().EqualTo(false)); }
+  // Step 30: Switch
   AssertThat(testJunction.nextStep(), Is().EqualTo(true));
   AssertThat(testJunction.getCurrentSignal().getDirection(), Is().EqualTo(CardinalDirection::SOUTH));
-  for (int i = 0; i < 30; ++i) { AssertThat(testJunction.nextStep(), Is().EqualTo(false)); }
+  // Steps 31 to 59
+  for (int i = 1; i < 30; ++i) { AssertThat(testJunction.nextStep(), Is().EqualTo(false)); }
+  // Step 60: Switch
   AssertThat(testJunction.nextStep(), Is().EqualTo(true));
   AssertThat(testJunction.getCurrentSignal().getDirection(), Is().EqualTo(CardinalDirection::WEST));
-  for (int i = 0; i < 40; ++i) { AssertThat(testJunction.nextStep(), Is().EqualTo(false)); }
+  // Steps 61 to 99
+  for (int i = 1; i < 40; ++i) { AssertThat(testJunction.nextStep(), Is().EqualTo(false)); }
+  // Step 100: Switch
   AssertThat(testJunction.nextStep(), Is().EqualTo(true));
   AssertThat(testJunction.getCurrentSignal().getDirection(), Is().EqualTo(CardinalDirection::NORTH));
 }
