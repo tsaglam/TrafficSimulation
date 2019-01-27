@@ -1,7 +1,0 @@
-Test: mini_bench_v2 
-Hardware: 2015 MacBook Pro with 2,9 GHz Intel Core i5 (4 Threads)
-
-Sequential: 35.6sec
-Parallel (full): 30.86sec
-Parallel (Consistency without locks): 18,80
-
