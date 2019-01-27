@@ -222,7 +222,7 @@ public:
 
   void removeBeyonds() { rfb.removeBeyonds(); }
 
-  const ConcreteRfbStructure& getUnderlyingDataStructure() const { return rfb; }
+  const ConcreteRfbStructure &getUnderlyingDataStructure() const { return rfb; }
 };
 
 #endif

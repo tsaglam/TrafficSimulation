@@ -3,23 +3,24 @@
 
 #include "BucketList.h"
 #include "ConsistencyRoutine.h"
-#include "ParallelConsistencyRoutine.h"
 #include "DomainModel.h"
 #include "IDMRoutine.h"
 #include "InitialTrafficLightStrategies.h"
-#include "ParallelIDMRoutine.h"
 #include "JSONReader.h"
 #include "JSONWriter.h"
 #include "NaiveStreetDataStructure.h"
 #include "NullRoutine.h"
 #include "OptimizationRoutine.h"
 #include "Optimizer.h"
-#include "Simulator.h"
+#include "ParallelConsistencyRoutine.h"
+#include "ParallelIDMRoutine.h"
 #include "ParallelTrafficLightRoutine.h"
+#include "Simulator.h"
 #include "TrafficLightRoutine.h"
 
 int main_simulate(JSONReader &jsonReader, DomainModel &domainModel, JSONWriter &jsonWriter) {
-  Simulator<FreeListBucketList, TrafficLightRoutine, IDMRoutine, NullRoutine, ParallelConsistencyRoutine> simulator(domainModel);
+  Simulator<FreeListBucketList, TrafficLightRoutine, IDMRoutine, NullRoutine, ParallelConsistencyRoutine> simulator(
+      domainModel);
   simulator.performSteps(jsonReader.getTimeSteps());
 
   jsonWriter.writeVehicles(domainModel);
