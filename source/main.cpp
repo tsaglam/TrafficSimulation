@@ -19,7 +19,7 @@
 #include "TrafficLightRoutine.h"
 
 int main_simulate(JSONReader &jsonReader, DomainModel &domainModel, JSONWriter &jsonWriter) {
-  Simulator<VectorBucketList, TrafficLightRoutine, IDMRoutine, NullRoutine, ParallelConsistencyRoutine> simulator(domainModel);
+  Simulator<FreeListBucketList, TrafficLightRoutine, IDMRoutine, NullRoutine, ParallelConsistencyRoutine> simulator(domainModel);
   simulator.performSteps(jsonReader.getTimeSteps());
 
   jsonWriter.writeVehicles(domainModel);
@@ -31,7 +31,7 @@ int main_optimize(JSONReader &jsonReader, DomainModel &domainModel, JSONWriter &
   const unsigned maximumOptimizationCycles = 100; // TODO remove when debugging finished
   const double minimumTraveldistance       = jsonReader.getMinTravelDistance();
 
-  Optimizer<VectorBucketList, TrafficLightRoutine, IDMRoutine, OptimizationRoutine, ConsistencyRoutine,
+  Optimizer<FreeListBucketList, TrafficLightRoutine, IDMRoutine, OptimizationRoutine, ConsistencyRoutine,
       InitialTrafficLightsAllFive, false>
       optimizer(domainModel, jsonReader.getTimeSteps(), minimumTraveldistance, maximumOptimizationCycles);
   optimizer.optimizeTrafficLights();
