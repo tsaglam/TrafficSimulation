@@ -1,12 +1,12 @@
 #ifndef BUCKET_LIST_ITERATOR
 #define BUCKET_LIST_ITERATOR
 
-template <class Car, class Bucket>
+template <class Car, class Bucket, bool bucketIsStlContainer>
 class BucketList;
 
 enum iterator_state { STANDARD, END };
 
-template <class Bucket, class Car, bool Const = false>
+template <class Bucket, class Car, bool bucketIsStlContainer, bool Const = false>
 class bucket_list_iterator {
 public:
   using iterator_category = std::random_access_iterator_tag;
@@ -42,8 +42,8 @@ private:
     return previousBucket;
   }
 
-  friend class BucketList<Car, Bucket>;
-  friend class bucket_list_iterator<Bucket, Car, !Const>;
+  friend class BucketList<Car, Bucket, bucketIsStlContainer>;
+  friend class bucket_list_iterator<Bucket, Car, bucketIsStlContainer, !Const>;
 
   unsigned getCurrentBucket() const { return currentBucket - beginBucket; }
 
@@ -88,8 +88,8 @@ public:
       : beginBucket(beginBucket), endBucket(endBucket), currentBucket(endBucket),
         currentPositionInBucket((endBucket - 1)->end()), state(END) {}
 
-  operator bucket_list_iterator<Bucket, Car, true>() const {
-    return bucket_list_iterator<Bucket, Car, true>(
+  operator bucket_list_iterator<Bucket, Car, bucketIsStlContainer, true>() const {
+    return bucket_list_iterator<Bucket, Car, bucketIsStlContainer, true>(
         beginBucket, endBucket, currentBucket, currentPositionInBucket, state);
   }
 

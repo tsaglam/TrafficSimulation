@@ -73,6 +73,16 @@ public:
     return it;
   }
 
+  // erasing multiple elements at once
+  void erase(std::vector<iterator> positions) {
+    for (auto it : positions) {
+      assert(isFree[it.position] == false);
+      isFree[it.position] = true;
+    }
+    elementCount -= positions.size();
+    if (elementCount < data.size() / 4) { resizeAndReturnNextFreeCell(data.size() / 2); }
+  }
+
   iterator begin() { return iterator(this); }
   const_iterator begin() const { return const_iterator(this); }
   const_iterator cbegin() const { return const_iterator(this); }
