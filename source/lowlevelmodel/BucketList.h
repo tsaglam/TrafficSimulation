@@ -69,7 +69,7 @@ public:
    * @param[in]  length        The length of the street.
    * @param[in]  sectionLength The length of section represented by a bucket
    */
-  BucketList(const unsigned int laneCount, const double length, const double sectionLength = 1.0)
+  BucketList(const unsigned int laneCount, const double length, const double sectionLength = 25)
       : laneCount(laneCount), streetLength(length), sectionLength(sectionLength),
         buckets(std::ceil(length / sectionLength) * laneCount) {}
 
