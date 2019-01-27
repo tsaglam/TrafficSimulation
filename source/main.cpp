@@ -1,24 +1,25 @@
 #include <exception>
 #include <iostream>
 
+#include "BucketList.h"
 #include "ConsistencyRoutine.h"
-#include "ParallelConsistencyRoutine.h"
 #include "DomainModel.h"
 #include "IDMRoutine.h"
 #include "InitialTrafficLightStrategies.h"
-#include "ParallelIDMRoutine.h"
 #include "JSONReader.h"
 #include "JSONWriter.h"
 #include "NaiveStreetDataStructure.h"
 #include "NullRoutine.h"
 #include "OptimizationRoutine.h"
 #include "Optimizer.h"
-#include "Simulator.h"
+#include "ParallelConsistencyRoutine.h"
+#include "ParallelIDMRoutine.h"
 #include "ParallelTrafficLightRoutine.h"
+#include "Simulator.h"
 #include "TrafficLightRoutine.h"
 
 int main_simulate(JSONReader &jsonReader, DomainModel &domainModel, JSONWriter &jsonWriter) {
-  Simulator<NaiveStreetDataStructure, ParallelTrafficLightRoutine, ParallelIDMRoutine, NullRoutine, ParallelConsistencyRoutine> simulator(
+  Simulator<FreeListBucketList, TrafficLightRoutine, IDMRoutine, NullRoutine, ParallelConsistencyRoutine> simulator(
       domainModel);
   simulator.performSteps(jsonReader.getTimeSteps());
 
@@ -28,10 +29,10 @@ int main_simulate(JSONReader &jsonReader, DomainModel &domainModel, JSONWriter &
 }
 
 int main_optimize(JSONReader &jsonReader, DomainModel &domainModel, JSONWriter &jsonWriter) {
-  const unsigned maximumOptimizationCycles = 10; // TODO remove when debugging finished
+  const unsigned maximumOptimizationCycles = 100; // TODO remove when debugging finished
   const double minimumTraveldistance       = jsonReader.getMinTravelDistance();
 
-  Optimizer<NaiveStreetDataStructure, TrafficLightRoutine, IDMRoutine, OptimizationRoutine, ConsistencyRoutine,
+  Optimizer<FreeListBucketList, TrafficLightRoutine, IDMRoutine, OptimizationRoutine, ConsistencyRoutine,
       InitialTrafficLightsAllFive, false>
       optimizer(domainModel, jsonReader.getTimeSteps(), minimumTraveldistance, maximumOptimizationCycles);
   optimizer.optimizeTrafficLights();

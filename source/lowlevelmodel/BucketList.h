@@ -7,9 +7,10 @@
 #include <vector>
 
 #include "BucketListIterator.h"
+#include "FreeList.h"
 #include "RfbStructureTraits.h"
 
-template <class Car>
+template <class Car, class Bucket>
 class BucketList {
 private:
   /** The number of lanes on the street (in the current direction). */
@@ -20,8 +21,6 @@ private:
   const double sectionLength;
 
   // ------- Data Storage -------
-
-  using Bucket = std::vector<Car>;
   /**
    * The street is partitioned into sections of equal length (sectionLength).
    * Each of these sections is represented by a bucket per lane containing all cars in that section and lane.
@@ -32,7 +31,7 @@ private:
   std::vector<Bucket> buckets;
 
   /**  All cars that left this street (i.e. their distance is greater than the street length). */
-  Bucket departedCars;
+  std::vector<Car> departedCars;
 
   /**
    * The number of cars currently on the street. Includes cars inserted via insertCar even before
@@ -70,7 +69,7 @@ public:
    * @param[in]  length        The length of the street.
    * @param[in]  sectionLength The length of section represented by a bucket
    */
-  BucketList(const unsigned int laneCount, const double length, const double sectionLength = 1.0)
+  BucketList(const unsigned int laneCount, const double length, const double sectionLength = 25)
       : laneCount(laneCount), streetLength(length), sectionLength(sectionLength),
         buckets(std::ceil(length / sectionLength) * laneCount) {}
 
@@ -80,8 +79,8 @@ public:
 
   using reverse_category = rfbstructure_buckets_tag;
 
-  using BeyondsCarIterable      = Bucket;
-  using ConstBeyondsCarIterable = const Bucket;
+  using BeyondsCarIterable      = std::vector<Car> &;
+  using ConstBeyondsCarIterable = const std::vector<Car> &;
   using iterator                = bucket_list_iterator<Bucket, Car>;
   using const_iterator          = bucket_list_iterator<Bucket, Car, true>;
 
@@ -127,7 +126,11 @@ public:
    * @brief      Gets the number of sections (i.e. the number of buckets per lane).
    * @return     The section count.
    */
-  inline unsigned getSectionCount() const { return buckets.size(); }
+  inline unsigned getSectionCount() const {
+    assert(buckets.size() > 0);
+    assert(buckets.size() / laneCount);
+    return buckets.size() / laneCount;
+  }
 
   /**
    * @brief      Gets the number cars on this street (in the current direction).
@@ -143,6 +146,8 @@ public:
    * @return     The bucket as const reference.
    */
   const Bucket &getBucket(const unsigned sectionIndex, const unsigned lane) const {
+    assert(sectionIndex < getSectionCount());
+    assert(lane < laneCount);
     return buckets[sectionIndex * laneCount + lane];
   }
 
@@ -277,7 +282,7 @@ public:
     // if this is the first car in the bucket find the next non-empty in front of the current bucket in this lane
     if (nextCar == buckets[currentBucket].end()) {
       currentBucket += laneCount;
-      while (currentBucket < buckets.size() && buckets[currentBucket].size() == 0) { currentBucket += laneCount; }
+      while (currentBucket < buckets.size() && buckets[currentBucket].empty()) { currentBucket += laneCount; }
       // if end of street is reached return end iterator to represent no next car
       if (currentBucket >= buckets.size()) { return const_iterator(buckets.begin(), buckets.end(), 0); }
       nextCar = findMinCarInBucket(currentBucket); // otherwise return the first car of the next non-empty bucket
@@ -302,7 +307,7 @@ public:
     // if this is the last car in the bucket find the next non-empty behind the current bucket in this lane
     if (nextCar == buckets[currentBucket].end()) {
       currentBucket -= laneCount;
-      while (currentBucket >= 0 && buckets[currentBucket].size() == 0) { currentBucket -= laneCount; }
+      while (currentBucket >= 0 && buckets[currentBucket].empty()) { currentBucket -= laneCount; }
       // if start of street is reached return end iterator to represent no next car
       if (currentBucket < 0) { return iterator(buckets.begin(), buckets.end(), 0); }
       nextCar = findMaxCarInBucket(currentBucket); // otherwise return the last car of the next non-empty bucket
@@ -317,7 +322,7 @@ public:
     // if this is the last car in the bucket find the next non-empty behind the current bucket in this lane
     if (nextCar == buckets[currentBucket].end()) {
       currentBucket -= laneCount;
-      while (currentBucket >= 0 && buckets[currentBucket].size() == 0) { currentBucket -= laneCount; }
+      while (currentBucket >= 0 && buckets[currentBucket].empty()) { currentBucket -= laneCount; }
       // if start of street is reached return end iterator to represent no next car
       if (currentBucket < 0) { return const_iterator(buckets.begin(), buckets.end(), 0); }
       nextCar = findMaxCarInBucket(currentBucket); // otherwise return the last car of the next non-empty bucket
@@ -334,7 +339,7 @@ public:
    */
   inline void insertCar(Car &&car) {
     car.update();
-    buckets[findBucketIndex(car.getLane(), car.getDistance())].push_back(car);
+    buckets[findBucketIndex(car.getLane(), car.getDistance())].push_back(std::move(car));
     ++carCount;
   }
 
@@ -370,22 +375,31 @@ public:
    * to a higher lane and stayed within the same section.
    */
   void updateCarsAndRestoreConsistency() {
-    AllCarIterable iterable(*this);
-    iterator carIt = allIterable().end();
-    for (unsigned i = 0; i < getCarCount(); ++i) { // for all cars on the street
-      carIt--;
-      carIt->update(); // update car to new state and position
+    // for each bucket in reverse order
+    std::vector<bucket_iterator> eraseFromBucket;
+    for (int bucketIndex = buckets.size() - 1; bucketIndex >= 0; --bucketIndex) {
+      Bucket &currentBucket = buckets[bucketIndex];
+      for (auto carIt = currentBucket.begin(); carIt != currentBucket.end(); ++carIt) {
+        carIt->update(); // update car to new state and position
 
-      // if car is beyond street, move it from bucket to departedCars
-      if (carIt->getDistance() > streetLength) {
-        departedCars.push_back(carIt.remove());
-        --carCount;
-        continue;
+        // if car is beyond street, move it from bucket to departedCars
+        if (carIt->getDistance() >= streetLength) {
+          departedCars.push_back(std::move(*carIt));
+          eraseFromBucket.push_back(carIt);
+          continue;
+        }
+
+        // if the car needs to be moved, move it from the old to the new bucket
+        int newBucket = findBucketIndex(carIt->getLane(), carIt->getDistance());
+        if (newBucket != bucketIndex) {
+          buckets[newBucket].push_back(*carIt);
+          eraseFromBucket.push_back(carIt);
+        }
       }
-
-      // if the car needs to be moved, move it from the old to the new bucket
-      unsigned int newBucket = findBucketIndex(carIt->getLane(), carIt->getDistance());
-      if (newBucket != carIt.getCurrentBucket()) { buckets[newBucket].push_back(carIt.remove()); }
+      for (auto eraseIt = eraseFromBucket.rbegin(); eraseIt != eraseFromBucket.rend(); ++eraseIt) {
+        currentBucket.erase(*eraseIt);
+      }
+      eraseFromBucket.clear();
     }
   }
 
@@ -421,6 +435,118 @@ public:
    * Cars are removed by clearing the Bucket containing them.
    */
   inline void removeBeyonds() { departedCars.clear(); }
+};
+
+template <class Car>
+class VectorBucketList {
+  using Bucket = std::vector<Car>;
+  BucketList<Car, Bucket> list;
+
+public:
+  VectorBucketList() = default;
+  VectorBucketList(const unsigned int laneCount, const double length, const double sectionLength = 25)
+      : list(laneCount, length, sectionLength) {}
+
+  // ------- Iterator & Iterable type defs -------
+  using iterator                = typename BucketList<Car, Bucket>::iterator;
+  using const_iterator          = typename BucketList<Car, Bucket>::const_iterator;
+  using AllCarIterable          = typename BucketList<Car, Bucket>::AllCarIterable;
+  using ConstAllCarIterable     = typename BucketList<Car, Bucket>::ConstAllCarIterable;
+  using BeyondsCarIterable      = typename BucketList<Car, Bucket>::BeyondsCarIterable;
+  using ConstBeyondsCarIterable = typename BucketList<Car, Bucket>::ConstBeyondsCarIterable;
+  using reverse_category        = typename BucketList<Car, Bucket>::reverse_category;
+
+  unsigned int getLaneCount() const { return list.getLaneCount(); }
+  double getLength() const { return list.getLength(); }
+  double getSectionLength() const { return list.getSectionLength(); }
+  unsigned getSectionCount() const { return list.getSectionCount(); }
+  unsigned int getCarCount() const { return list.getCarCount(); }
+  const Bucket &getBucket(const unsigned sectionIndex, const unsigned lane) const {
+    return list.getBucket(sectionIndex, lane);
+  }
+
+public:
+  iterator getNextCarInFront(const iterator currentCarIt, const int laneOffset = 0) {
+    return list.getNextCarInFront(currentCarIt, laneOffset);
+  }
+  const_iterator getNextCarInFront(const const_iterator currentCarIt, const int laneOffset = 0) const {
+    return list.getNextCarInFront(currentCarIt, laneOffset);
+  }
+  iterator getNextCarBehind(const iterator currentCarIt, const int laneOffset = 0) {
+    return list.getNextCarBehind(currentCarIt, laneOffset);
+  }
+  const_iterator getNextCarBehind(const const_iterator currentCarIt, const int laneOffset = 0) const {
+    return list.getNextCarBehind(currentCarIt, laneOffset);
+  }
+
+  inline void insertCar(Car &&car) { return list.insertCar(std::move(car)); }
+  inline void insertCar(const Car &car) { return list.insertCar(car); }
+  inline void incorporateInsertedCars() { return list.incorporateInsertedCars(); }
+  void updateCarsAndRestoreConsistency() { return list.updateCarsAndRestoreConsistency(); }
+  void removeBeyonds() { return list.removeBeyonds(); }
+
+  inline AllCarIterable allIterable() { return list.allIterable(); }
+  inline ConstAllCarIterable allIterable() const { return list.allIterable(); }
+  inline ConstAllCarIterable constAllIterable() const { return list.constAllIterable(); }
+  inline BeyondsCarIterable beyondsIterable() { return list.beyondsIterable(); }
+  inline ConstBeyondsCarIterable beyondsIterable() const { return list.beyondsIterable(); }
+  inline ConstBeyondsCarIterable constBeyondsIterable() const { return list.constBeyondsIterable(); }
+};
+
+template <class Car>
+class FreeListBucketList {
+  using Bucket = FreeList<Car>;
+  BucketList<Car, Bucket> list;
+
+public:
+  FreeListBucketList() = default;
+  FreeListBucketList(const unsigned int laneCount, const double length, const double sectionLength = 25)
+      : list(laneCount, length, sectionLength) {}
+
+  // ------- Iterator & Iterable type defs -------
+  using iterator                = typename BucketList<Car, Bucket>::iterator;
+  using const_iterator          = typename BucketList<Car, Bucket>::const_iterator;
+  using AllCarIterable          = typename BucketList<Car, Bucket>::AllCarIterable;
+  using ConstAllCarIterable     = typename BucketList<Car, Bucket>::ConstAllCarIterable;
+  using BeyondsCarIterable      = typename BucketList<Car, Bucket>::BeyondsCarIterable;
+  using ConstBeyondsCarIterable = typename BucketList<Car, Bucket>::ConstBeyondsCarIterable;
+  using reverse_category        = typename BucketList<Car, Bucket>::reverse_category;
+
+  unsigned int getLaneCount() const { return list.getLaneCount(); }
+  double getLength() const { return list.getLength(); }
+  double getSectionLength() const { return list.getSectionLength(); }
+  unsigned getSectionCount() const { return list.getSectionCount(); }
+  unsigned int getCarCount() const { return list.getCarCount(); }
+  const Bucket &getBucket(const unsigned sectionIndex, const unsigned lane) const {
+    return list.getBucket(sectionIndex, lane);
+  }
+
+public:
+  iterator getNextCarInFront(const iterator currentCarIt, const int laneOffset = 0) {
+    return list.getNextCarInFront(currentCarIt, laneOffset);
+  }
+  const_iterator getNextCarInFront(const const_iterator currentCarIt, const int laneOffset = 0) const {
+    return list.getNextCarInFront(currentCarIt, laneOffset);
+  }
+  iterator getNextCarBehind(const iterator currentCarIt, const int laneOffset = 0) {
+    return list.getNextCarBehind(currentCarIt, laneOffset);
+  }
+  const_iterator getNextCarBehind(const const_iterator currentCarIt, const int laneOffset = 0) const {
+    return list.getNextCarBehind(currentCarIt, laneOffset);
+  }
+
+  inline void insertCar(Car &&car) { return list.insertCar(std::move(car)); }
+  inline void insertCar(const Car &car) { return list.insertCar(car); }
+  inline void incorporateInsertedCars() { return list.incorporateInsertedCars(); }
+  void updateCarsAndRestoreConsistency() { return list.updateCarsAndRestoreConsistency(); }
+  void removeBeyonds() { return list.removeBeyonds(); }
+
+  inline AllCarIterable allIterable() { return list.allIterable(); }
+  inline ConstAllCarIterable allIterable() const { return list.allIterable(); }
+  inline ConstAllCarIterable constAllIterable() const { return list.constAllIterable(); }
+  inline BeyondsCarIterable beyondsIterable() { return list.beyondsIterable(); }
+  inline ConstBeyondsCarIterable beyondsIterable() const { return list.beyondsIterable(); }
+  inline ConstBeyondsCarIterable constBeyondsIterable() const { return list.constBeyondsIterable(); }
 };
 
 #endif

@@ -354,7 +354,8 @@ private:
 public:
   TrafficLightSignaler(ConcreteRfbStructure &_rfb, double _streetLength, const LowLevelCar &_trafficLightCar,
       double _trafficLightOffset, unsigned int _lane = 0, double _velocity = 0.0, Signal _signal = GREEN)
-      : rfb(_rfb), signal(_signal), trafficLightCar(_trafficLightCar), trafficLightPosition(_streetLength - _trafficLightOffset) {
+      : rfb(_rfb), signal(_signal), trafficLightCar(_trafficLightCar),
+        trafficLightPosition(_streetLength - _trafficLightOffset) {
     trafficLightCar.setPosition(_lane, trafficLightPosition, _velocity);
   }
   TrafficLightSignaler(ConcreteRfbStructure &_rfb, const LowLevelCar &_trafficLightCar, double _trafficLightOffset,
