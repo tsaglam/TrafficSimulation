@@ -1,7 +1,7 @@
 #ifndef BUCKET_LIST_ITERATOR
 #define BUCKET_LIST_ITERATOR
 
-template <class Car>
+template <class Car, class Bucket>
 class BucketList;
 
 enum iterator_state { STANDARD, END };
@@ -42,7 +42,7 @@ private:
     return previousBucket;
   }
 
-  friend class BucketList<Car>;
+  friend class BucketList<Car, Bucket>;
   friend class bucket_list_iterator<Bucket, Car, !Const>;
 
   unsigned getCurrentBucket() const { return currentBucket - beginBucket; }

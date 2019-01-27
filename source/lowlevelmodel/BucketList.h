@@ -397,7 +397,9 @@ public:
           eraseFromBucket.push_back(carIt);
         }
       }
-      for (auto &eraseIt : eraseFromBucket) { currentBucket.erase(eraseIt); }
+      for (auto eraseIt = eraseFromBucket.rbegin(); eraseIt != eraseFromBucket.rend(); ++eraseIt) {
+        currentBucket.erase(*eraseIt);
+      }
       eraseFromBucket.clear();
     }
   }
