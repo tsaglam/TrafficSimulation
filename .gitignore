@@ -4,3 +4,4 @@ testsuite
 **/build/**
 *.DS_Store
 /source.zip
+/test-coverage/
