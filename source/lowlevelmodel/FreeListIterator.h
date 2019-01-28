@@ -96,7 +96,7 @@ public:
   }
 
   free_list_iterator operator+(const difference_type &n) const {
-    free_list_iterator copy = this;
+    free_list_iterator copy = *this;
     copy += n;
     return copy;
   }
@@ -106,7 +106,7 @@ public:
   }
 
   free_list_iterator operator-(const difference_type &n) const {
-    free_list_iterator copy = this;
+    free_list_iterator copy = *this;
     copy -= n;
     return copy;
   }
