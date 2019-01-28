@@ -386,6 +386,7 @@ public:
         if (carIt->getDistance() >= streetLength) {
           departedCars.push_back(std::move(*carIt));
           eraseIterators.push_back(carIt);
+          --carCount;
           continue;
         }
 
