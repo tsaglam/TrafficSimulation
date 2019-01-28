@@ -27,7 +27,7 @@ public:
   /**
    * @brief      Simulates a single step for all junctions of the domain model.
    */
-  void perform() {
+  void perform() { // TODO if cars > 10000 then do parallel
     DomainModel &model   = data.getDomainModel();
     const auto &junctions = model.getJunctions();
 #pragma omp parallel for
