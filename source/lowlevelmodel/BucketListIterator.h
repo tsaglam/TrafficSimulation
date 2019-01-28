@@ -135,7 +135,7 @@ public:
   }
 
   bucket_list_iterator operator+(const difference_type &n) const {
-    bucket_list_iterator copy = this;
+    bucket_list_iterator copy = *this;
     copy += n;
     return copy;
   }
@@ -157,7 +157,7 @@ public:
   }
 
   bucket_list_iterator operator-(const difference_type &n) const {
-    bucket_list_iterator copy = this;
+    bucket_list_iterator copy = *this;
     copy -= n;
     return copy;
   }
