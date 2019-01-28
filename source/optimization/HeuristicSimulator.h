@@ -26,12 +26,13 @@ public:
   // Store the distance traveled per car and which traffic lights it passed how often.
   void performSteps(const unsigned stepCount) {
     for (unsigned carId = 0; carId < carCount; ++carId) { // for each car
-      const Vehicle& car = domainModel.getVehicle(carId);
+      const Vehicle &car = domainModel.getVehicle(carId);
 
-      Street *currentStreet = car.getPosition().getStreet();
-      double currentDistance = car.getPosition().getDistance();
+      Street *currentStreet        = car.getPosition().getStreet();
+      double currentDistance       = car.getPosition().getDistance();
       double currentTravelDistance = 0;
-      unsigned turnDirectionIndex = 0;
+      unsigned turnDirectionIndex  = 0;
+      const auto &route            = car.getRoute();
 
       for (unsigned timeStep = 0; timeStep < stepCount; ++timeStep) { // estimate all time steps
         double velocity = std::min(car.getTargetVelocity(), currentStreet->getSpeedLimit());
@@ -40,14 +41,33 @@ public:
 
         // if the car left the current street count it to the current streets throughput and determine the next street
         if (currentDistance >= currentStreet->getLength()) {
-          ++trafficLightCrossingCountPerCarPerStreet[carId][currentStreet->getId()];
+          currentDistance -= currentStreet->getLength();                             // update distance
+          ++trafficLightCrossingCountPerCarPerStreet[carId][currentStreet->getId()]; // and throughput
 
-          // TODO route planning
-          // currentStreet = newStreet;
-          currentDistance -= currentStreet->getLength();
+          // Route planning: determine the next street
+          const Junction &targetJunction = currentStreet->getTargetJunction();
+          // determine cardinal direction of the current street
+          CardinalDirection sourceDirection;
+          for (const auto &connectedStreet : junction.getIncomingStreets()) {
+            if (connectedStreet.isConnected() && connectedStreet.getStreet()->getId() == currentStreet->getId()) {
+              sourceDirection = connectedStreet.getDirection();
+            }
+          }
+
+          // determine the preferred cardinal direction of the new street
+          TurnDirection turnDirection     = route[turnDirectionIndex % 4];
+          CardinalDirection nextDirection = (sourceDirection + turnDirection) % 4;
+
+          // search for the next connected street in the preferred direction
+          for (unsigned i = 0; i < 4; ++i) {
+            if (targetJunction.getOutgoingStreet(nextDirection + i).isConnected()) {
+              currentStreet = targetJunction.getOutgoingStreet(nextDirection + i).getStreet();
+              break;
+            }
+          }
         }
       }
-      optimalTravelDistancePerCar[carId] = currentTravelDistance;
+      optimalTravelDistancePerCar[carId] = currentTravelDistance; // write back the computed travel distance
     }
   }
 
