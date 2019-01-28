@@ -25,7 +25,30 @@ public:
   // Simulated 'stepCount' steps heuristically for each car while ignoring traffic lights and other cars.
   // Store the distance traveled per car and which traffic lights it passed how often.
   void performSteps(const unsigned stepCount) {
-    // TODO
+    for (unsigned carId = 0; carId < carCount; ++carId) { // for each car
+      const Vehicle& car = domainModel.getVehicle(carId);
+
+      Street *currentStreet = car.getPosition().getStreet();
+      double currentDistance = car.getPosition().getDistance();
+      double currentTravelDistance = 0;
+      unsigned turnDirectionIndex = 0;
+
+      for (unsigned timeStep = 0; timeStep < stepCount; ++timeStep) { // estimate all time steps
+        double velocity = std::min(car.getTargetVelocity(), currentStreet->getSpeedLimit());
+        currentTravelDistance += velocity;
+        currentDistance += velocity;
+
+        // if the car left the current street count it to the current streets throughput and determine the next street
+        if (currentDistance >= currentStreet->getLength()) {
+          ++trafficLightCrossingCountPerCarPerStreet[carId][currentStreet->getId()];
+
+          // TODO route planning
+          // currentStreet = newStreet;
+          currentDistance -= currentStreet->getLength();
+        }
+      }
+      optimalTravelDistancePerCar[carId] = currentTravelDistance;
+    }
   }
 
   double getTravelDistance(const unsigned carId) const { return optimalTravelDistancePerCar[carId]; }
