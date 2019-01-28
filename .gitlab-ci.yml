@@ -23,7 +23,7 @@ benchmark:pc189:
   when: manual
   variables:
     GIT_SUBMODULE_STRATEGY: none
-    OMP: "1"ˆ
+    OMP: "1"
   script:
     - source ~/pdmkp_env
     - make
