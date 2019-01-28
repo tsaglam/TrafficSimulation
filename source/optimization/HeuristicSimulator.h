@@ -48,7 +48,7 @@ public:
           const Junction &targetJunction = currentStreet->getTargetJunction();
           // determine cardinal direction of the current street
           CardinalDirection sourceDirection;
-          for (const auto &connectedStreet : junction.getIncomingStreets()) {
+          for (const auto &connectedStreet : targetJunction.getIncomingStreets()) {
             if (connectedStreet.isConnected() && connectedStreet.getStreet()->getId() == currentStreet->getId()) {
               sourceDirection = connectedStreet.getDirection();
             }
@@ -56,12 +56,12 @@ public:
 
           // determine the preferred cardinal direction of the new street
           TurnDirection turnDirection     = route[turnDirectionIndex % 4];
-          CardinalDirection nextDirection = (sourceDirection + turnDirection) % 4;
+          CardinalDirection nextDirection = (CardinalDirection) ((sourceDirection + turnDirection) % 4);
 
           // search for the next connected street in the preferred direction
           for (unsigned i = 0; i < 4; ++i) {
-            if (targetJunction.getOutgoingStreet(nextDirection + i).isConnected()) {
-              currentStreet = targetJunction.getOutgoingStreet(nextDirection + i).getStreet();
+            if (targetJunction.getOutgoingStreet((CardinalDirection) (nextDirection + i)).isConnected()) {
+              currentStreet = targetJunction.getOutgoingStreet((CardinalDirection) (nextDirection + i)).getStreet();
               break;
             }
           }
@@ -79,7 +79,7 @@ public:
   // simulation.
   unsigned getTrafficLightThroughput(const unsigned streetId) const {
     unsigned throughput = 0;
-    for (int carId = 0; carId < carCount; ++carId) {
+    for (unsigned carId = 0; carId < carCount; ++carId) {
       throughput += trafficLightCrossingCountPerCarPerStreet[carId][streetId];
     }
     return throughput;
@@ -87,8 +87,9 @@ public:
   // The prioritized throughput is the throughput multiplied by the priority of each car.
   double getPrioritizedTrafficLightThroughput(const unsigned streetId) const {
     double prioritizedThroughput = 0;
-    for (int carId = 0; carId < carCount; ++carId) {
-      throughput += optimalTravelDistancePerCar[carId] * trafficLightCrossingCountPerCarPerStreet[carId][streetId];
+    for (unsigned carId = 0; carId < carCount; ++carId) {
+      prioritizedThroughput +=
+          optimalTravelDistancePerCar[carId] * trafficLightCrossingCountPerCarPerStreet[carId][streetId];
     }
     return prioritizedThroughput;
   }
@@ -96,8 +97,9 @@ public:
   // Resets results computed by the heuristic simulation
   void reset() {
     std::fill(optimalTravelDistancePerCar.begin(), optimalTravelDistancePerCar.end(), 0.0);
-    for (int streetId = 0; streetId < streetCount; ++streetId) {
-      std::fill(trafficLightCrossingCountPerCarPerStreet.begin(), trafficLightCrossingCountPerCarPerStreet.end(), 0);
+    for (unsigned carId = 0; carId < carCount; ++carId) {
+      std::fill(trafficLightCrossingCountPerCarPerStreet[carId].begin(),
+          trafficLightCrossingCountPerCarPerStreet[carId].end(), 0);
     }
   }
 };
