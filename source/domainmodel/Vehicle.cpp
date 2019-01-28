@@ -71,3 +71,4 @@ double Vehicle::getMinDistance() const { return minDistance; }
 double Vehicle::getTargetHeadway() const { return targetHeadway; }
 double Vehicle::getPoliteness() const { return politeness; }
 const Vehicle::Position &Vehicle::getPosition() const { return position; }
+const std::vector<TurnDirection> &Vehicle::getRoute() const { return route; }
