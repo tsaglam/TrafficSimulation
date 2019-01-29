@@ -65,7 +65,7 @@ struct InitialTrafficLightsWithHeuristicSimulator {
         if (connectedStreet.isConnected()) {
           double throughput       = getThroughput(simulator, connectedStreet.getStreet()->getId());
           unsigned signalDuration = baseDuration + (throughputWeight * (throughput / totalThroughput));
-          assert(signalDuration >= 5);
+          if (signalDuration < 5) { signalDuration = 5; }
           initialSignals.push_back(Junction::Signal(connectedStreet.getDirection(), signalDuration));
         }
       }

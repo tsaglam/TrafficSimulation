@@ -77,7 +77,7 @@ public:
   double getCarPriority(const unsigned carId) const { return optimalTravelDistancePerCar[carId]; }
 
   double getTotalOptimalTravelDistance() const {
-    unsigned optimalTravelDistance = 0;
+    double optimalTravelDistance = 0;
     for (unsigned carId = 0; carId < carCount; ++carId) {
       optimalTravelDistance += optimalTravelDistancePerCar[carId];
     }
