@@ -12,10 +12,9 @@ template <template <typename Vehicle> typename RfbStructure>
 class ParallelTrafficLightRoutine {
 public:
   /**
-   * Plays a role in determining the minimal workload block size. The larger this value gets, the smaller a block can
-   * get.
+   * Determines when it is actually better to use the parallel traffic light routine.
    */
-  const int BLOCK_SIZE_FACTOR = 5;
+  const unsigned long PARALLEL_THRESHOLD = 100000;
 
   /**
    * @brief      Creates the traffic light routine, sets the simulation data.
@@ -27,21 +26,37 @@ public:
   /**
    * @brief      Simulates a single step for all junctions of the domain model.
    */
-  void perform() { // TODO if cars > 10000 then do parallel
-    DomainModel &model   = data.getDomainModel();
+  void perform() {
+    DomainModel &model    = data.getDomainModel();
     const auto &junctions = model.getJunctions();
+    if (junctions.size() > PARALLEL_THRESHOLD) {
+      performParallel(junctions);
+    } else {
+      performSequential(junctions);
+    }
+  }
+
+  void performParallel(const std::vector<std::unique_ptr<Junction>> &junctions) {
 #pragma omp parallel for
     for (std::size_t i = 0; i < junctions.size(); i++) {
       const auto &junction = junctions[i];
-      bool lightChanged    = junction->nextStep();
-      if (lightChanged) {
-        // Turn previous red:
-        Junction::Signal previous = junction->getPreviousSignal();
-        toggleStreetForSignal(previous, *junction);
-        // Turn current green:
-        Junction::Signal current = junction->getCurrentSignal();
-        toggleStreetForSignal(current, *junction);
-      }
+      perform(*junction);
+    }
+  }
+
+  void performSequential(const std::vector<std::unique_ptr<Junction>> &junctions) {
+    for (auto const &junction : junctions) { perform(*junction); }
+  }
+
+  void perform(Junction &junction) {
+    bool lightChanged = junction.nextStep();
+    if (lightChanged) {
+      // Turn previous red:
+      Junction::Signal previous = junction.getPreviousSignal();
+      toggleStreetForSignal(previous, junction);
+      // Turn current green:
+      Junction::Signal current = junction.getCurrentSignal();
+      toggleStreetForSignal(current, junction);
     }
   }
 
