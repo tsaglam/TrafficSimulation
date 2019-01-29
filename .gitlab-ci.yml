@@ -15,6 +15,16 @@ test:
   script:
     - make test
 
+test-omp:
+  stage: test
+  tags:
+    - docker
+  image: buildpack-deps:bionic
+  variables:
+    OMP: "1"
+  script:
+    - make test
+
 
 benchmark:pc189:
   stage: benchmark
