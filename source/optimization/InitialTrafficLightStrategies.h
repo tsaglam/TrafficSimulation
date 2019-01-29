@@ -28,9 +28,18 @@ struct InitialTrafficLightsAllFive {
   void operator()(DomainModel &domainModel, const unsigned) { operator()(domainModel); }
 };
 
-template <bool withPriority = false>
+template <bool withPriority>
 struct InitialTrafficLightsWithHeuristicSimulator {
   InitialTrafficLightsWithHeuristicSimulator() = default;
+
+  double getThroughput(const HeuristicSimulator &simulator, const unsigned streetId) const {
+    if constexpr (withPriority) {
+      return simulator.getPrioritizedTrafficLightThroughput(streetId);
+    } else {
+      return simulator.getTrafficLightThroughput(streetId);
+    }
+  }
+
   /**
    * Determines initial traffic lights and sets them in the domain model.
    * Runs a heuristic simulation of each car's route without traffic lights and other cars.
@@ -49,12 +58,12 @@ struct InitialTrafficLightsWithHeuristicSimulator {
       double totalThroughput = 0.0;
       for (auto const &connectedStreet : junction->getIncomingStreets()) {
         if (connectedStreet.isConnected()) {
-          totalThroughput += simulator.getPrioritizedTrafficLightThroughput(connectedStreet.getStreet()->getId());
+          totalThroughput += getThroughput(simulator, connectedStreet.getStreet()->getId());
         }
       }
       for (auto const &connectedStreet : junction->getIncomingStreets()) {
         if (connectedStreet.isConnected()) {
-          double throughput = simulator.getPrioritizedTrafficLightThroughput(connectedStreet.getStreet()->getId());
+          double throughput = getThroughput(simulator, connectedStreet.getStreet()->getId());
           initialSignals.push_back(Junction::Signal(connectedStreet.getDirection(),
               signalBaseDuration + (throughputWeight * (throughput / totalThroughput))));
         }
