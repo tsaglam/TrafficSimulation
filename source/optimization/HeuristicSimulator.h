@@ -56,12 +56,13 @@ public:
 
           // determine the preferred cardinal direction of the new street
           TurnDirection turnDirection     = route[turnDirectionIndex % 4];
-          CardinalDirection nextDirection = (CardinalDirection) ((sourceDirection + turnDirection) % 4);
+          CardinalDirection nextDirection = (CardinalDirection)((sourceDirection + turnDirection) % 4);
 
           // search for the next connected street in the preferred direction
           for (unsigned i = 0; i < 4; ++i) {
-            if (targetJunction.getOutgoingStreet((CardinalDirection) (nextDirection + i)).isConnected()) {
-              currentStreet = targetJunction.getOutgoingStreet((CardinalDirection) (nextDirection + i)).getStreet();
+            auto outgoingStreet = targetJunction.getOutgoingStreet((CardinalDirection)((nextDirection + i) % 4));
+            if (outgoingStreet.isConnected()) {
+              currentStreet = outgoingStreet.getStreet();
               break;
             }
           }
