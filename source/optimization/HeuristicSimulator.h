@@ -47,7 +47,7 @@ public:
           // Route planning: determine the next street
           const Junction &targetJunction = currentStreet->getTargetJunction();
           // determine cardinal direction of the current street
-          CardinalDirection sourceDirection;
+          CardinalDirection sourceDirection = NORTH; // only to suppress warnings, this value should never actually be used
           for (const auto &connectedStreet : targetJunction.getIncomingStreets()) {
             if (connectedStreet.isConnected() && connectedStreet.getStreet()->getId() == currentStreet->getId()) {
               sourceDirection = connectedStreet.getDirection();
