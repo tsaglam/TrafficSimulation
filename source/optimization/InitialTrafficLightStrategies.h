@@ -12,7 +12,7 @@ struct InitialTrafficLightsAllFive {
    * The order of the signals is equivalent to the order returned by Junction::getIncomingStreets().
    * A signal is skipped if there is no connected street in that direction.
    */
-  void operator()(DomainModel& domainModel) {
+  void operator()(DomainModel &domainModel) {
     const unsigned signalDuration = 5;
     for (auto const &junction : domainModel.getJunctions()) {
       std::vector<Junction::Signal> initialSignals;
@@ -24,6 +24,7 @@ struct InitialTrafficLightsAllFive {
       junction->setSignals(initialSignals);
     }
   }
+  void operator()(DomainModel &domainModel, const unsigned) { operator()(domainModel); }
 };
 
 #endif

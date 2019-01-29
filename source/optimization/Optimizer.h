@@ -26,7 +26,7 @@ class Optimizer {
 
 private:
   /** Set the initial traffic ligths based on the initial traffic light strategy. */
-  void setInitialTrafficLights() { InitialTrafficLightStrategy()(domainModel); }
+  void setInitialTrafficLights() { InitialTrafficLightStrategy()(domainModel, stepCount); }
 
   /**
    * Iterate over all cars on all streets and sum their travel distance to the total travel distance.
