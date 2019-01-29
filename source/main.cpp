@@ -37,11 +37,11 @@ int main_simulate(JSONReader &jsonReader, DomainModel &domainModel, JSONWriter &
 }
 
 int main_optimize(JSONReader &jsonReader, DomainModel &domainModel, JSONWriter &jsonWriter) {
-  const unsigned maximumOptimizationCycles = 100; // TODO remove when debugging finished
+  const unsigned maximumOptimizationCycles = 5; // TODO remove when debugging finished
   const double minimumTraveldistance       = jsonReader.getMinTravelDistance();
 
-  Optimizer<RfbStructure, ParallelTrafficLightRoutine, ParallelIDMRoutine, OptimizationRoutine,
-      ParallelConsistencyRoutine, InitialTrafficLightsAllFive, false>
+  Optimizer<FreeListBucketList, TrafficLightRoutine, IDMRoutine, OptimizationRoutine, ConsistencyRoutine,
+      InitialTrafficLightsWithHeuristicSimulator<true>, true>
       optimizer(domainModel, jsonReader.getTimeSteps(), minimumTraveldistance, maximumOptimizationCycles);
   optimizer.optimizeTrafficLights();
 
