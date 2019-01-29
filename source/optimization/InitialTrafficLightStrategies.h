@@ -52,7 +52,7 @@ struct InitialTrafficLightsWithHeuristicSimulator {
     HeuristicSimulator simulator(domainModel);
     simulator.performSteps(stepCount);
 
-    const unsigned signalBaseDuration = 5;
+    const unsigned baseDuration = 5;
     for (auto const &junction : domainModel.getJunctions()) {
       std::vector<Junction::Signal> initialSignals;
       double totalThroughput = 0.0;
@@ -63,11 +63,12 @@ struct InitialTrafficLightsWithHeuristicSimulator {
       }
       for (auto const &connectedStreet : junction->getIncomingStreets()) {
         if (connectedStreet.isConnected()) {
-          double throughput = getThroughput(simulator, connectedStreet.getStreet()->getId());
-          initialSignals.push_back(Junction::Signal(connectedStreet.getDirection(),
-              signalBaseDuration + (throughputWeight * (throughput / totalThroughput))));
+          double throughput       = getThroughput(simulator, connectedStreet.getStreet()->getId());
+          unsigned signalDuration = baseDuration + (throughputWeight * (throughput / totalThroughput));
+          initialSignals.push_back(Junction::Signal(connectedStreet.getDirection(), signalDuration));
         }
       }
+      assert(!initialSignals.empty());
       junction->setSignals(initialSignals);
     }
   }
