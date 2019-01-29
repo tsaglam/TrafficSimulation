@@ -76,6 +76,14 @@ public:
   // The priority of a car is equivalent to its optimal travel distance.
   double getCarPriority(const unsigned carId) const { return optimalTravelDistancePerCar[carId]; }
 
+  double getTotalOptimalTravelDistance() const {
+    unsigned optimalTravelDistance = 0;
+    for (unsigned carId = 0; carId < carCount; ++carId) {
+      optimalTravelDistance += optimalTravelDistancePerCar[carId];
+    }
+    return optimalTravelDistance;
+  }
+
   // The throughput of a street is the total number of cars that crossed the streets traffic light during the heuristic
   // simulation.
   unsigned getTrafficLightThroughput(const unsigned streetId) const {
