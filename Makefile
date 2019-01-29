@@ -7,20 +7,20 @@ FILE_EXTENSION_DBG = .dbg
 FILE_EXTENSION_TEST = .test
 
 ifdef OMP
-LDFLAGS += -lomp
-FILE_EXTENSION = .omp
-FILE_EXTENSION_DBG = .dbg.omp
-FILE_EXTENSION_TEST = .test.omp
-ifeq ($(UNAME), Darwin)
-OMP_FLAGS = -DOMP -Xpreprocessor -fopenmp
-else
-OMP_FLAGS = -DOMP -fopenmp
-endif
+	FILE_EXTENSION = .omp
+	FILE_EXTENSION_DBG = .dbg.omp
+	FILE_EXTENSION_TEST = .test.omp
+	ifeq ($(UNAME), Darwin)
+		LDFLAGS += -lomp
+		OMP_FLAGS = -DOMP -Xpreprocessor -fopenmp
+	else
+		OMP_FLAGS = -DOMP -fopenmp
+	endif
 else ifdef CUDA
-FILE_EXTENSION = .cuda
-FILE_EXTENSION_DBG = .dbg.cuda
-FILE_EXTENSION_TEST = .test.cuda
-# TODO: set compiler and linker flags
+	FILE_EXTENSION = .cuda
+	FILE_EXTENSION_DBG = .dbg.cuda
+	FILE_EXTENSION_TEST = .test.cuda
+	# TODO: set compiler and linker flags
 endif
 
 BUILD_DIR ?= ./build

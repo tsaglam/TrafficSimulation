@@ -18,9 +18,17 @@
 #include "Simulator.h"
 #include "TrafficLightRoutine.h"
 
+/**
+ * Definitions of template parameters, dependent on compile flags.
+ *
+ * The definitions are used by both Simulator and Optimizer.
+ */
+
+#define RfbStructure NaiveStreetDataStructure
+
 int main_simulate(JSONReader &jsonReader, DomainModel &domainModel, JSONWriter &jsonWriter) {
-  Simulator<FreeListBucketList, TrafficLightRoutine, IDMRoutine, NullRoutine, ParallelConsistencyRoutine> simulator(
-      domainModel);
+  Simulator<RfbStructure, ParallelTrafficLightRoutine, ParallelIDMRoutine, NullRoutine, ParallelConsistencyRoutine>
+      simulator(domainModel);
   simulator.performSteps(jsonReader.getTimeSteps());
 
   jsonWriter.writeVehicles(domainModel);
@@ -32,8 +40,8 @@ int main_optimize(JSONReader &jsonReader, DomainModel &domainModel, JSONWriter &
   const unsigned maximumOptimizationCycles = 100; // TODO remove when debugging finished
   const double minimumTraveldistance       = jsonReader.getMinTravelDistance();
 
-  Optimizer<FreeListBucketList, TrafficLightRoutine, IDMRoutine, OptimizationRoutine, ConsistencyRoutine,
-      InitialTrafficLightsAllFive, false>
+  Optimizer<RfbStructure, ParallelTrafficLightRoutine, ParallelIDMRoutine, OptimizationRoutine,
+      ParallelConsistencyRoutine, InitialTrafficLightsAllFive, false>
       optimizer(domainModel, jsonReader.getTimeSteps(), minimumTraveldistance, maximumOptimizationCycles);
   optimizer.optimizeTrafficLights();
 
