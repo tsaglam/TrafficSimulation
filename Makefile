@@ -11,6 +11,7 @@ ifdef OMP
 	FILE_EXTENSION_DBG = .dbg.omp
 	FILE_EXTENSION_TEST = .test.omp
 	ifeq ($(UNAME), Darwin)
+		LDFLAGS += -lomp
 		OMP_FLAGS = -DOMP -Xpreprocessor -fopenmp
 	else
 		OMP_FLAGS = -DOMP -fopenmp
