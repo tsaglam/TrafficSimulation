@@ -2,6 +2,16 @@
 #define HEURISTIC_SIMULATOR_H
 
 #include "DomainModel.h"
+#include "ModelSyncer.h"
+
+struct TrafficLightCrossing {
+  unsigned carId;
+  unsigned streetId;
+  unsigned timeStep;
+
+  TrafficLightCrossing(unsigned carId, unsigned streetId, unsigned timeStep)
+      : carId(carId), streetId(streetId), timeStep(timeStep) {}
+};
 
 class HeuristicSimulator {
   const DomainModel &domainModel;
@@ -15,12 +25,15 @@ class HeuristicSimulator {
   // Counts for each street and each car how often the car passed through the traffic light at the end of the street.
   // The two directions of a street are considered separately.
   std::vector<std::vector<unsigned>> trafficLightCrossingCountPerCarPerStreet;
+  // Tracks which car drives when through the traffic light at the end of a specific street.
+  std::vector<std::vector<TrafficLightCrossing>> trafficLightCrossingsPerStreet;
 
 public:
   HeuristicSimulator(const DomainModel &domainModel)
       : domainModel(domainModel), carCount(domainModel.getVehicles().size()),
         streetCount(domainModel.getStreets().size()), optimalTravelDistancePerCar(carCount, 0),
-        trafficLightCrossingCountPerCarPerStreet(carCount, std::vector<unsigned>(streetCount, 0)) {}
+        trafficLightCrossingCountPerCarPerStreet(carCount, std::vector<unsigned>(streetCount, 0)),
+        trafficLightCrossingsPerStreet(streetCount, std::vector<TrafficLightCrossing>()) {}
 
   // Simulated 'stepCount' steps heuristically for each car while ignoring traffic lights and other cars.
   // Store the distance traveled per car and which traffic lights it passed how often.
@@ -35,19 +48,30 @@ public:
       const auto &route            = car.getRoute();
 
       for (unsigned timeStep = 0; timeStep < stepCount; ++timeStep) { // estimate all time steps
-        double velocity = std::min(car.getTargetVelocity(), currentStreet->getSpeedLimit());
+        double velocity             = std::min(car.getTargetVelocity(), currentStreet->getSpeedLimit());
+        double trafficLightPosition = currentStreet->getLength() - TRAFFIC_LIGHT_OFFSET;
+        bool didCrossTrafficLight   = (currentTravelDistance < trafficLightPosition);
+
         currentTravelDistance += velocity;
         currentDistance += velocity;
 
+        didCrossTrafficLight &= (currentTravelDistance >= trafficLightPosition);
+
+        if (didCrossTrafficLight) {
+          ++trafficLightCrossingCountPerCarPerStreet[carId][currentStreet->getId()]; // increment throughput
+          trafficLightCrossingsPerStreet[currentStreet->getId()].push_back(
+              TrafficLightCrossing(carId, currentStreet->getId(), timeStep));
+        }
+
         // if the car left the current street count it to the current streets throughput and determine the next street
         if (currentDistance >= currentStreet->getLength()) {
-          currentDistance -= currentStreet->getLength();                             // update distance
-          ++trafficLightCrossingCountPerCarPerStreet[carId][currentStreet->getId()]; // and throughput
+          currentDistance -= currentStreet->getLength(); // update distance
 
           // Route planning: determine the next street
           const Junction &targetJunction = currentStreet->getTargetJunction();
           // determine cardinal direction of the current street
-          CardinalDirection sourceDirection = NORTH; // only to suppress warnings, this value should never actually be used
+          CardinalDirection sourceDirection =
+              NORTH; // only to suppress warnings, this value should never actually be used
           for (const auto &connectedStreet : targetJunction.getIncomingStreets()) {
             if (connectedStreet.isConnected() && connectedStreet.getStreet()->getId() == currentStreet->getId()) {
               sourceDirection = connectedStreet.getDirection();
@@ -78,20 +102,14 @@ public:
 
   double getTotalOptimalTravelDistance() const {
     double optimalTravelDistance = 0;
-    for (unsigned carId = 0; carId < carCount; ++carId) {
-      optimalTravelDistance += optimalTravelDistancePerCar[carId];
-    }
+    for (unsigned carId = 0; carId < carCount; ++carId) { optimalTravelDistance += optimalTravelDistancePerCar[carId]; }
     return optimalTravelDistance;
   }
 
   // The throughput of a street is the total number of cars that crossed the streets traffic light during the heuristic
   // simulation.
   unsigned getTrafficLightThroughput(const unsigned streetId) const {
-    unsigned throughput = 0;
-    for (unsigned carId = 0; carId < carCount; ++carId) {
-      throughput += trafficLightCrossingCountPerCarPerStreet[carId][streetId];
-    }
-    return throughput;
+    return trafficLightCrossingsPerStreet[streetId].size();
   }
   // The prioritized throughput is the throughput multiplied by the priority of each car.
   double getPrioritizedTrafficLightThroughput(const unsigned streetId) const {
@@ -110,6 +128,7 @@ public:
       std::fill(trafficLightCrossingCountPerCarPerStreet[carId].begin(),
           trafficLightCrossingCountPerCarPerStreet[carId].end(), 0);
     }
+    for (unsigned streetId = 0; streetId < carCount; ++streetId) { trafficLightCrossingsPerStreet[streetId].clear(); }
   }
 };
 
