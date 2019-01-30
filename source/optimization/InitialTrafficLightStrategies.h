@@ -13,7 +13,7 @@ struct InitialTrafficLightsAllFive {
    * The order of the signals is equivalent to the order returned by Junction::getIncomingStreets().
    * A signal is skipped if there is no connected street in that direction.
    */
-  void operator()(DomainModel &domainModel) {
+  void operator()(DomainModel &domainModel) const {
     const unsigned signalDuration = 5;
     for (auto const &junction : domainModel.getJunctions()) {
       std::vector<Junction::Signal> initialSignals;
@@ -48,7 +48,7 @@ struct InitialTrafficLightsWithHeuristicSimulator {
    * The parameter x > 0 is specified via the 'throughputWeight' with default 5.
    * A signal is skipped if there is no connected street in that direction.
    */
-  void operator()(DomainModel &domainModel, const unsigned stepCount, const double throughputWeight = 5) {
+  void operator()(DomainModel &domainModel, const unsigned stepCount, const double throughputWeight = 5) const {
     HeuristicSimulator simulator(domainModel);
     simulator.performSteps(stepCount);
 
