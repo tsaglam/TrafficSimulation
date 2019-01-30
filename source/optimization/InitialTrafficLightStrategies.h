@@ -61,21 +61,26 @@ struct InitialTrafficLightsWithHeuristicSimulator {
           totalThroughput += getThroughput(simulator, connectedStreet.getStreet()->getId());
         }
       }
-      for (auto const &connectedStreet : junction->getIncomingStreets()) {
-        if (connectedStreet.isConnected()) {
-          double throughput       = getThroughput(simulator, connectedStreet.getStreet()->getId());
-          unsigned signalDuration = baseDuration + (throughputWeight * (throughput / totalThroughput));
-          assert(baseDuration == 5);
-          assert(throughputWeight >= 0);
-          assert(throughput >= 0);
-          assert(totalThroughput >= 0);
-          assert((throughput / totalThroughput) >= 0);
-          assert((throughputWeight * (throughput / totalThroughput)) >= 0);
-          assert(signalDuration >= 5);
-          initialSignals.push_back(Junction::Signal(connectedStreet.getDirection(), signalDuration));
+
+      // if no car will ever cross this junction the signals are irrelevant.
+      // We, therefore, set a signal only for the first connected street with the base duration.
+      if (totalThroughput == 0) {
+        for (auto const &connectedStreet : junction->getIncomingStreets()) {
+          if (connectedStreet.isConnected()) {
+            initialSignals.push_back(Junction::Signal(connectedStreet.getDirection(), baseDuration));
+            break;
+          }
+        }
+      } else { // otherwise determine signal durations based on the relative throughput
+        for (auto const &connectedStreet : junction->getIncomingStreets()) {
+          if (connectedStreet.isConnected()) {
+            double throughput = getThroughput(simulator, connectedStreet.getStreet()->getId());
+            if (throughput == 0) { continue; } // skip streets with no throughput
+            unsigned signalDuration = baseDuration + (throughputWeight * (throughput / totalThroughput));
+            initialSignals.push_back(Junction::Signal(connectedStreet.getDirection(), signalDuration));
+          }
         }
       }
-      assert(!initialSignals.empty()); // illegal input
       junction->setSignals(initialSignals);
     }
   }
