@@ -37,7 +37,15 @@ int main_simulate(JSONReader &jsonReader, DomainModel &domainModel, JSONWriter &
 }
 
 int main_optimize(JSONReader &jsonReader, DomainModel &domainModel, JSONWriter &jsonWriter) {
-  InitialTrafficLightsWithHeuristicSimulator<true>()(domainModel, jsonReader.getTimeSteps());
+  // using InitialTrafficLights = InitialTrafficLightsWithHeuristicSimulator<true>;
+  using InitialTrafficLights = InitialTrafficLightsWithHeuristicSimulatorAndIteration<true>;
+
+  InitialTrafficLights()(domainModel, jsonReader.getTimeSteps());
+
+  // Optimizer<NaiveStreetDataStructure, TrafficLightRoutine, ParallelIDMRoutine, OptimizationRoutine,
+  //     ParallelConsistencyRoutine, InitialTrafficLights, true>
+  //     optimizer(domainModel, jsonReader.getTimeSteps(), jsonReader.getMinTravelDistance(), 1);
+  // optimizer.optimizeTrafficLights();
   jsonWriter.writeSignals(domainModel);
 
   return 0;
