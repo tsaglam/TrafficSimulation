@@ -91,6 +91,7 @@ public:
   double getTravelDistance(const unsigned carId) const { return optimalTravelDistancePerCar[carId]; }
   // The priority of a car is equivalent to its optimal travel distance.
   double getCarPriority(const unsigned carId) const { return optimalTravelDistancePerCar[carId]; }
+  const std::vector<double> *getCarPriorities() const { return &optimalTravelDistancePerCar; }
 
   double getTotalOptimalTravelDistance() const {
     double optimalTravelDistance = 0;
@@ -111,6 +112,10 @@ public:
           optimalTravelDistancePerCar[carId] * trafficLightCrossingCountPerCarPerStreet[carId][streetId];
     }
     return prioritizedThroughput;
+  }
+
+  const std::vector<TrafficLightCrossing>& getTrafficLightCrossings(const unsigned streetId) const {
+    return trafficLightCrossingsPerStreet[streetId];
   }
 
   // Resets results computed by the heuristic simulation
