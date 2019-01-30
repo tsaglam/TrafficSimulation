@@ -136,12 +136,10 @@ struct InitialTrafficLightsWithHeuristicSimulatorAndIteration {
       crossingsPerStreet[streetIndex] = simulator.getTrafficLightCrossings(streetIds[streetIndex]);
     }
 
-    std::cout << "Total wait time: ";
     while (true) {
       // evaluate the current traffic light duration and find the best order
       double totalWaitTime;
       std::tie(totalWaitTime, currentOrder) = determineBestOrder(crossingsPerStreet, currentDuration, carPriorities);
-      std::cout << totalWaitTime << " ";
 
       // if improvement over current optimum set as new optimum and reset cyclesWithoutImprovement count
       if (bestRating < 0 || totalWaitTime < bestRating) {
@@ -163,7 +161,6 @@ struct InitialTrafficLightsWithHeuristicSimulatorAndIteration {
         assert(currentDuration[streetIndex] >= 5);
       }
     }
-    std::cout << "\n";
 
     trafficLightDuration = bestDuration;
     trafficLightOrder    = bestOrder;
