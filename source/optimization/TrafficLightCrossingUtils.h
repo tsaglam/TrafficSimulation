@@ -13,8 +13,6 @@ struct TrafficLightCrossing {
       : carId(carId), streetId(streetId), timeStep(timeStep) {}
 };
 
-double defaultCarPriority(const unsigned) { return 1.0; }
-
 /**
  * Evaluates a given order of traffic light durations at a junction based on the additive priority of the car crossing a
  * traffic light while it is green.
@@ -36,7 +34,7 @@ private:
   const std::vector<std::vector<TrafficLightCrossing>> &crossingsPerStreet;
   const std::vector<unsigned> &trafficLightDuration;
   const std::vector<unsigned> &trafficLightOrder;
-  double (*getCarPriority)(const unsigned);
+  const std::vector<double> *carPriorities = 0;
 
   unsigned streetCount;
   unsigned totalDuration = 0;
@@ -61,6 +59,7 @@ private:
   std::vector<double> waitTimeWithPriority;
 
   unsigned getTimeToNextGreen(const unsigned currentTime, const unsigned streetIndex) const {
+    assert(totalDuration != 0);
     unsigned timeInFirstInterval = currentTime % totalDuration;
     unsigned offset              = initialOffset[streetIndex];
     if (timeInFirstInterval < offset) { // traffic light was not yet green in the current cycle
@@ -75,11 +74,14 @@ private:
 public:
   RateTrafficLights(const std::vector<std::vector<TrafficLightCrossing>> &_crossingsPerStreet,
       const std::vector<unsigned> &_trafficLightDuration, const std::vector<unsigned> &_trafficLightOrder,
-      double (*_getCarPriority)(const unsigned))
+      const std::vector<double> *_carPriorities)
       : crossingsPerStreet(_crossingsPerStreet), trafficLightDuration(_trafficLightDuration),
-        trafficLightOrder(_trafficLightOrder), getCarPriority(_getCarPriority), streetCount(_trafficLightOrder.size()),
-        initialOffset(streetCount, 0) {
-    unsigned totalDuration = 0;
+        trafficLightOrder(_trafficLightOrder), carPriorities(_carPriorities), streetCount(_trafficLightOrder.size()),
+        initialOffset(streetCount, 0), totalThroughputAtGreen(0), throughputAtGreen(streetCount, 0),
+        totalThroughputAtGreenWithPriority(0), throughputAtGreenWithPriority(streetCount, 0), totalThroughput(0),
+        throughput(streetCount, 0), totalThroughputWithPriority(0), throughputWithPriority(streetCount, 0),
+        totalWaitTime(0), waitTime(streetCount, 0), totalWaitTimeWithPriority(0), waitTimeWithPriority(streetCount, 0) {
+    totalDuration = 0;
     for (unsigned streetIndex : trafficLightOrder) {
       initialOffset[streetIndex] = totalDuration;
       totalDuration += trafficLightDuration[streetIndex];
@@ -88,12 +90,10 @@ public:
   }
 
   void evaluate() {
-    reset();
-
     // for each street and each car that crossed this streets traffic light
     for (unsigned streetIndex = 0; streetIndex < crossingsPerStreet.size(); ++streetIndex) {
       for (const TrafficLightCrossing crossing : crossingsPerStreet[streetIndex]) {
-        double carPriority       = getCarPriority(crossing.carId);
+        double carPriority       = (carPriorities == 0) ? 1 : carPriorities->operator[](crossing.carId);
         unsigned currentWaitTime = getTimeToNextGreen(crossing.timeStep, streetIndex);
 
         if (currentWaitTime == 0) {
