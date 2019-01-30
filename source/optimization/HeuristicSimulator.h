@@ -42,12 +42,12 @@ public:
       for (unsigned timeStep = 0; timeStep < stepCount; ++timeStep) { // estimate all time steps
         double velocity             = std::min(car.getTargetVelocity(), currentStreet->getSpeedLimit());
         double trafficLightPosition = currentStreet->getLength() - TRAFFIC_LIGHT_OFFSET;
-        bool didCrossTrafficLight   = (currentTravelDistance < trafficLightPosition);
+        bool didCrossTrafficLight   = (currentDistance < trafficLightPosition);
 
         currentTravelDistance += velocity;
         currentDistance += velocity;
 
-        didCrossTrafficLight &= (currentTravelDistance >= trafficLightPosition);
+        didCrossTrafficLight = didCrossTrafficLight && (currentDistance >= trafficLightPosition);
 
         if (didCrossTrafficLight) {
           ++trafficLightCrossingCountPerCarPerStreet[carId][currentStreet->getId()]; // increment throughput
