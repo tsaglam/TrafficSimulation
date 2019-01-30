@@ -19,6 +19,7 @@ const std::string ANSIgreen = "\033[1;32m";
 const std::string ANSIreset = "\033[0m";
 
 int numberOfFailedTests;
+int numberOfPassedTests;
 
 // indents and returns every line of a multi-line AssertionException message.
 std::string indentMessage(AssertionException exc) {
@@ -30,6 +31,7 @@ std::string indentMessage(AssertionException exc) {
 void run(void (*fun_ptr)(), std::string name) {
   try {
     (*fun_ptr)();
+    numberOfPassedTests += 1;
     std::cout << ANSIgreen << " + Test " << name << " passed" << ANSIreset << std::endl;
   } catch (const AssertionException &exception) {
     std::cout << ANSIred << " - Test " << name << " failed: " << ANSIreset << std::endl;
@@ -171,7 +173,7 @@ int main() {
 
   // Prints the test results and the number of failed tests:
   if (numberOfFailedTests == 0) {
-    std::cout << ANSIgreen << "ALL TESTS PASSED!" << ANSIreset << std::endl;
+    std::cout << ANSIgreen << "ALL " << numberOfPassedTests << " TESTS PASSED!" << ANSIreset << std::endl;
     return 0;
   } else {
     std::cout << ANSIred << "ERROR: " << numberOfFailedTests << " tests failed!" << ANSIreset << std::endl;
