@@ -37,7 +37,7 @@ int main_simulate(JSONReader &jsonReader, DomainModel &domainModel, JSONWriter &
 }
 
 int main_optimize(JSONReader &jsonReader, DomainModel &domainModel, JSONWriter &jsonWriter) {
-  InitialTrafficLightsWithHeuristicSimulatorAndIteration<true>()(domainModel, jsonReader.getTimeSteps());
+  InitialTrafficLightsWithHeuristicSimulator<true>()(domainModel, jsonReader.getTimeSteps());
   jsonWriter.writeSignals(domainModel);
 
   return 0;
