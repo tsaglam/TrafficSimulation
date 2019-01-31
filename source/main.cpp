@@ -25,6 +25,7 @@
  */
 
 #define RfbStructure NaiveStreetDataStructure
+using InitialTrafficLights = InitialTrafficLightsWithHeuristicSimulatorAndIteration<false>;
 
 int main_simulate(JSONReader &jsonReader, DomainModel &domainModel, JSONWriter &jsonWriter) {
   Simulator<RfbStructure, ParallelTrafficLightRoutine, ParallelIDMRoutine, NullRoutine, ParallelConsistencyRoutine>
@@ -37,16 +38,8 @@ int main_simulate(JSONReader &jsonReader, DomainModel &domainModel, JSONWriter &
 }
 
 int main_optimize(JSONReader &jsonReader, DomainModel &domainModel, JSONWriter &jsonWriter) {
-  const unsigned maximumOptimizationCycles = 100; // TODO remove when debugging finished
-  const double minimumTraveldistance       = jsonReader.getMinTravelDistance();
-
-  Optimizer<RfbStructure, ParallelTrafficLightRoutine, ParallelIDMRoutine, OptimizationRoutine,
-      ParallelConsistencyRoutine, InitialTrafficLightsAllFive, false>
-      optimizer(domainModel, jsonReader.getTimeSteps(), minimumTraveldistance, maximumOptimizationCycles);
-  optimizer.optimizeTrafficLights();
-
+  InitialTrafficLights()(domainModel, jsonReader.getTimeSteps());
   jsonWriter.writeSignals(domainModel);
-
   return 0;
 }
 

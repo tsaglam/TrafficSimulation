@@ -85,6 +85,7 @@ public:
   double getTargetHeadway() const;
   double getPoliteness() const;
   const Position &getPosition() const;
+  const std::vector<TurnDirection> &getRoute() const;
 };
 
 #endif
