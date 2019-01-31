@@ -98,6 +98,22 @@ struct InitialTrafficLightsWithHeuristicSimulatorAndIteration {
     }
   }
 
+  double getWaitTime(const RateTrafficLights &rating, const unsigned streetId) const {
+    if constexpr (withPriority) {
+      return rating.getWaitTimeWithPriority(streetId);
+    } else {
+      return rating.getWaitTime(streetId);
+    }
+  }
+
+  double getTotalWaitTime(const RateTrafficLights &rating) const {
+    if constexpr (withPriority) {
+      return rating.getTotalWaitTimeWithPriority();
+    } else {
+      return rating.getTotalWaitTime();
+    }
+  }
+
   std::pair<double, std::vector<unsigned>> determineBestOrder(
       const std::vector<std::vector<TrafficLightCrossing>> &crossingsPerStreet,
       const std::vector<unsigned> &trafficLightDuration, const std::vector<double> *carPriorities) const {
@@ -109,7 +125,7 @@ struct InitialTrafficLightsWithHeuristicSimulatorAndIteration {
 
     do { // determine order with minimal wait time for each possible permutation of the traffic light order
       RateTrafficLights rating(crossingsPerStreet, trafficLightDuration, currentOrder, carPriorities);
-      double totalWaitTime = rating.getTotalWaitTimeWithPriority();
+      double totalWaitTime = getTotalWaitTime(rating);
       if (minimumWaitTime < 0 || totalWaitTime < minimumWaitTime) {
         minimumWaitTime = totalWaitTime;
         bestOrder       = currentOrder;
@@ -126,7 +142,7 @@ struct InitialTrafficLightsWithHeuristicSimulatorAndIteration {
     std::vector<unsigned> currentDuration = trafficLightDuration;
     std::vector<unsigned> currentOrder    = trafficLightOrder;
 
-    double bestRating                        = -1;
+    double bestRating                          = -1;
     unsigned cyclesWithoutImprovement          = 0;
     const unsigned maxCyclesWithoutImprovement = 5;
 
@@ -156,7 +172,7 @@ struct InitialTrafficLightsWithHeuristicSimulatorAndIteration {
       // improve the traffic lights, use cycle count to diversify solutions when retrying from the same optimum
       RateTrafficLights rating(crossingsPerStreet, currentDuration, currentOrder, carPriorities);
       for (unsigned streetIndex = 0; streetIndex < streetIds.size(); ++streetIndex) {
-        double relativeRating = rating.getWaitTimeWithPriority(streetIndex) / totalWaitTime;
+        double relativeRating = getWaitTime(rating, streetIndex) / totalWaitTime;
         currentDuration[streetIndex] += (5 + cyclesWithoutImprovement) * relativeRating;
         assert(currentDuration[streetIndex] >= 5);
       }
