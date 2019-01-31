@@ -397,7 +397,12 @@ public:
           eraseIterators.push_back(carIt);
         }
       }
+
+#if __cpp_if_constexpr >= 201606
       if constexpr (bucketIsStlContainer) {
+#else
+      if (bucketIsStlContainer) {
+#endif
         eraseFromBucketStl(currentBucket, eraseIterators);
       } else {
         eraseFromBucketCustomContainer(currentBucket, eraseIterators);
