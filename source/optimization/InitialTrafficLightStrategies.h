@@ -183,16 +183,18 @@ struct InitialTrafficLightsWithHeuristicSimulatorAndIteration {
       std::vector<std::vector<TrafficLightCrossing>> crossingsPerStreet;
 
       std::vector<Junction::Signal> initialSignals;
-      double totalThroughput = 0.0;
+      double totalThroughput        = 0.0;
+      unsigned connectedStreetCount = 0;
       for (auto const &connectedStreet : junction->getIncomingStreets()) {
         if (connectedStreet.isConnected()) {
+          ++connectedStreetCount;
           totalThroughput += getThroughput(simulator, connectedStreet.getStreet()->getId());
         }
       }
 
-      // if no car will ever cross this junction the signals are irrelevant.
+      // If no car will ever cross this junction or there is only one connected street the signals are irrelevant.
       // We, therefore, set a signal only for the first connected street with the base duration.
-      if (totalThroughput == 0) {
+      if (totalThroughput == 0 || connectedStreetCount <= 1) {
         for (auto const &connectedStreet : junction->getIncomingStreets()) {
           if (connectedStreet.isConnected()) {
             initialSignals.push_back(Junction::Signal(connectedStreet.getDirection(), baseDuration));
