@@ -37,7 +37,7 @@ public:
   }
 
   void performParallel(const std::vector<std::unique_ptr<Junction>> &junctions) {
-#pragma omp parallel for
+#pragma omp parallel for shared(junctions)
     for (std::size_t i = 0; i < junctions.size(); i++) {
       const auto &junction = junctions[i];
       perform(*junction);
