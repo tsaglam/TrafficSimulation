@@ -201,9 +201,22 @@ public:
    * The consistency is restored by sorting carsOnStreet.
    */
   void incorporateInsertedCars() {
-    for (auto &newCar : newCars) { newCar.update(); }                        // update all new cars
-    carsOnStreet.insert(carsOnStreet.end(), newCars.begin(), newCars.end()); // append all new cars to carsOnStreet
-    std::sort(carsOnStreet.begin(), carsOnStreet.end(), compareLess<Car>);   // restore car order (sorted by distance)
+    if (newCars.empty()) { return; }
+
+    for (auto &newCar : newCars) { newCar.update(); }            // update all new cars
+    std::sort(newCars.begin(), newCars.end(), compareLess<Car>); // sort new cars by their distance
+
+    if (carsOnStreet.empty()) {
+      carsOnStreet = newCars;
+      newCars      = std::vector<Car>();
+      return;
+    }
+
+    std::vector<Car> newCarsOnStreet; // merge the new and the old cars into a new vector
+    newCarsOnStreet.reserve(carsOnStreet.size() + newCars.size());
+    std::merge(carsOnStreet.begin(), carsOnStreet.end(), newCars.begin(), newCars.end(),
+        std::back_inserter(newCarsOnStreet), compareLess<Car>);
+    carsOnStreet = newCarsOnStreet; // assign the merged vector as carsOnStreet
     newCars.clear();
   }
 
@@ -214,16 +227,21 @@ public:
    * is sorted. Cars that reached the end of this street are removed from carsOnStreet and moved to departedCars.
    */
   void updateCarsAndRestoreConsistency() {
-    for (iterator carIt = carsOnStreet.begin(); carIt != carsOnStreet.end();) {
-      carIt->update();                      // update all cars
-      if (carIt->getDistance() >= length) { // if the car left the street move it into departedCars
-        departedCars.push_back(*carIt);
-        carIt = carsOnStreet.erase(carIt); // erases current car and increments carIt to the next car
-      } else {
-        ++carIt; // otherwise increment iterator manually
+    for (auto &car : carsOnStreet) { car.update(); }                       // update all cars
+    std::sort(carsOnStreet.begin(), carsOnStreet.end(), compareLess<Car>); // restore car order (sorted by distance)
+
+    unsigned firstDepartedCarIndex = 0; // determine the index of the first car with distance >= street length
+    // since the carsOnStreet vector is sorted, these cars lie in a continuous section at the end of the vector.
+    for (auto it = carsOnStreet.rbegin(); it != carsOnStreet.rend(); ++it) {
+      if (it->getDistance() < length) {
+        firstDepartedCarIndex = carsOnStreet.size() - (it - carsOnStreet.rbegin());
+        break;
       }
     }
-    std::sort(carsOnStreet.begin(), carsOnStreet.end(), compareLess<Car>); // restore car order (sorted by distance)
+
+    // move cars with distance >= street length to departedCars
+    departedCars.insert(departedCars.end(), carsOnStreet.begin() + firstDepartedCarIndex, carsOnStreet.end());
+    carsOnStreet.resize(firstDepartedCarIndex); // remove departed cars from the carsOnStreet vector
   }
 
   /**
