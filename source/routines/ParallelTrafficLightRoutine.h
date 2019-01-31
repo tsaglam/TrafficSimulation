@@ -67,9 +67,12 @@ private:
    * @param      junction  Is the junction of the signal.
    */
   void toggleStreetForSignal(Junction::Signal signal, const Junction &junction) {
-    Street *domainModelStreet            = junction.getIncomingStreet(signal.getDirection()).getStreet();
-    LowLevelStreet<RfbStructure> &street = data.getStreet(domainModelStreet->getId());
-    street.switchSignal();
+    auto connectedStreet = junction.getIncomingStreet(signal.getDirection());
+    if (connectedStreet.isConnected()) {
+      Street *domainModelStreet            = connectedStreet.getStreet();
+      LowLevelStreet<RfbStructure> &street = data.getStreet(domainModelStreet->getId());
+      street.switchSignal();
+    }
   }
 
   SimulationData<RfbStructure> &data;

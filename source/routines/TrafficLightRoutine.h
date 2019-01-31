@@ -51,22 +51,28 @@ private:
    * @param      junction  Is the junction of the signal.
    */
   void toggleStreetForSignal(Junction::Signal signal, const Junction &junction) {
-    Street *domainModelStreet            = junction.getIncomingStreet(signal.getDirection()).getStreet();
-    LowLevelStreet<RfbStructure> &street = data.getStreet(domainModelStreet->getId());
-    street.switchSignal();
+    auto connectedStreet = junction.getIncomingStreet(signal.getDirection());
+    if (connectedStreet.isConnected()) {
+      Street *domainModelStreet            = connectedStreet.getStreet();
+      LowLevelStreet<RfbStructure> &street = data.getStreet(domainModelStreet->getId());
+      street.switchSignal();
+    }
   }
 
   /**
-   * @brief      Sets the signal of the low level street correlating to the domain level street of a junction signal to
-   * a specific value.
+   * @brief      Sets the signal of the low level street correlating to the domain level street of a junction signal
+   * to a specific value.
    * @param      value  Is the specific signal value to set.
    * @param      signal  Is the specific signal.
    * @param      junction  Is the junction of the signal.
    */
   void setStreetForSignal(Signal value, Junction::Signal signal, const Junction &junction) {
-    Street *domainModelStreet            = junction.getIncomingStreet(signal.getDirection()).getStreet();
-    LowLevelStreet<RfbStructure> &street = data.getStreet(domainModelStreet->getId());
-    street.setSignal(value);
+    auto connectedStreet = junction.getIncomingStreet(signal.getDirection());
+    if (connectedStreet.isConnected()) {
+      Street *domainModelStreet            = connectedStreet.getStreet();
+      LowLevelStreet<RfbStructure> &street = data.getStreet(domainModelStreet->getId());
+      street.setSignal(value);
+    }
   }
 
   SimulationData<RfbStructure> &data;
