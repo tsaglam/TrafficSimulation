@@ -101,7 +101,7 @@ private:
   };
 
 private:
-  const unsigned long PARALLEL_THRESHOLD = 100;
+  const unsigned long PARALLEL_THRESHOLD = 30;
   SimulationData<RfbStructure> &data;
 
 public:
