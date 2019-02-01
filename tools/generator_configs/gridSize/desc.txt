@@ -1,0 +1,13 @@
+Skaliere die Anzahl der Kreuzungen und damit der Straßen.
+Straßenlänge konstant. Autos pro Straße konstant.
+Relativ lange Straßen: 1km
+
+
+ACHTUNG Tests können SEHR lange dauern!
+ACHTUNG Generierte json Dateien werden bis zu 150mb groß!
+
+
+
+500000/(4* (100 * 100 - 2)) = 12,5
+
+Autos = 50*(dim * dim - 2)

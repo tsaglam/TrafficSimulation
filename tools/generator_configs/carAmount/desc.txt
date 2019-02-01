@@ -1,0 +1,2 @@
+Skaliere die Anzahl der Autos pro Straße.
+Straßenlänge konstant (500m). Grid size konstant (10x10).
