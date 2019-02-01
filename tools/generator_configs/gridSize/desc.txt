@@ -3,9 +3,8 @@ Straßenlänge konstant. Autos pro Straße konstant.
 Relativ lange Straßen: 1km
 
 
-ACHTUNG Tests können sehr lange dauern!
-
-
+ACHTUNG Tests können SEHR lange dauern!
+ACHTUNG Generierte json Dateien werden bis zu 150mb groß!
 
 
 
