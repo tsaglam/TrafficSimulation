@@ -5,3 +5,4 @@ testsuite
 *.DS_Store
 /source.zip
 /test-coverage/
+*.test.json
