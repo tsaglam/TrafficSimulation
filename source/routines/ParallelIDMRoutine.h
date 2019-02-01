@@ -101,58 +101,91 @@ private:
   };
 
 private:
+  const unsigned long PARALLEL_THRESHOLD = 20;
   SimulationData<RfbStructure> &data;
 
 public:
   ParallelIDMRoutine(SimulationData<RfbStructure> &_data) : data(_data) {}
   void perform() {
-#pragma omp parallel for shared(data)
-    for (std::size_t i = 0; i < data.getStreets().size(); i++) { processStreet(data.getStreets()[i]); }
+    std::vector<unsigned int> carWise;
+    std::vector<unsigned int> streetWise;
+    for (auto &street : data.getStreets()) {
+      if (street.getCarCount() > PARALLEL_THRESHOLD) {
+        carWise.push_back(street.getId());
+      } else {
+        streetWise.push_back(street.getId());
+      }
+    }
+    performStreetWise(streetWise);
+    performCarWise(carWise);
   }
 
 private:
-  void processStreet(LowLevelStreet<RfbStructure> &street) {
-    // Initialise acceleration computer for use during computation
-    AccelerationComputer accelerationComputer(street);
+  void performStreetWise(std::vector<unsigned int> &streetIds) {
 
-    auto streetIterable = street.allIterable();
-#pragma omp parallel for
-    for (unsigned i = 0; i < street.getCarCount(); ++i) {
-      auto carIt = streetIterable.begin() + i;
-      // for (car_iterator carIt = street.allIterable().begin(); accelerationComputer.isNotEnd(carIt); ++carIt) {
-      const double baseAcceleration = accelerationComputer(carIt, 0);
-      carIt->setNextBaseAcceleration(baseAcceleration);
+#pragma omp parallel for shared(data)
+    for (std::size_t i = 0; i < streetIds.size(); i++) {
+      // get the right street
+      auto &street = data.getStreet(streetIds[i]);
+      // Initialise acceleration computer for use during computation
+      AccelerationComputer accelerationComputer(street);
+      // compute all accelerations:
+      for (car_iterator carIt = street.allIterable().begin(); accelerationComputer.isNotEnd(carIt); ++carIt) {
+        const double baseAcceleration = accelerationComputer(carIt, 0);
+        carIt->setNextBaseAcceleration(baseAcceleration);
+      }
+      for (car_iterator carIt = street.allIterable().begin(); accelerationComputer.isNotEnd(carIt); ++carIt) {
+        processLaneDecision(carIt, street);
+      }
     }
+  }
 
+  void performCarWise(std::vector<unsigned int> &streetIds) {
+    for (auto streetId : streetIds) {
+      auto &street = data.getStreet(streetId);
+      // Initialise acceleration computer for use during computation
+      AccelerationComputer accelerationComputer(street);
+      // compute all accelerations:
+      auto streetIterable = street.allIterable();
 #pragma omp parallel for shared(street)
-    for (unsigned i = 0; i < street.getCarCount(); ++i) {
-      auto carIt = streetIterable.begin() + i;
-      // for (car_iterator carIt = street.allIterable().begin(); accelerationComputer.isNotEnd(carIt); ++carIt) {
-      LaneChangeValues leftLaneChange;
-      LaneChangeValues rightLaneChange;
+      for (unsigned i = 0; i < street.getCarCount(); ++i) {
+        auto carIt                    = streetIterable.begin() + i;
+        const double baseAcceleration = accelerationComputer(carIt, 0);
+        carIt->setNextBaseAcceleration(baseAcceleration);
+      }
+#pragma omp parallel for shared(street)
+      for (unsigned i = 0; i < street.getCarCount(); ++i) {
+        auto carIt = streetIterable.begin() + i;
+        processLaneDecision(carIt, street);
+      }
+    }
+  }
 
-      if (carIt->getLane() > 0) // if not outermost left lane
-        leftLaneChange = computeLaneChangeValues(street, carIt, -1);
-      if (carIt->getLane() < street.getLaneCount() - 1) // if not outermost right lane
-        rightLaneChange = computeLaneChangeValues(street, carIt, +1);
+  void processLaneDecision(car_iterator &carIt, LowLevelStreet<RfbStructure> &street) {
+    LaneChangeValues leftLaneChange;
+    LaneChangeValues rightLaneChange;
 
-      double laneOffset       = 0;
-      double nextAcceleration = carIt->getNextBaseAcceleration();
-      if (leftLaneChange.valid) {
-        if (rightLaneChange.valid && rightLaneChange.indicator > leftLaneChange.indicator) {
-          laneOffset       = +1;
-          nextAcceleration = rightLaneChange.acceleration;
-        } else {
-          laneOffset       = -1;
-          nextAcceleration = leftLaneChange.acceleration;
-        }
-      } else if (rightLaneChange.valid) {
+    if (carIt->getLane() > 0) // if not outermost left lane
+      leftLaneChange = computeLaneChangeValues(street, carIt, -1);
+    if (carIt->getLane() < street.getLaneCount() - 1) // if not outermost right lane
+      rightLaneChange = computeLaneChangeValues(street, carIt, +1);
+
+    double laneOffset       = 0;
+    double nextAcceleration = carIt->getNextBaseAcceleration();
+    if (leftLaneChange.valid) {
+      if (rightLaneChange.valid && rightLaneChange.indicator > leftLaneChange.indicator) {
         laneOffset       = +1;
         nextAcceleration = rightLaneChange.acceleration;
+      } else {
+        laneOffset       = -1;
+        nextAcceleration = leftLaneChange.acceleration;
       }
-
-      computeAndSetDynamics(*carIt, nextAcceleration, carIt->getLane() + laneOffset);
+    } else if (rightLaneChange.valid) {
+      laneOffset       = +1;
+      nextAcceleration = rightLaneChange.acceleration;
     }
+
+    computeAndSetDynamics(*carIt, nextAcceleration, carIt->getLane() + laneOffset);
   }
 
   LaneChangeValues computeLaneChangeValues(
