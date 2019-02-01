@@ -116,7 +116,7 @@ private:
     AccelerationComputer accelerationComputer(street);
 
     auto streetIterable = street.allIterable();
-#pragma omp parallel for
+//#pragma omp parallel for shared(street)
     for (unsigned i = 0; i < street.getCarCount(); ++i) {
       auto carIt = streetIterable.begin() + i;
       // for (car_iterator carIt = street.allIterable().begin(); accelerationComputer.isNotEnd(carIt); ++carIt) {
@@ -124,7 +124,7 @@ private:
       carIt->setNextBaseAcceleration(baseAcceleration);
     }
 
-#pragma omp parallel for shared(street)
+//#pragma omp parallel for shared(street)
     for (unsigned i = 0; i < street.getCarCount(); ++i) {
       auto carIt = streetIterable.begin() + i;
       // for (car_iterator carIt = street.allIterable().begin(); accelerationComputer.isNotEnd(carIt); ++carIt) {
