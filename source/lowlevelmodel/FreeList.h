@@ -4,10 +4,18 @@
 #include <iostream>
 #include <vector>
 
+#include "BucketTraits.h"
 #include "FreeListIterator.h"
 
 template <typename T>
 class FreeList {
+public:
+  /**
+   * Definitions for bucket_traits.
+   */
+  using erase_category = bucket_multi_erasable;
+
+private:
   friend class free_list_iterator<T, false>;
   friend class free_list_iterator<T, true>;
 

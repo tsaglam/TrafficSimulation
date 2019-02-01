@@ -7,10 +7,11 @@
 #include <vector>
 
 #include "BucketListIterator.h"
+#include "BucketTraits.h"
 #include "FreeList.h"
 #include "RfbStructureTraits.h"
 
-template <class Car, class Bucket, bool bucketIsStlContainer>
+template <class Car, class Bucket>
 class BucketList {
 private:
   /** The number of lanes on the street (in the current direction). */
@@ -81,8 +82,8 @@ public:
 
   using BeyondsCarIterable      = std::vector<Car> &;
   using ConstBeyondsCarIterable = const std::vector<Car> &;
-  using iterator                = bucket_list_iterator<Bucket, Car, bucketIsStlContainer>;
-  using const_iterator          = bucket_list_iterator<Bucket, Car, bucketIsStlContainer, true>;
+  using iterator                = bucket_list_iterator<Bucket, Car>;
+  using const_iterator          = bucket_list_iterator<Bucket, Car, true>;
 
   template <bool Const = false>
   class _AllCarIterable {
@@ -398,28 +399,21 @@ public:
         }
       }
 
-#if __cpp_if_constexpr >= 201606
-      if constexpr (bucketIsStlContainer) {
-#else
-      if (bucketIsStlContainer) {
-#endif
-        eraseFromBucketStl(currentBucket, eraseIterators);
-      } else {
-        eraseFromBucketCustomContainer(currentBucket, eraseIterators);
-      }
+      eraseFromBucket(currentBucket, eraseIterators, typename bucket_traits<Bucket>::erase_category());
+      eraseIterators.clear();
     }
   }
 
-  void eraseFromBucketStl(Bucket &currentBucket, std::vector<bucket_iterator> &eraseIterators) {
+  void eraseFromBucket(
+      Bucket &currentBucket, const std::vector<bucket_iterator> &eraseIterators, bucket_single_erasable) {
     for (auto eraseIt = eraseIterators.rbegin(); eraseIt != eraseIterators.rend(); ++eraseIt) {
       currentBucket.erase(*eraseIt);
     }
-    eraseIterators.clear();
   }
 
-  void eraseFromBucketCustomContainer(Bucket &currentBucket, std::vector<bucket_iterator> &eraseIterators) {
+  void eraseFromBucket(
+      Bucket &currentBucket, const std::vector<bucket_iterator> &eraseIterators, bucket_multi_erasable) {
     currentBucket.erase(eraseIterators);
-    eraseIterators.clear();
   }
 
   /**
@@ -456,10 +450,19 @@ public:
   inline void removeBeyonds() { departedCars.clear(); }
 };
 
+/**
+ * Traits specialisation for all std::vector bucket types.
+ */
+template <class Car>
+struct bucket_traits<typename std::vector<Car>> {
+  using erase_category = bucket_single_erasable;
+};
+
 template <class Car>
 class VectorBucketList {
+private:
   using Bucket = std::vector<Car>;
-  BucketList<Car, Bucket, true> list;
+  BucketList<Car, Bucket> list;
 
 public:
   VectorBucketList() = default;
@@ -467,13 +470,13 @@ public:
       : list(laneCount, length, sectionLength) {}
 
   // ------- Iterator & Iterable type defs -------
-  using iterator                = typename BucketList<Car, Bucket, true>::iterator;
-  using const_iterator          = typename BucketList<Car, Bucket, true>::const_iterator;
-  using AllCarIterable          = typename BucketList<Car, Bucket, true>::AllCarIterable;
-  using ConstAllCarIterable     = typename BucketList<Car, Bucket, true>::ConstAllCarIterable;
-  using BeyondsCarIterable      = typename BucketList<Car, Bucket, true>::BeyondsCarIterable;
-  using ConstBeyondsCarIterable = typename BucketList<Car, Bucket, true>::ConstBeyondsCarIterable;
-  using reverse_category        = typename BucketList<Car, Bucket, true>::reverse_category;
+  using iterator                = typename BucketList<Car, Bucket>::iterator;
+  using const_iterator          = typename BucketList<Car, Bucket>::const_iterator;
+  using AllCarIterable          = typename BucketList<Car, Bucket>::AllCarIterable;
+  using ConstAllCarIterable     = typename BucketList<Car, Bucket>::ConstAllCarIterable;
+  using BeyondsCarIterable      = typename BucketList<Car, Bucket>::BeyondsCarIterable;
+  using ConstBeyondsCarIterable = typename BucketList<Car, Bucket>::ConstBeyondsCarIterable;
+  using reverse_category        = typename BucketList<Car, Bucket>::reverse_category;
 
   unsigned int getLaneCount() const { return list.getLaneCount(); }
   double getLength() const { return list.getLength(); }
@@ -514,8 +517,9 @@ public:
 
 template <class Car>
 class FreeListBucketList {
+private:
   using Bucket = FreeList<Car>;
-  BucketList<Car, Bucket, false> list;
+  BucketList<Car, Bucket> list;
 
 public:
   FreeListBucketList() = default;
@@ -523,13 +527,13 @@ public:
       : list(laneCount, length, sectionLength) {}
 
   // ------- Iterator & Iterable type defs -------
-  using iterator                = typename BucketList<Car, Bucket, false>::iterator;
-  using const_iterator          = typename BucketList<Car, Bucket, false>::const_iterator;
-  using AllCarIterable          = typename BucketList<Car, Bucket, false>::AllCarIterable;
-  using ConstAllCarIterable     = typename BucketList<Car, Bucket, false>::ConstAllCarIterable;
-  using BeyondsCarIterable      = typename BucketList<Car, Bucket, false>::BeyondsCarIterable;
-  using ConstBeyondsCarIterable = typename BucketList<Car, Bucket, false>::ConstBeyondsCarIterable;
-  using reverse_category        = typename BucketList<Car, Bucket, false>::reverse_category;
+  using iterator                = typename BucketList<Car, Bucket>::iterator;
+  using const_iterator          = typename BucketList<Car, Bucket>::const_iterator;
+  using AllCarIterable          = typename BucketList<Car, Bucket>::AllCarIterable;
+  using ConstAllCarIterable     = typename BucketList<Car, Bucket>::ConstAllCarIterable;
+  using BeyondsCarIterable      = typename BucketList<Car, Bucket>::BeyondsCarIterable;
+  using ConstBeyondsCarIterable = typename BucketList<Car, Bucket>::ConstBeyondsCarIterable;
+  using reverse_category        = typename BucketList<Car, Bucket>::reverse_category;
 
   unsigned int getLaneCount() const { return list.getLaneCount(); }
   double getLength() const { return list.getLength(); }
