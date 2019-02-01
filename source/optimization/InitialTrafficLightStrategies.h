@@ -33,7 +33,11 @@ struct InitialTrafficLightsWithHeuristicSimulator {
   InitialTrafficLightsWithHeuristicSimulator() = default;
 
   double getThroughput(const HeuristicSimulator &simulator, const unsigned streetId) const {
+#if __cpp_if_constexpr >= 201606
     if constexpr (withPriority) {
+#else
+    if (withPriority) {
+#endif
       return simulator.getPrioritizedTrafficLightThroughput(streetId);
     } else {
       return simulator.getTrafficLightThroughput(streetId);
@@ -91,7 +95,11 @@ struct InitialTrafficLightsWithHeuristicSimulatorAndIteration {
   InitialTrafficLightsWithHeuristicSimulatorAndIteration() = default;
 
   double getThroughput(const HeuristicSimulator &simulator, const unsigned streetId) const {
+#if __cpp_if_constexpr >= 201606
     if constexpr (withPriority) {
+#else
+    if (withPriority) {
+#endif
       return simulator.getPrioritizedTrafficLightThroughput(streetId);
     } else {
       return simulator.getTrafficLightThroughput(streetId);
@@ -99,7 +107,11 @@ struct InitialTrafficLightsWithHeuristicSimulatorAndIteration {
   }
 
   double getWaitTime(const RateTrafficLights &rating, const unsigned streetId) const {
+#if __cpp_if_constexpr >= 201606
     if constexpr (withPriority) {
+#else
+    if (withPriority) {
+#endif
       return rating.getWaitTimeWithPriority(streetId);
     } else {
       return rating.getWaitTime(streetId);
@@ -107,7 +119,11 @@ struct InitialTrafficLightsWithHeuristicSimulatorAndIteration {
   }
 
   double getTotalWaitTime(const RateTrafficLights &rating) const {
+#if __cpp_if_constexpr >= 201606
     if constexpr (withPriority) {
+#else
+    if (withPriority) {
+#endif
       return rating.getTotalWaitTimeWithPriority();
     } else {
       return rating.getTotalWaitTime();
