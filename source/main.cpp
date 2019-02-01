@@ -17,6 +17,7 @@
 #include "ParallelConsistencyRoutine.h"
 #include "ParallelIDMRoutine.h"
 #include "ParallelTrafficLightRoutine.h"
+#include "RandomOptimizationRoutine.h"
 #include "Simulator.h"
 #include "Timer.h"
 #include "TrafficLightRoutine.h"
@@ -69,7 +70,10 @@ int main_simulate(JSONReader &jsonReader, DomainModel &domainModel, JSONWriter &
 }
 
 int main_optimize(JSONReader &jsonReader, DomainModel &domainModel, JSONWriter &jsonWriter) {
-  InitialTrafficLights()(domainModel, jsonReader.getTimeSteps());
+  Optimizer<NaiveStreetDataStructure, ParallelTrafficLightRoutine, ParallelIDMRoutine, RandomOptimizationRoutine,
+      ParallelConsistencyRoutine, InitialTrafficLights>
+      optimizer(domainModel, jsonReader.getTimeSteps(), jsonReader.getMinTravelDistance());
+  optimizer.optimizeTrafficLights();
   jsonWriter.writeSignals(domainModel);
 #ifdef TIMER
   printTimes();
