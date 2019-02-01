@@ -1,0 +1,2 @@
+Skaliere die Straßenlänge.
+1500 Autos im System. Grid size konstant (10x10).
