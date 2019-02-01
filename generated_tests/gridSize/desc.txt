@@ -1,0 +1,20 @@
+Skaliere die Anzahl der Kreuzungen und damit der Straßen.
+Straßenlänge konstant. Autos pro Straße konstant.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+500000/(4* (100 * 100 - 2)) = 12,5
+
+Autos = 50*(dim * dim - 2)
