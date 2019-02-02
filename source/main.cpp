@@ -52,14 +52,18 @@ int main_simulate(JSONReader &jsonReader, DomainModel &domainModel, JSONWriter &
 
   jsonWriter.writeVehicles(domainModel);
 
+#ifdef TIMER
   printTimes();
+#endif
   return 0;
 }
 
 int main_optimize(JSONReader &jsonReader, DomainModel &domainModel, JSONWriter &jsonWriter) {
   InitialTrafficLights()(domainModel, jsonReader.getTimeSteps());
   jsonWriter.writeSignals(domainModel);
+#ifdef TIMER
   printTimes();
+#endif
   return 0;
 }
 

@@ -61,6 +61,7 @@ private:
   void writeChangesToDomainModel() { ModelSyncer<RfbStructure>(data).writeVehiclePositionToDomainModel(); }
 
   void computeStep() {
+#ifdef TIMER
     signalingRoutineTimer.start();
     signalingRoutine.perform();
     signalingRoutineTimer.stop();
@@ -76,6 +77,12 @@ private:
     consistencyRoutineTimer.start();
     consistencyRoutine.perform();
     consistencyRoutineTimer.stop();
+#else
+    signalingRoutine.perform();
+    idmRoutine.perform();
+    optimizationRoutine.perform();
+    consistencyRoutine.perform();
+#endif
   }
 
 public:

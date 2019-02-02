@@ -23,6 +23,10 @@ else ifdef CUDA
 	# TODO: set compiler and linker flags
 endif
 
+ifdef TIMER
+	CXXFLAGS += -DTIMER
+endif
+
 BUILD_DIR ?= ./build
 SRC_DIRS ?= ./source
 TEST_DIRS ?= ./testcases
