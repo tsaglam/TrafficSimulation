@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cmath>
+#include <thread>
 
 #include "LowLevelCar.h"
 #include "LowLevelStreet.h"
@@ -101,7 +102,7 @@ private:
   };
 
 private:
-  const unsigned long PARALLEL_THRESHOLD = 20;
+  const unsigned long PARALLEL_THRESHOLD = 50;
   SimulationData<RfbStructure> &data;
 
 public:
@@ -110,9 +111,10 @@ public:
     std::vector<unsigned int> carWise;
     std::vector<unsigned int> streetWise;
     for (auto &street : data.getStreets()) {
-      if (street.getCarCount() > PARALLEL_THRESHOLD) {
+      unsigned int carCount = street.getCarCount();
+      if (carCount > PARALLEL_THRESHOLD) {
         carWise.push_back(street.getId());
-      } else {
+      } else if (carCount > 0) { // only push non-empty streets
         streetWise.push_back(street.getId());
       }
     }
@@ -122,8 +124,10 @@ public:
 
 private:
   void performStreetWise(std::vector<unsigned int> &streetIds) {
-
-#pragma omp parallel for shared(data)
+#ifdef _OPENMP
+    unsigned int customBlockSize = streetIds.size() / std::thread::hardware_concurrency();
+#endif
+#pragma omp parallel for shared(data) schedule(static, customBlockSize)
     for (std::size_t i = 0; i < streetIds.size(); i++) {
       // get the right street
       auto &street = data.getStreet(streetIds[i]);

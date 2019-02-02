@@ -32,6 +32,7 @@ benchmark:pc189:
     - pc189
   when: manual
   variables:
+    OMP: "1"
     GIT_SUBMODULE_STRATEGY: none
   script:
     - source ~/pdmkp_env
@@ -43,6 +44,8 @@ benchmark:pc205:
   tags:
     - pc205
   when: manual
+  variables:
+    OMP: "1"
   script:
     - source ~/pdmkp_env
     - make
