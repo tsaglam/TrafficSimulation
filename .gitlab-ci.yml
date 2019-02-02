@@ -21,7 +21,7 @@ test-omp:
     - docker
   image: buildpack-deps:bionic
   variables:
-    OMP: "1"
+    OMP: "0"
   script:
     - make test
 
@@ -33,7 +33,7 @@ benchmark:pc189:
   when: manual
   variables:
     GIT_SUBMODULE_STRATEGY: none
-    OMP: "1"
+    OMP: "0"
   script:
     - source ~/pdmkp_env
     - make
@@ -45,7 +45,7 @@ benchmark:pc205:
     - pc205
   when: manual
   variables:
-    OMP: "1"
+    OMP: "0"
   script:
     - source ~/pdmkp_env
     - make
