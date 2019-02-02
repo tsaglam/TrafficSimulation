@@ -215,6 +215,16 @@ public:
       return *this;
     }
 
+    difference_type operator-(const BaseIterator<RfbIterator, Const> &other) const {
+      if (state != other.state) return 0;
+
+      switch (state) {
+      case PROXY: return dest - other.dest;
+      case SPECIAL: return 0;
+      default: return 0;
+      }
+    }
+
     reference operator[](const difference_type &n) const {
       switch (state) {
       case PROXY: return dest[n];
