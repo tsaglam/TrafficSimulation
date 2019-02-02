@@ -15,6 +15,7 @@
 #include "ParallelConsistencyRoutine.h"
 #include "ParallelIDMRoutine.h"
 #include "ParallelTrafficLightRoutine.h"
+#include "SIMD_IDMRoutine.h"
 #include "Simulator.h"
 #include "Timer.h"
 #include "TrafficLightRoutine.h"
