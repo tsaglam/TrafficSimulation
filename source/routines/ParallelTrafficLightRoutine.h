@@ -14,7 +14,7 @@ public:
   /**
    * Determines when it is actually better to use the parallel traffic light routine.
    */
-  const unsigned long PARALLEL_THRESHOLD = 5000;
+  const unsigned long PARALLEL_THRESHOLD = 50000;
 
   /**
    * @brief      Creates the traffic light routine, sets the simulation data.
