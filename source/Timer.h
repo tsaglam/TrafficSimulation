@@ -35,6 +35,21 @@ public:
   unsigned long getMeasurementCount() const { return timeCount; }
 };
 
+using timeUnit = std::chrono::nanoseconds;
+
+Timer<timeUnit> signalingRoutineTimer;
+Timer<timeUnit> idmRoutineTimer;
+Timer<timeUnit> optimizationRoutineTimer;
+Timer<timeUnit> consistencyRoutineTimer;
+
+Timer<timeUnit> IDMRoutine_thresholdSorting_timer;
+Timer<timeUnit> IDMRoutine_performStreetWise_timer;
+Timer<timeUnit> IDMRoutine_performCarWise_timer;
+
+Timer<timeUnit> consistencyRoutine_restoreConsistency_timer;
+Timer<timeUnit> consistencyRoutine_relocateCars_timer;
+Timer<timeUnit> consistencyRoutine_incorporateCars_timer;
+
 void printTimerHeader() {
   std::cerr << std::setw(15) << "call_count" << std::setw(25) << "total_time" << std::setw(25) << "avg_time"
             << std::setw(50) << "description"
