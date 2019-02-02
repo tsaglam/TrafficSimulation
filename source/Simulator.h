@@ -8,6 +8,7 @@
 #include "LowLevelStreet.h"
 #include "ModelSyncer.h"
 #include "SimulationData.h"
+#include "Timer.h"
 
 /**
  * C++20 ComputionRoutine concept, must be fulfilled in order for a class to be valid as a SignalingRoutine, IDMRoutine
@@ -60,10 +61,21 @@ private:
   void writeChangesToDomainModel() { ModelSyncer<RfbStructure>(data).writeVehiclePositionToDomainModel(); }
 
   void computeStep() {
+    signalingRoutineTimer.start();
     signalingRoutine.perform();
+    signalingRoutineTimer.stop();
+
+    idmRoutineTimer.start();
     idmRoutine.perform();
+    idmRoutineTimer.stop();
+
+    optimizationRoutineTimer.start();
     optimizationRoutine.perform();
+    optimizationRoutineTimer.stop();
+
+    consistencyRoutineTimer.start();
     consistencyRoutine.perform();
+    consistencyRoutineTimer.stop();
   }
 
 public:

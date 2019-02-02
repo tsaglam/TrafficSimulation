@@ -9,6 +9,7 @@
 #include "LowLevelCar.h"
 #include "LowLevelStreet.h"
 #include "SimulationData.h"
+#include "Timer.h"
 
 template <template <typename Vehicle> typename RfbStructure>
 class ParallelIDMRoutine {
@@ -108,6 +109,7 @@ private:
 public:
   ParallelIDMRoutine(SimulationData<RfbStructure> &_data) : data(_data) {}
   void perform() {
+    IDMRoutine_thresholdSorting_timer.start();
     std::vector<unsigned int> carWise;
     std::vector<unsigned int> streetWise;
     for (auto &street : data.getStreets()) {
@@ -118,8 +120,13 @@ public:
         streetWise.push_back(street.getId());
       }
     }
+    IDMRoutine_thresholdSorting_timer.stop();
+    IDMRoutine_performStreetWise_timer.start();
     performStreetWise(streetWise);
+    IDMRoutine_performStreetWise_timer.stop();
+    IDMRoutine_performCarWise_timer.start();
     performCarWise(carWise);
+    IDMRoutine_performCarWise_timer.stop();
   }
 
 private:

@@ -6,6 +6,7 @@
 #include "LowLevelStreet.h"
 #include "RfbStructure.h"
 #include "SimulationData.h"
+#include "Timer.h"
 #include <algorithm>
 #ifdef OMP
 #include <omp.h>
@@ -23,9 +24,15 @@ public:
    * @brief      Ensures model consistency, updates cars that change streets (and their correlating street).
    */
   void perform() {
+    consistencyRoutine_restoreConsistency_timer.start();
     restoreConsistency(); // street-wise parallel
-    relocateCars();       // sequential
-    incorporateCars();    // street-wise parallel
+    consistencyRoutine_restoreConsistency_timer.stop();
+    consistencyRoutine_relocateCars_timer.start();
+    relocateCars(); // sequential
+    consistencyRoutine_relocateCars_timer.stop();
+    consistencyRoutine_incorporateCars_timer.start();
+    incorporateCars(); // street-wise parallel
+    consistencyRoutine_incorporateCars_timer.stop();
   }
 
   /**

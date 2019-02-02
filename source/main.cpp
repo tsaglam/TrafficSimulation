@@ -16,7 +16,25 @@
 #include "ParallelIDMRoutine.h"
 #include "ParallelTrafficLightRoutine.h"
 #include "Simulator.h"
+#include "Timer.h"
 #include "TrafficLightRoutine.h"
+
+void printTimes() {
+  printTimerHeader();
+  printTimer(signalingRoutineTimer, "signalingRoutine");
+
+  printTimer(idmRoutineTimer, "idmRoutine");
+  printTimer(IDMRoutine_thresholdSorting_timer, "IDMRoutine_thresholdSorting");
+  printTimer(IDMRoutine_performStreetWise_timer, "IDMRoutine_performStreetWise");
+  printTimer(IDMRoutine_performCarWise_timer, "IDMRoutine_performCarWise");
+
+  printTimer(optimizationRoutineTimer, "optimizationRoutine");
+
+  printTimer(consistencyRoutineTimer, "consistencyRoutine");
+  printTimer(consistencyRoutine_restoreConsistency_timer, "consistencyRoutine_restoreConsistency");
+  printTimer(consistencyRoutine_relocateCars_timer, "consistencyRoutine_relocateCars");
+  printTimer(consistencyRoutine_incorporateCars_timer, "consistencyRoutine_incorporateCars");
+}
 
 /**
  * Definitions of template parameters, dependent on compile flags.
@@ -34,12 +52,14 @@ int main_simulate(JSONReader &jsonReader, DomainModel &domainModel, JSONWriter &
 
   jsonWriter.writeVehicles(domainModel);
 
+  printTimes();
   return 0;
 }
 
 int main_optimize(JSONReader &jsonReader, DomainModel &domainModel, JSONWriter &jsonWriter) {
   InitialTrafficLights()(domainModel, jsonReader.getTimeSteps());
   jsonWriter.writeSignals(domainModel);
+  printTimes();
   return 0;
 }
 
