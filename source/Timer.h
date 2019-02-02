@@ -6,14 +6,13 @@
 #include <iostream>
 #include <string>
 
+template <typename timeUnit>
 class Timer {
-  using time_point  = std::chrono::time_point<std::chrono::high_resolution_clock>;
-  using nanoseconds = std::chrono::nanoseconds;
-
+  using time_point = std::chrono::time_point<std::chrono::high_resolution_clock>;
   time_point lastTime;
-  unsigned long totalNanoseconds = 0;
-  unsigned long timeCount        = 0;
-  bool on                        = false;
+  unsigned long totalTime = 0;
+  unsigned long timeCount = 0;
+  bool on                 = false;
 
 public:
   Timer() = default;
@@ -26,24 +25,26 @@ public:
     if (!on) { return; }
     on             = false;
     time_point now = std::chrono::high_resolution_clock::now();
-    totalNanoseconds += std::chrono::duration_cast<nanoseconds>(lastTime - now).count();
+    auto duration  = std::chrono::duration_cast<timeUnit>(now - lastTime).count();
+    totalTime += duration;
+    ++timeCount;
   }
 
-  double getAvgTimeInNanoseconds() const { return (double)totalNanoseconds / (double)timeCount; }
-  unsigned long getTotalTimeInNanoseconds() const { return totalNanoseconds; }
+  double getAvgTime() const { return (double)totalTime / (double)timeCount; }
+  unsigned long getTotalTime() const { return totalTime; }
   unsigned long getMeasurementCount() const { return timeCount; }
 };
 
 void printTimerHeader() {
-  std::cerr << std::setw(15) << "call_count" << std::setw(15) << "total_time_ns" << std::setw(15) << "avg_time_ns"
-            << std::setw(30) << "description"
+  std::cerr << std::setw(15) << "call_count" << std::setw(25) << "total_time" << std::setw(25) << "avg_time"
+            << std::setw(50) << "description"
             << "\n";
 }
 
-void printTimer(const Timer &timer, const std::string &description) {
-  std::cerr << std::setw(15) << timer.getMeasurementCount() << std::setw(15) << timer.getTotalTimeInNanoseconds()
-            << std::setw(15) << std::fixed << std::setprecision(3) << timer.getAvgTimeInNanoseconds() << std::setw(30)
-            << description << "\n";
+template <typename timeUnit>
+void printTimer(const Timer<timeUnit> &timer, const std::string &description) {
+  std::cerr << std::setw(15) << timer.getMeasurementCount() << std::setw(25) << timer.getTotalTime() << std::setw(25)
+            << std::fixed << std::setprecision(3) << timer.getAvgTime() << std::setw(50) << description << "\n";
 }
 
 #endif
