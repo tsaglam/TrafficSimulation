@@ -24,6 +24,7 @@ public:
    * @brief      Ensures model consistency, updates cars that change streets (and their correlating street).
    */
   void perform() {
+#ifdef TIMER
     consistencyRoutine_restoreConsistency_timer.start();
     restoreConsistency(); // street-wise parallel
     consistencyRoutine_restoreConsistency_timer.stop();
@@ -33,6 +34,11 @@ public:
     consistencyRoutine_incorporateCars_timer.start();
     incorporateCars(); // street-wise parallel
     consistencyRoutine_incorporateCars_timer.stop();
+#else
+    restoreConsistency(); // street-wise parallel
+    relocateCars();       // sequential
+    incorporateCars();    // street-wise parallel
+#endif
   }
 
   /**
