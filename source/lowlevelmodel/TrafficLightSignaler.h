@@ -304,6 +304,17 @@ public:
      */
     BaseIterator() {}
 
+    /**
+     * Conversion operator, converts non-const into const iterator.
+     */
+    operator BaseIterator<RfbIterator, true>() const {
+      switch (state) {
+      case PROXY: return BaseIterator<RfbIterator, true>(dest);
+      case SPECIAL: return BaseIterator<RfbIterator, true>(behindIt, inFrontIt, special);
+      default: return BaseIterator<RfbIterator, true>();
+      }
+    }
+
   public:
     bool isSpecial() const { return state == SPECIAL; }
 
