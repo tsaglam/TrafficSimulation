@@ -318,6 +318,22 @@ public:
   public:
     bool isSpecial() const { return state == SPECIAL; }
 
+    BaseIterator<RfbIterator, Const> getThisOrNotSpecialCarInFront() {
+      switch (state) {
+      case iterator::PROXY: return this;
+      case iterator::SPECIAL: return BaseIterator<RfbIterator, Const>(inFrontIt);
+      default: return BaseIterator<RfbIterator, Const>();
+      }
+    }
+
+    BaseIterator<RfbIterator, Const> getThisOrNotSpecialCarBehind() const {
+      switch (state) {
+      case iterator::PROXY: return this;
+      case iterator::SPECIAL: return BaseIterator<RfbIterator, Const>(behindIt);
+      default: return BaseIterator<RfbIterator, Const>();
+      }
+    }
+
   private:
     BaseIterator(RfbIterator _dest) : state(PROXY), dest(_dest) {}
     BaseIterator(RfbIterator _behindIt, RfbIterator _inFrontIt, LowLevelCar &_special)
@@ -475,20 +491,6 @@ public:
     }
     case const_iterator::SPECIAL: return const_iterator(originVehicleIt.inFrontIt);
     default: return const_iterator();
-    }
-  }
-  iterator getNextNotSpecialCarInFront(iterator originVehicleIt, const int laneOffset = 0) {
-    switch (originVehicleIt.state) {
-    case iterator::PROXY: return iterator(rfb.getNextCarInFront(originVehicleIt.dest, laneOffset));
-    case iterator::SPECIAL: return iterator(originVehicleIt.inFrontIt);
-    default: return iterator();
-    }
-  }
-  const_iterator getNextNotSpecialCarInFront(const_iterator originVehicleIt, const int laneOffset = 0) const {
-    switch (originVehicleIt.state) {
-    case iterator::PROXY: return iterator(rfb.getNextCarInFront(originVehicleIt.dest, laneOffset));
-    case iterator::SPECIAL: return iterator(originVehicleIt.inFrontIt);
-    default: return iterator();
     }
   }
 
