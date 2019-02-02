@@ -47,7 +47,7 @@ void printTimes() {
 using InitialTrafficLights = InitialTrafficLightsWithHeuristicSimulatorAndIteration<false>;
 
 int main_simulate(JSONReader &jsonReader, DomainModel &domainModel, JSONWriter &jsonWriter) {
-  Simulator<RfbStructure, ParallelTrafficLightRoutine, ParallelIDMRoutine, NullRoutine, ParallelConsistencyRoutine>
+  Simulator<RfbStructure, ParallelTrafficLightRoutine, SMDI_IDMRoutine, NullRoutine, ParallelConsistencyRoutine>
       simulator(domainModel);
   simulator.performSteps(jsonReader.getTimeSteps());
 

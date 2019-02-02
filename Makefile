@@ -26,6 +26,8 @@ endif
 ifdef TIMER
 	CXXFLAGS += -DTIMER
 endif
+
+AVX = 1
 ifdef AVX
 	FILE_EXTENSION := $(FILE_EXTENSION).avx
 	FILE_EXTENSION_DBG := $(FILE_EXTENSION_DBG).avx
