@@ -318,9 +318,9 @@ public:
   public:
     bool isSpecial() const { return state == SPECIAL; }
 
-    BaseIterator<RfbIterator, Const> getThisOrNotSpecialCarInFront() {
+    BaseIterator<RfbIterator, Const> getThisOrNotSpecialCarInFront() const {
       switch (state) {
-      case iterator::PROXY: return this;
+      case iterator::PROXY: return *this;
       case iterator::SPECIAL: return BaseIterator<RfbIterator, Const>(inFrontIt);
       default: return BaseIterator<RfbIterator, Const>();
       }
@@ -328,7 +328,7 @@ public:
 
     BaseIterator<RfbIterator, Const> getThisOrNotSpecialCarBehind() const {
       switch (state) {
-      case iterator::PROXY: return this;
+      case iterator::PROXY: return *this;
       case iterator::SPECIAL: return BaseIterator<RfbIterator, Const>(behindIt);
       default: return BaseIterator<RfbIterator, Const>();
       }
