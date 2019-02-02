@@ -12,9 +12,9 @@ ifdef OMP
 	FILE_EXTENSION_TEST = .test.omp
 	ifeq ($(UNAME), Darwin)
 		LDFLAGS += -lomp
-		OMP_FLAGS = -DOMP -Xpreprocessor -fopenmp
+		PARALLEL_FLAGS = -DOMP -Xpreprocessor -fopenmp
 	else
-		OMP_FLAGS = -DOMP -fopenmp
+		PARALLEL_FLAGS = -DOMP -fopenmp
 	endif
 else ifdef CUDA
 	FILE_EXTENSION = .cuda
@@ -25,6 +25,12 @@ endif
 
 ifdef TIMER
 	CXXFLAGS += -DTIMER
+endif
+ifdef AVX
+	FILE_EXTENSION := $(FILE_EXTENSION).avx
+	FILE_EXTENSION_DBG := $(FILE_EXTENSION_DBG).avx
+	FILE_EXTENSION_TEST := $(FILE_EXTENSION_TEST).avx
+	PARALLEL_FLAGS += -mavx
 endif
 
 BUILD_DIR ?= ./build
@@ -45,9 +51,9 @@ DBG_DEPS := $(DBG_OBJS:.o=.d)
 INC_DIRS := $(shell find $(SRC_DIRS) -type d)
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
-CPPFLAGS ?= $(CXXFLAGS) $(INC_FLAGS) $(OMP_FLAGS) -MMD -MP -std=c++17 -O3 -Wall -Wextra
+CPPFLAGS ?= $(CXXFLAGS) $(INC_FLAGS) $(PARALLEL_FLAGS) -MMD -MP -std=c++17 -O3 -Wall -Wextra
 
-DBG_CPPFLAGS ?= $(CXXFLAGS) $(INC_FLAGS) $(OMP_FLAGS) -MMD -MP -std=c++17 -O0 -fno-omit-frame-pointer -g -fsanitize=address -Wall -Wextra
+DBG_CPPFLAGS ?= $(CXXFLAGS) $(INC_FLAGS) $(PARALLEL_FLAGS) -MMD -MP -std=c++17 -O0 -fno-omit-frame-pointer -g -fsanitize=address -Wall -Wextra
 TEST_CPPFLAGS ?= $(DBG_CPPFLAGS) --coverage
 
 # Rules regarding the primary executable
