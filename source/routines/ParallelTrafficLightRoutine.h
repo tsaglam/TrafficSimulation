@@ -14,7 +14,7 @@ public:
   /**
    * Determines when it is actually better to use the parallel traffic light routine.
    */
-  const unsigned long PARALLEL_THRESHOLD = 2000;
+  const unsigned long PARALLEL_THRESHOLD = 500;
 
   /**
    * @brief      Creates the traffic light routine, sets the simulation data.
@@ -37,8 +37,10 @@ public:
   }
 
   void performParallel(const std::vector<std::unique_ptr<Junction>> &junctions) {
-    // TODO static? tests?
-#pragma omp parallel for shared(junctions)
+#ifdef _OPENMP
+    unsigned int customBlockSize = junctions.size() / std::thread::hardware_concurrency();
+#endif
+#pragma omp parallel for shared(junctions) schedule(static, customBlockSize)
     for (std::size_t i = 0; i < junctions.size(); i++) {
       const auto &junction = junctions[i];
       perform(*junction);
