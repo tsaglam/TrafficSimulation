@@ -1,11 +1,12 @@
 #include "BucketList.h"
+#include "CircularNaiveStreetDataStructure.h"
 #include "NaiveStreetDataStructure.h"
 #include "domainmodel/DomainModelTest.h"
 #include "domainmodel/JunctionTest.h"
 #include "domainmodel/VehicleTest.h"
 #include "lowlevelmodel/RfbStructureTest.h"
-#include "routines/ParallelTrafficLightRoutineTest.h"
 #include "routines/ConsistencyRoutineTest.h"
+#include "routines/ParallelTrafficLightRoutineTest.h"
 #include <../../snowhouse/snowhouse.h>
 #include <iostream>
 #include <regex>
@@ -170,6 +171,43 @@ int main() {
   RUN(consistencyTest7<NaiveStreetDataStructure>);
   RUN(consistencyTest8<NaiveStreetDataStructure>);
   RUN(consistencyTest9<NaiveStreetDataStructure>);
+
+  // RfbStructure - CircularNaiveStreetDataStructure
+  std::cout << "\n   CircularNaiveStreetDataStructure\n";
+  RUN(constructorAndConstMembersTest<CircularNaiveStreetDataStructure>);
+  RUN(getNextCarIteratorTest1<CircularNaiveStreetDataStructure>);
+  std::cout << "\n";
+  RUN(allIterableTest1<CircularNaiveStreetDataStructure>);
+  RUN(allIterableTest2<CircularNaiveStreetDataStructure>);
+  RUN(allIterableTest3<CircularNaiveStreetDataStructure>);
+  RUN(allIterableTest4<CircularNaiveStreetDataStructure>);
+  RUN(allIterableTest5<CircularNaiveStreetDataStructure>);
+  RUN(allIterableTest6<CircularNaiveStreetDataStructure>);
+  std::cout << "\n";
+  RUN(getNextCarTest1<CircularNaiveStreetDataStructure>);
+  RUN(getNextCarTest2<CircularNaiveStreetDataStructure>);
+  RUN(getNextCarTest3<CircularNaiveStreetDataStructure>);
+  RUN(getNextCarTest4<CircularNaiveStreetDataStructure>);
+  RUN(getNextCarTest5<CircularNaiveStreetDataStructure>);
+  std::cout << "\n";
+  RUN(insertCarTest1<CircularNaiveStreetDataStructure>);
+  RUN(insertCarTest2<CircularNaiveStreetDataStructure>);
+  RUN(insertCarTest3<CircularNaiveStreetDataStructure>);
+  RUN(insertCarTest4<CircularNaiveStreetDataStructure>);
+  RUN(insertCarTest5<CircularNaiveStreetDataStructure>);
+  RUN(insertCarTest6<CircularNaiveStreetDataStructure>);
+  RUN(insertCarTest7<CircularNaiveStreetDataStructure>);
+  RUN(insertCarTest8<CircularNaiveStreetDataStructure>);
+  std::cout << "\n";
+  RUN(consistencyTest1<CircularNaiveStreetDataStructure>);
+  RUN(consistencyTest2<CircularNaiveStreetDataStructure>);
+  RUN(consistencyTest3<CircularNaiveStreetDataStructure>);
+  RUN(consistencyTest4<CircularNaiveStreetDataStructure>);
+  RUN(consistencyTest5<CircularNaiveStreetDataStructure>);
+  RUN(consistencyTest6<CircularNaiveStreetDataStructure>);
+  RUN(consistencyTest7<CircularNaiveStreetDataStructure>);
+  RUN(consistencyTest8<CircularNaiveStreetDataStructure>);
+  RUN(consistencyTest9<CircularNaiveStreetDataStructure>);
 
   // Prints the test results and the number of failed tests:
   if (numberOfFailedTests == 0) {
