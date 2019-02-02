@@ -180,7 +180,7 @@ public:
   using allocator_type  = Allocator;
   using size_type       = typename vector_type::size_type;
   using difference_type = typename vector_type::difference_type;
-  using reference       = typename vector_type::value_type;
+  using reference       = typename vector_type::reference;
   using const_reference = typename vector_type::const_reference;
   using pointer         = typename vector_type::pointer;
   using const_pointer   = typename vector_type::const_pointer;
