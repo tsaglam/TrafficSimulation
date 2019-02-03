@@ -14,6 +14,7 @@
 #include "Optimizer.h"
 #include "ParallelConsistencyRoutine.h"
 #include "ParallelIDMRoutine.h"
+#include "Parallel_SIMD_IDMRoutine.h"
 #include "ParallelTrafficLightRoutine.h"
 #include "Simulator.h"
 #include "Timer.h"
@@ -36,6 +37,13 @@ void printTimes() {
   printTimer(consistencyRoutine_incorporateCars_timer, "consistencyRoutine_incorporateCars");
 }
 
+#ifdef AVX
+#include "SIMD_IDMRoutine.h"
+#define IDM Parallel_SIMD_IDMRoutine
+#else
+#define IDM ParallelIDMRoutine
+#endif
+
 /**
  * Definitions of template parameters, dependent on compile flags.
  *
@@ -46,7 +54,7 @@ void printTimes() {
 using InitialTrafficLights = InitialTrafficLightsWithHeuristicSimulatorAndIteration<false>;
 
 int main_simulate(JSONReader &jsonReader, DomainModel &domainModel, JSONWriter &jsonWriter) {
-  Simulator<RfbStructure, ParallelTrafficLightRoutine, ParallelIDMRoutine, NullRoutine, ParallelConsistencyRoutine>
+  Simulator<RfbStructure, ParallelTrafficLightRoutine, IDM, NullRoutine, ParallelConsistencyRoutine>
       simulator(domainModel);
   simulator.performSteps(jsonReader.getTimeSteps());
 
