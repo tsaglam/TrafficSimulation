@@ -117,13 +117,13 @@ private:
       AccelerationComputerRfb accelerationComputer(street);
       // compute all accelerations:
       auto streetIterable = street.allIterable();
-#pragma omp parallel for shared(street)
+#pragma omp parallel for shared(street) schedule(static)
       for (unsigned i = 0; i < street.getCarCount(); ++i) {
         auto carIt                    = streetIterable.begin() + i;
         const double baseAcceleration = accelerationComputer(carIt, 0);
         carIt->setNextBaseAcceleration(baseAcceleration);
       }
-#pragma omp parallel for shared(street)
+#pragma omp parallel for shared(street) schedule(static)
       for (unsigned i = 0; i < street.getCarCount(); ++i) {
         auto carIt = streetIterable.begin() + i;
         processLaneDecision(carIt, street);
