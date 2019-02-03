@@ -40,10 +40,10 @@ public:
   }
 
   void performParallel(const std::vector<std::unique_ptr<Junction>> &junctions) {
-#ifdef _OPENMP
-    unsigned int customBlockSize = junctions.size() / omp_get_max_threads();
-#endif
-#pragma omp parallel for shared(junctions) schedule(static, customBlockSize)
+// #ifdef _OPENMP
+//     unsigned int customBlockSize = junctions.size() / omp_get_max_threads();
+// #endif
+#pragma omp parallel for shared(junctions) schedule(static) //, customBlockSize)
     for (std::size_t i = 0; i < junctions.size(); i++) {
       const auto &junction = junctions[i];
       perform(*junction);
