@@ -1,7 +1,6 @@
 #include "BucketList.h"
 #include "CircularNaiveStreetDataStructure.h"
 #include "MergeNSkip.h"
-#include "MergeNSkipLinear.h"
 #include "NaiveStreetDataStructure.h"
 #include "domainmodel/DomainModelTest.h"
 #include "domainmodel/JunctionTest.h"
@@ -211,42 +210,42 @@ int main() {
   RUN(consistencyTest8<CircularNaiveStreetDataStructure>);
   RUN(consistencyTest9<CircularNaiveStreetDataStructure>);
 
-  // RfbStructure - MergeNSkip
-  std::cout << "\n   MergeNSkip\n";
-  RUN(constructorAndConstMembersTest<MergeNSkip>);
-  RUN(getNextCarIteratorTest1<MergeNSkip>);
+  // RfbStructure - MergeNSkipCircular
+  std::cout << "\n   MergeNSkipCircular\n";
+  RUN(constructorAndConstMembersTest<MergeNSkipCircular>);
+  RUN(getNextCarIteratorTest1<MergeNSkipCircular>);
   std::cout << "\n";
-  RUN(allIterableTest1<MergeNSkip>);
-  RUN(allIterableTest2<MergeNSkip>);
-  RUN(allIterableTest3<MergeNSkip>);
-  RUN(allIterableTest4<MergeNSkip>);
-  RUN(allIterableTest5<MergeNSkip>);
-  RUN(allIterableTest6<MergeNSkip>);
+  RUN(allIterableTest1<MergeNSkipCircular>);
+  RUN(allIterableTest2<MergeNSkipCircular>);
+  RUN(allIterableTest3<MergeNSkipCircular>);
+  RUN(allIterableTest4<MergeNSkipCircular>);
+  RUN(allIterableTest5<MergeNSkipCircular>);
+  RUN(allIterableTest6<MergeNSkipCircular>);
   std::cout << "\n";
-  RUN(getNextCarTest1<MergeNSkip>);
-  RUN(getNextCarTest2<MergeNSkip>);
-  RUN(getNextCarTest3<MergeNSkip>);
-  RUN(getNextCarTest4<MergeNSkip>);
-  RUN(getNextCarTest5<MergeNSkip>);
+  RUN(getNextCarTest1<MergeNSkipCircular>);
+  RUN(getNextCarTest2<MergeNSkipCircular>);
+  RUN(getNextCarTest3<MergeNSkipCircular>);
+  RUN(getNextCarTest4<MergeNSkipCircular>);
+  RUN(getNextCarTest5<MergeNSkipCircular>);
   std::cout << "\n";
-  RUN(insertCarTest1<MergeNSkip>);
-  RUN(insertCarTest2<MergeNSkip>);
-  RUN(insertCarTest3<MergeNSkip>);
-  RUN(insertCarTest4<MergeNSkip>);
-  RUN(insertCarTest5<MergeNSkip>);
-  RUN(insertCarTest6<MergeNSkip>);
-  RUN(insertCarTest7<MergeNSkip>);
-  RUN(insertCarTest8<MergeNSkip>);
+  RUN(insertCarTest1<MergeNSkipCircular>);
+  RUN(insertCarTest2<MergeNSkipCircular>);
+  RUN(insertCarTest3<MergeNSkipCircular>);
+  RUN(insertCarTest4<MergeNSkipCircular>);
+  RUN(insertCarTest5<MergeNSkipCircular>);
+  RUN(insertCarTest6<MergeNSkipCircular>);
+  RUN(insertCarTest7<MergeNSkipCircular>);
+  RUN(insertCarTest8<MergeNSkipCircular>);
   std::cout << "\n";
-  RUN(consistencyTest1<MergeNSkip>);
-  RUN(consistencyTest2<MergeNSkip>);
-  RUN(consistencyTest3<MergeNSkip>);
-  RUN(consistencyTest4<MergeNSkip>);
-  RUN(consistencyTest5<MergeNSkip>);
-  RUN(consistencyTest6<MergeNSkip>);
-  RUN(consistencyTest7<MergeNSkip>);
-  RUN(consistencyTest8<MergeNSkip>);
-  RUN(consistencyTest9<MergeNSkip>);
+  RUN(consistencyTest1<MergeNSkipCircular>);
+  RUN(consistencyTest2<MergeNSkipCircular>);
+  RUN(consistencyTest3<MergeNSkipCircular>);
+  RUN(consistencyTest4<MergeNSkipCircular>);
+  RUN(consistencyTest5<MergeNSkipCircular>);
+  RUN(consistencyTest6<MergeNSkipCircular>);
+  RUN(consistencyTest7<MergeNSkipCircular>);
+  RUN(consistencyTest8<MergeNSkipCircular>);
+  RUN(consistencyTest9<MergeNSkipCircular>);
 
   // RfbStructure - MergeNSkipLinear
   std::cout << "\n   MergeNSkipLinear\n";

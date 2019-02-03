@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <array>
 #include <iterator>
+#include <memory>
 #include <vector>
 
 #include "CircularVector.h"
@@ -13,12 +14,23 @@
 #define MERGE_N_SKIP_CHECKPOINT_INTERVAL 50.0
 #define MAX_LANES 3
 
-template <class Vehicle>
+/**
+ * Traits for the Container types used as the underlying data store of the MergeNSkip data structure.
+ */
+template <template <typename T> typename Container, typename ElementType>
+struct mergenskip_container_traits {
+  using insert_category = typename Container<ElementType>::insert_category;
+};
+
+struct insert_category_push_front {};
+struct insert_category_collect_insert {};
+
+template <typename Vehicle, template <typename T> typename Container = CircularVector>
 class MergeNSkip {
 private:
   class VehicleEntry;
 
-  using vector_type = CircularVector<VehicleEntry>;
+  using vector_type = Container<VehicleEntry>;
 
   class VehicleEntry {
   public:
@@ -260,15 +272,22 @@ private:
   vector_type street;
 
   /**
+   * rBeyondsIndex points to the first car beyond the street when reverse-iterating.
+   * The car is accessible via street.end() - rBeyondsIndex which might resolve to rbegin().
+   */
+  typename vector_type::difference_type rBeyondsIndex;
+
+  /**
    * Checkpoints at checkpointInterval.
    */
   std::vector<Checkpoint> checkpoints;
 
   /**
-   * rBeyondsIndex points to the first car beyond the street when reverse-iterating.
-   * The car is accessible via street.end() - rBeyondsIndex which might resolve to rbegin().
+   * Vector holding newly inserted cars.
+   * This field is only used when the insert_category field of the mergenskip_container_traits of the Container is
+   * insert_category_collect_insert.
    */
-  typename vector_type::difference_type rBeyondsIndex;
+  std::vector<Vehicle> insertedCars;
 
 public:
   // ------- Constructor -------
@@ -424,9 +443,7 @@ public:
    * @param      car   The car to be inserted.
    */
   void insertCar(Vehicle &&car) {
-    VehicleEntry entry = VehicleEntry(car);
-    street.push_front(std::move(entry));
-    street.front().vehicle.update();
+    _insertCar(car, typename mergenskip_container_traits<Container, VehicleEntry>::insert_category());
   }
 
   /**
@@ -435,18 +452,14 @@ public:
    * @param      car   The car to be inserted.
    */
   void insertCar(const Vehicle &car) {
-    VehicleEntry entry = VehicleEntry(car);
-    street.push_front(entry);
-    street.front().vehicle.update();
+    _insertCar(car, typename mergenskip_container_traits<Container, VehicleEntry>::insert_category());
   }
 
   /**
    * @brief      Incorporates all new cars into the underlying data structure while retaining its consistency.
    */
   void incorporateInsertedCars() {
-    std::sort(street.begin(), street.end()); // restore car order (sorted by distance)
-    rBeyondsIndex = 0;
-    buildIndex();
+    _incorporateInsertedCars(typename mergenskip_container_traits<Container, VehicleEntry>::insert_category());
   }
 
   /**
@@ -504,6 +517,42 @@ public:
   }
 
 private:
+  void _insertCar(Vehicle &&car, insert_category_push_front) {
+    VehicleEntry entry = VehicleEntry(car);
+    street.push_front(std::move(entry));
+    street.front().vehicle.update();
+  }
+
+  void _insertCar(const Vehicle &car, insert_category_push_front) {
+    VehicleEntry entry = VehicleEntry(car);
+    street.push_front(entry);
+    street.front().vehicle.update();
+  }
+
+  void _insertCar(Vehicle &&car, insert_category_collect_insert) {
+    insertedCars.push_back(car);
+    insertedCars.back().update();
+  }
+
+  void _insertCar(const Vehicle &car, insert_category_collect_insert) {
+    insertedCars.push_back(car);
+    insertedCars.back().update();
+  }
+
+  void _incorporateInsertedCars(insert_category_push_front) {
+    std::sort(street.begin(), street.end()); // restore car order (sorted by distance)
+    rBeyondsIndex = 0;
+    buildIndex();
+  }
+
+  void _incorporateInsertedCars(insert_category_collect_insert) {
+    street.insert(street.begin(), insertedCars.begin(), insertedCars.end());
+    std::sort(street.begin(), street.end()); // restore car order (sorted by distance)
+    rBeyondsIndex = 0;
+    buildIndex();
+    insertedCars.clear();
+  }
+
   void buildIndex() {
     typename vector_type::iterator endIt = street.end();
 
@@ -526,5 +575,43 @@ private:
     }
   }
 };
+
+template <template <typename T> typename Container>
+struct ContainerisedMergeNSkip {
+  template <typename ElementType>
+  using MergeNSkip = MergeNSkip<ElementType, Container>;
+};
+
+template <typename T>
+using StdVectorDefaultAllocator = std::vector<T, std::allocator<T>>;
+template <typename T>
+using CircularVectorDefaultAllocator = CircularVector<T, std::allocator<T>>;
+
+/**
+ * Traits specialisation for all std::vector container types with the default allocator.
+ */
+template <typename ElementType>
+struct mergenskip_container_traits<StdVectorDefaultAllocator, ElementType> {
+  using insert_category = insert_category_collect_insert;
+};
+
+/**
+ * Traits specialisation for all CircularVector container types with the default allocator.
+ */
+template <typename ElementType>
+struct mergenskip_container_traits<CircularVectorDefaultAllocator, ElementType> {
+  using insert_category = insert_category_push_front;
+};
+
+/**
+ * Typedefinition for MergeNSkipLinear, a MergeNSkip data structure backed by an std::vector.
+ */
+template <typename ElementType>
+using MergeNSkipLinear = ContainerisedMergeNSkip<StdVectorDefaultAllocator>::MergeNSkip<ElementType>;
+/**
+ * Typedefinition for MergeNSkipLinear, a MergeNSkip data structure backed by a CircularVector.
+ */
+template <typename ElementType>
+using MergeNSkipCircular = ContainerisedMergeNSkip<CircularVectorDefaultAllocator>::MergeNSkip<ElementType>;
 
 #endif
