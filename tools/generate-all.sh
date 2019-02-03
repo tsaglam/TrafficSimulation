@@ -22,7 +22,8 @@ function generateTests {
 
 # hardcoded for all input paths
 # generateTests <subdirectory in tools/generator_configs/>
-generateTests "carAmount"
-generateTests "gridSize"
-generateTests "sparseScaling"
-generateTests "streetLength"
+generateTests "carAmount" &
+generateTests "gridSize" &
+generateTests "sparseScaling" &
+generateTests "streetLength" &
+wait
