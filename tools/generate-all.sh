@@ -13,10 +13,15 @@ function generateTests {
 
 	eval "mkdir -p ${outDirectory}" # create outDirectory if it does not exist
 
-	for filename in "${inDirectory}/*.json"; do
-		eval "python3 gen.py -n ${GEN_N} --output-path '${outDirectory}/${filename}.{seed}.json' ${inDirectory}/{$filename}.json"
+	for filename in "${inDirectory}"/*.json; do
+		name=$(basename "$filename" .json)
+		eval "python3 gen.py -n ${GEN_N} --output-path '${outDirectory}/${name}.{seed}.json' ${inDirectory}/${name}.json"
 	done
 }
 
 # hardcoded for all input paths
 # generateTests <subdirectory in tools/generator_configs/>
+generateTests "carAmount"
+generateTests "gridSize"
+generateTests "sparseScaling"
+generateTests "streetLength"
