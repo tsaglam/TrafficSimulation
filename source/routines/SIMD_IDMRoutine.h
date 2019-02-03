@@ -187,7 +187,7 @@ private:
   }
 
   LaneChangeValues computeLaneChangeValues(
-      AccelerationComputerRfb accelerationComputer, car_iterator carIt, const int laneOffset) {
+      AccelerationComputerRfb accelerationComputer, car_iterator carIt, const int laneOffset) const {
     LowLevelStreet<RfbStructure> &street = accelerationComputer.getStreet();
 
     // PENDING [computeIsSpaceTrafficLightCar]
