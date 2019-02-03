@@ -1,4 +1,5 @@
 #!/bin/bash
+: "${GEN_N:=1}"
 
 inPath="generator_configs"
 outPath="generated_tests"
@@ -13,7 +14,7 @@ function generateTests {
 	eval "mkdir -p ${outDirectory}" # create outDirectory if it does not exist
 
 	for filename in "${inDirectory}/*.json"; do
-		eval "python3 gen.py -n 10 --output-path '${outDirectory}/${filename}.{seed}.json' ${inDirectory}/{$filename}.json"
+		eval "python3 gen.py -n ${GEN_N} --output-path '${outDirectory}/${filename}.{seed}.json' ${inDirectory}/{$filename}.json"
 	done
 }
 
