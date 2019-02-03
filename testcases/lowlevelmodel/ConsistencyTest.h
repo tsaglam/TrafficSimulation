@@ -172,6 +172,7 @@ void consistencyTest4() {
   }
 
   street.updateCarsAndRestoreConsistency();
+  street.incorporateInsertedCars();
 
   std::vector<NeighborDef> neighbors2;
   neighbors2.push_back(NeighborDef(0, 2, 0, inFront));
@@ -309,6 +310,7 @@ void consistencyTest5() {
   }
 
   street.updateCarsAndRestoreConsistency();
+  street.incorporateInsertedCars();
 
   std::vector<NeighborDef> neighbors2;
   neighbors2.push_back(NeighborDef(0, 1, 0, inFront));
@@ -464,6 +466,7 @@ void consistencyTest6() {
   }
 
   street.updateCarsAndRestoreConsistency();
+  street.incorporateInsertedCars();
 
   std::vector<NeighborDef> neighbors2;
   neighbors2.push_back(NeighborDef(0, 5, 0, inFront));
@@ -563,6 +566,7 @@ void consistencyTest7() {
   checkIterable(street.beyondsIterable(), {2, 3});
 
   street.removeBeyonds();
+  street.incorporateInsertedCars();
 
   std::vector<NeighborDef> neighbors2;
   neighbors2.push_back(NeighborDef(0, 1, 0, inFront));
@@ -617,6 +621,7 @@ void consistencyTest8() {
   checkIterable(street.beyondsIterable(), {0, 1, 2, 3, 4});
 
   street.removeBeyonds();
+  street.incorporateInsertedCars();
 
   std::vector<NeighborDef> neighbors2; // empty since all cars left the street
 
@@ -723,6 +728,8 @@ void consistencyTest9() {
   checkIterable(street.beyondsIterable(), {4, 9});
 
   street.removeBeyonds();
+
+  street.incorporateInsertedCars();
 
   std::vector<NeighborDef> neighbors2;
   neighbors2.push_back(NeighborDef(0, 3, 0, inFront));
