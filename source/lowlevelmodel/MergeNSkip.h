@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cmath>
 #include <iterator>
 #include <memory>
 #include <vector>
@@ -32,10 +33,25 @@ private:
 
   using vector_type = Container<VehicleEntry>;
 
+  class CheckpointLane {
+  public:
+    typename vector_type::size_type nextBehind;
+    typename vector_type::size_type nextInFront;
+  };
+
+  class Checkpoint {
+  public:
+    std::array<CheckpointLane, MAX_LANES> lanes;
+  };
+
   class VehicleEntry {
   public:
     typename vector_type::size_type nextBehind;
     typename vector_type::size_type nextInFront;
+    /**
+     * Last checkpoint passed by the vehicle (vehicle.getDistance() >= checkpoint).
+     */
+    typename std::vector<Checkpoint>::size_type checkpointIndex;
     Vehicle vehicle;
 
     VehicleEntry() = default;
@@ -50,17 +66,6 @@ private:
     friend bool operator>(const VehicleEntry &lhs, const VehicleEntry &rhs) {
       return compareGreater(lhs.vehicle, rhs.vehicle);
     }
-  };
-
-  class CheckpointLane {
-  public:
-    typename vector_type::size_type nextBehind;
-    typename vector_type::size_type nextInFront;
-  };
-
-  class Checkpoint {
-  public:
-    std::array<CheckpointLane, MAX_LANES> lanes;
   };
 
 public:
@@ -279,6 +284,10 @@ private:
 
   /**
    * Checkpoints at checkpointInterval.
+   *
+   * Each checkpoint is located at index * checkpointInterval and has a front view of [index * checkpointInterval,
+   * (index + 1) * checkpointInterval) and a behind view of [(index - 1) * checkpointInterval, index *
+   * checkpointInterval).
    */
   std::vector<Checkpoint> checkpoints;
 
@@ -303,7 +312,9 @@ public:
    * @param[in]  length     The length of the street.
    */
   MergeNSkip(unsigned int laneCount, double length, double checkpointInterval = MERGE_N_SKIP_CHECKPOINT_INTERVAL)
-      : laneCount(laneCount), length(length), checkpointInterval(checkpointInterval) {}
+      : laneCount(laneCount), length(length), checkpointInterval(checkpointInterval),
+        checkpoints(
+            static_cast<typename std::vector<Checkpoint>::size_type>(std::ceil(length / checkpointInterval)) + 1) {}
 
   template <bool Const = false>
   class _AllCarIterable {
@@ -379,25 +390,37 @@ public:
    * @return     The car in front represented by an iterator.
    */
   iterator getNextCarInFront(const iterator currentCarIt, const int laneOffset = 0) {
+    typename vector_type::iterator internalIt = currentCarIt.it;
     if (laneOffset == 0) {
-      return iterator(street.begin() + currentCarIt.it->nextInFront);
+      return iterator(street.begin() + internalIt->nextInFront);
     } else {
-      const unsigned int lane = currentCarIt->getLane() + laneOffset;
+      const unsigned int lane        = currentCarIt->getLane() + laneOffset;
+      const double inFrontCheckpoint = (internalIt->checkpointIndex + 1) * checkpointInterval;
+
       // iterate all cars in front of the current car (on all lanes) return first car on the specified lane
-      for (iterator it = currentCarIt + 1; it != street.end(); ++it) {
-        if (it->getLane() == lane) { return iterator(it); }
+      for (typename vector_type::iterator it = internalIt + 1; it != street.end(); ++it) {
+        if (it->vehicle.getLane() == lane) { return iterator(it); }
+        if (it->vehicle.getDistance() >= inFrontCheckpoint) {
+          return iterator(street.begin() + checkpoints[internalIt->checkpointIndex + 1].lanes[lane].nextInFront);
+        }
       }
       return iterator(street.end()); // return end iterator if no prev car exists on the given lane
     }
   }
   const_iterator getNextCarInFront(const const_iterator currentCarIt, const int laneOffset = 0) const {
+    typename vector_type::const_iterator internalIt = currentCarIt.it;
     if (laneOffset == 0) {
-      return const_iterator(street.begin() + currentCarIt.it->nextInFront);
+      return const_iterator(street.begin() + internalIt->nextInFront);
     } else {
-      const unsigned int lane = currentCarIt->getLane() + laneOffset;
+      const unsigned int lane        = currentCarIt->getLane() + laneOffset;
+      const double inFrontCheckpoint = (internalIt->checkpointIndex + 1) * checkpointInterval;
+
       // iterate all cars in front of the current car (on all lanes) return first car on the specified lane
-      for (const_iterator it = currentCarIt + 1; it != street.end(); ++it) {
-        if (it->getLane() == lane) { return const_iterator(it); }
+      for (typename vector_type::const_iterator it = internalIt + 1; it != street.end(); ++it) {
+        if (it->vehicle.getLane() == lane) { return const_iterator(it); }
+        if (it->vehicle.getDistance() >= inFrontCheckpoint) {
+          return const_iterator(street.begin() + checkpoints[internalIt->checkpointIndex + 1].lanes[lane].nextInFront);
+        }
       }
       return const_iterator(street.end()); // return end iterator if no prev car exists on the given lane
     }
@@ -413,27 +436,41 @@ public:
    * @return     The car behind the current car represented by an iterator.
    */
   iterator getNextCarBehind(const iterator currentCarIt, const int laneOffset = 0) {
+    typename vector_type::iterator internalIt = currentCarIt.it;
     if (laneOffset == 0) {
-      return iterator(street.begin() + currentCarIt.it->nextBehind);
+      return iterator(street.begin() + internalIt->nextBehind);
     } else {
-      const unsigned int lane = currentCarIt->getLane() + laneOffset;
-      // iterate all cars behind the current car (on all lanes) return first car on the specified lane
-      for (iterator it = currentCarIt; it != street.begin(); --it) { // reverse iteration
-        if ((it - 1)->getLane() == lane) { return iterator(it - 1); }
+      const unsigned int lane       = currentCarIt->getLane() + laneOffset;
+      const double behindCheckpoint = internalIt->checkpointIndex * checkpointInterval;
+
+      // iterate all cars in front of the current car (on all lanes) return first car on the specified lane
+      for (typename vector_type::iterator it = internalIt; it != street.begin(); --it) {
+        typename vector_type::iterator trueIt = it - 1;
+        if (trueIt->vehicle.getLane() == lane) { return iterator(trueIt); }
+        if (trueIt->vehicle.getDistance() < behindCheckpoint) {
+          return iterator(street.begin() + checkpoints[internalIt->checkpointIndex].lanes[lane].nextBehind);
+        }
       }
-      return iterator(street.end()); // return end iterator if no next car exists on the given lane
+      return iterator(street.end()); // return end iterator if no prev car exists on the given lane
     }
   }
   const_iterator getNextCarBehind(const const_iterator currentCarIt, const int laneOffset = 0) const {
+    typename vector_type::const_iterator internalIt = currentCarIt.it;
     if (laneOffset == 0) {
-      return const_iterator(street.begin() + currentCarIt.it->nextBehind);
+      return const_iterator(street.begin() + internalIt->nextBehind);
     } else {
-      const unsigned int lane = currentCarIt->getLane() + laneOffset;
-      // iterate all cars behind the current car (on all lanes) return first car on the specified lane
-      for (const_iterator it = currentCarIt; it != street.begin(); --it) { // reverse iteration
-        if ((it - 1)->getLane() == lane) { return const_iterator(it - 1); }
+      const unsigned int lane       = currentCarIt->getLane() + laneOffset;
+      const double behindCheckpoint = internalIt->checkpointIndex * checkpointInterval;
+
+      // iterate all cars in front of the current car (on all lanes) return first car on the specified lane
+      for (typename vector_type::const_iterator it = internalIt; it != street.begin(); --it) {
+        typename vector_type::const_iterator trueIt = it - 1;
+        if (trueIt->vehicle.getLane() == lane) { return const_iterator(trueIt); }
+        if (trueIt->vehicle.getDistance() < behindCheckpoint) {
+          return const_iterator(street.begin() + checkpoints[internalIt->checkpointIndex].lanes[lane].nextBehind);
+        }
       }
-      return const_iterator(street.end()); // return end iterator if no next car exists on the given lane
+      return const_iterator(street.end()); // return end iterator if no prev car exists on the given lane
     }
   }
 
@@ -554,24 +591,70 @@ private:
   }
 
   void buildIndex() {
-    typename vector_type::iterator endIt = street.end();
-
-    // Prepare the lastCarIts array
-    std::array<typename vector_type::iterator, MAX_LANES> lastCarIts;
-    std::fill_n(lastCarIts.begin(), MAX_LANES, endIt);
-
-    // std::vector<Checkpoint>::iterator checkpointIt = checkpoints.begin();
-
     typename vector_type::iterator beginIt = street.begin();
+    typename vector_type::iterator endIt   = street.end();
+
+    // Prepare the lastVehicleIts array
+    std::array<typename vector_type::iterator, MAX_LANES> lastVehicleIts;
+    std::fill_n(lastVehicleIts.begin(), MAX_LANES, endIt);
+
+    // Prepare checkpoint calculation
+    double nextCheckpoint                                       = checkpointInterval;
+    typename std::vector<Checkpoint>::size_type checkpointIndex = 0;
+    std::array<typename std::vector<Checkpoint>::size_type, MAX_LANES> nextIncompleteCheckpointIndex;
+    std::fill_n(nextIncompleteCheckpointIndex.begin(), MAX_LANES, 0);
+
+    // Set nextInFront index to the end index for all lanes of the first checkpoint.
+    for (unsigned int lane = 0; lane < MAX_LANES; ++lane) { checkpoints[0].lanes[lane].nextInFront = endIt - beginIt; }
+
     for (typename vector_type::iterator it = beginIt; it != endIt; ++it) {
-      unsigned int lane = it->vehicle.getLane();
-      if (lastCarIts[lane] != endIt) lastCarIts[lane]->nextInFront = it - beginIt;
-      it->nextBehind   = lastCarIts[lane] - beginIt;
-      lastCarIts[lane] = it;
+      // Check if new checkpoint has been reached and set nextBehind indices if this is the case.
+      while (it->vehicle.getDistance() >= nextCheckpoint) {
+        nextCheckpoint += checkpointInterval;
+        ++checkpointIndex;
+
+        for (unsigned int i = 0; i < MAX_LANES; ++i) {
+          checkpoints[checkpointIndex].lanes[i].nextBehind = lastVehicleIts[i] - beginIt;
+        }
+      }
+
+      // Update nextBehind, nextInFront indices for the vehicle and the vehicle directly behind.
+      unsigned int lane                            = it->vehicle.getLane();
+      typename vector_type::size_type vehicleIndex = it - beginIt;
+      if (lastVehicleIts[lane] != endIt) lastVehicleIts[lane]->nextInFront = vehicleIndex;
+      it->nextBehind       = lastVehicleIts[lane] - beginIt;
+      lastVehicleIts[lane] = it;
+      // Set checkpoint index for the vehicle.
+      it->checkpointIndex = checkpointIndex;
+
+      // Update previous checkpoints: Set inFront indices if unset.
+      if (nextIncompleteCheckpointIndex[lane] <= checkpointIndex) {
+        for (typename std::vector<Checkpoint>::size_type i = nextIncompleteCheckpointIndex[lane]; i <= checkpointIndex;
+             ++i) {
+          checkpoints[i].lanes[lane].nextInFront = vehicleIndex;
+        }
+
+        nextIncompleteCheckpointIndex[lane] = checkpointIndex + 1;
+      }
     }
 
-    for (typename vector_type::iterator &lastCarIt : lastCarIts) {
-      if (lastCarIt != endIt) lastCarIt->nextInFront = endIt - beginIt;
+    // Set nextBehind, nextInFront indices for the last vehicle on each lane to the end index.
+    for (typename vector_type::iterator &lastVehicleIt : lastVehicleIts) {
+      if (lastVehicleIt != endIt) lastVehicleIt->nextInFront = endIt - beginIt;
+    }
+
+    // Set nextInFront index to the end index for all checkpoints where this is unset.
+    for (unsigned int lane = 0; lane < MAX_LANES; ++lane) {
+      for (typename std::vector<Checkpoint>::size_type i = nextIncompleteCheckpointIndex[lane]; i < checkpoints.size();
+           ++i) {
+        checkpoints[i].lanes[lane].nextInFront = endIt - beginIt;
+      }
+    }
+
+    // Set nextBehind index to the end index for all checkpoints where this is unset.
+    for (typename std::vector<Checkpoint>::iterator checkpointIt = checkpoints.begin() + checkpointIndex;
+         checkpointIt != checkpoints.end(); ++checkpointIt) {
+      for (unsigned int i = 0; i < MAX_LANES; ++i) { checkpointIt->lanes[i].nextBehind = endIt - beginIt; }
     }
   }
 };
