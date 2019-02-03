@@ -12,11 +12,11 @@
 
 template <template <typename Vehicle> typename RfbStructure>
 class IDMRoutine {
-private:
+protected:
   using car_iterator = typename LowLevelStreet<RfbStructure>::iterator;
   using AccelerationComputerRfb = AccelerationComputer<RfbStructure>;
 
-private:
+protected:
   class LaneChangeValues {
   public:
     bool valid;          // if true, the further fields are valid
@@ -28,7 +28,7 @@ private:
         : valid(true), acceleration(_acceleration), indicator(_indicator) {}
   };
 
-private:
+protected:
   SimulationData<RfbStructure> &data;
 
 public:
@@ -37,7 +37,7 @@ public:
     for (auto &street : data.getStreets()) { processStreet(street); }
   }
 
-private:
+protected:
   void processStreet(LowLevelStreet<RfbStructure> &street) {
     // Initialise acceleration computer for use during computation
     AccelerationComputerRfb accelerationComputer(street);
