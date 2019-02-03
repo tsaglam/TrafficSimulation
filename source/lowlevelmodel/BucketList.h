@@ -11,6 +11,8 @@
 #include "FreeList.h"
 #include "RfbStructureTraits.h"
 
+unsigned BucketListSectionLength = 25;
+
 template <class Car, class Bucket>
 class BucketList {
 private:
@@ -70,8 +72,8 @@ public:
    * @param[in]  length        The length of the street.
    * @param[in]  sectionLength The length of section represented by a bucket
    */
-  BucketList(const unsigned int laneCount, const double length, const double sectionLength = 25)
-      : laneCount(laneCount), streetLength(length), sectionLength(sectionLength),
+  BucketList(const unsigned int laneCount, const double length)
+      : laneCount(laneCount), streetLength(length), sectionLength(BucketListSectionLength),
         buckets(std::ceil(length / sectionLength) * laneCount) {}
 
   // ------- Iterator & Iterable type defs -------
@@ -466,8 +468,8 @@ private:
 
 public:
   VectorBucketList() = default;
-  VectorBucketList(const unsigned int laneCount, const double length, const double sectionLength = 25)
-      : list(laneCount, length, sectionLength) {}
+  VectorBucketList(const unsigned int laneCount, const double length)
+      : list(laneCount, length) {}
 
   // ------- Iterator & Iterable type defs -------
   using iterator                = typename BucketList<Car, Bucket>::iterator;
@@ -523,8 +525,8 @@ private:
 
 public:
   FreeListBucketList() = default;
-  FreeListBucketList(const unsigned int laneCount, const double length, const double sectionLength = 25)
-      : list(laneCount, length, sectionLength) {}
+  FreeListBucketList(const unsigned int laneCount, const double length)
+      : list(laneCount, length) {}
 
   // ------- Iterator & Iterable type defs -------
   using iterator                = typename BucketList<Car, Bucket>::iterator;

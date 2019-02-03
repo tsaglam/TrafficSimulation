@@ -142,12 +142,14 @@ public:
   bucket_list_iterator &operator+=(const difference_type &n) {
     if (n < 0) { return operator-=(-n); }
     // determine correct bucket
-    buckets_iterator bucket                  = currentBucket;
     const unsigned remainingElementsInBucket = currentBucket->end() - currentPositionInBucket; // including current
     difference_type remainingDifference      = n - remainingElementsInBucket;                  // TODO check this
     while (remainingDifference > 0) {
       ++currentBucket;
-      if (currentBucket == endBucket) { return bucket_list_iterator(beginBucket, endBucket, 0); } // end iterator
+      if (currentBucket == endBucket) {  // end iterator
+        setToEnd();
+        return *this;
+      }
       remainingDifference -= currentBucket->size();
     }
 
