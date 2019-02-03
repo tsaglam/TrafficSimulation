@@ -15,7 +15,7 @@
 template <template <typename Vehicle> typename RfbStructure>
 class SMDI_IDMRoutine {
 private:
-  using car_iterator = typename LowLevelStreet<RfbStructure>::iterator;
+  using car_iterator            = typename LowLevelStreet<RfbStructure>::iterator;
   using AccelerationComputerRfb = AccelerationComputer<RfbStructure>;
 
 private:
@@ -77,8 +77,8 @@ private:
     }
   }
 
-  std::array<double, 4> computeLaneChangeAccelerationSIMD(const double speedLimit, std::array<car_iterator, 3> car_it,
-      std::array<car_iterator, 3> car_inFront_it, car_iterator end) const {
+  std::array<double, 4> computeLaneChangeAccelerationSIMD(const double speedLimit, std::array<car_iterator, 4> car_it,
+      std::array<car_iterator, 4> car_inFront_it, car_iterator end) const {
     // Compute the acceleration of the car on the new lane and its behind neighbors on the old and new lane in case of a
     // lane change using SIMD instructions.
     // [0]: car itself, [1]: behind on old lane, [2]: behind on new lane, [3]: unused
@@ -205,15 +205,14 @@ private:
     // Retrieve next car behind the car in question (no lane change).
     car_iterator carBehindIt = street.getNextCarBehind(carIt, 0);
 
-    // TODO decide when to use SIMD
-    std::array<car_iterator, 3> cars        = {carIt, carBehindIt, laneChangeCarBehindIt};
-    std::array<car_iterator, 3> carsInFront = {laneChangeCarInFrontIt, carInFrontIt, laneChangeCarInFrontIt};
-    std::array<double, 4> accelerations     = {0, 0, 0, 0};
-
     // compute without SIMD if only one acceleration is computed (because there are no cars behind on both lanes)
+    std::array<double, 4> accelerations = {0, 0, 0, 0};
     if (accelerationComputer.isEnd(carBehindIt) && accelerationComputer.isEnd(laneChangeCarBehindIt)) {
-      accelerations[0] = accelerationComputer(cars[0], carsInFront[0]);
+      accelerations[0] = accelerationComputer(carIt, laneChangeCarInFrontIt);
     } else { // use SIMD to compute two or more accelerations
+      std::array<car_iterator, 4> cars        = {carIt, carBehindIt, laneChangeCarBehindIt, accelerationComputer.end()};
+      std::array<car_iterator, 4> carsInFront = {
+          laneChangeCarInFrontIt, carInFrontIt, laneChangeCarInFrontIt, accelerationComputer.end()};
       accelerations =
           computeLaneChangeAccelerationSIMD(street.getSpeedLimit(), cars, carsInFront, accelerationComputer.end());
     }
