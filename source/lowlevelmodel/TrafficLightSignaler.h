@@ -449,14 +449,15 @@ public:
       // Create a new scope using brackets to be able to initialise variable only here
       typename ConcreteRfbStructure::iterator inFrontIt = rfb.getNextCarInFront(originVehicleIt.dest, laneOffset);
 
-      double inFrontDistance;
-      if (inFrontIt == rfb.allIterable().end())
-        inFrontDistance = rfb.getLength();
-      else
-        inFrontDistance = inFrontIt->getDistance();
-
       if (signal == RED) {
         // Traffic light is RED, check if the traffic light is between the origin car and the next car in front.
+
+        double inFrontDistance;
+        if (inFrontIt == rfb.allIterable().end())
+          inFrontDistance = rfb.getLength();
+        else
+          inFrontDistance = inFrontIt->getDistance();
+
         if (inFrontDistance > trafficLightCar.getDistance() &&
             originVehicleIt->getDistance() <= trafficLightCar.getDistance())
           return iterator(originVehicleIt.dest, inFrontIt, trafficLightCar);
@@ -474,14 +475,15 @@ public:
       // Create a new scope using brackets to be able to initialise variable only here
       typename ConcreteRfbStructure::const_iterator inFrontIt = rfb.getNextCarInFront(originVehicleIt.dest, laneOffset);
 
-      double inFrontDistance;
-      if (inFrontIt == rfb.allIterable().end())
-        inFrontDistance = rfb.getLength();
-      else
-        inFrontDistance = inFrontIt->getDistance();
-
       if (signal == RED) {
         // Traffic light is RED, check if the traffic light is between the origin car and the next car in front.
+
+        double inFrontDistance;
+        if (inFrontIt == rfb.allIterable().end())
+          inFrontDistance = rfb.getLength();
+        else
+          inFrontDistance = inFrontIt->getDistance();
+
         if (inFrontDistance > trafficLightCar.getDistance() &&
             originVehicleIt->getDistance() <= trafficLightCar.getDistance())
           return const_iterator(originVehicleIt.dest, inFrontIt, trafficLightCar);
