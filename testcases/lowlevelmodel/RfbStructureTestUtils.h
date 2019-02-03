@@ -53,9 +53,9 @@ struct NeighborDef {
       : carId(carId), neighborId(neighborId), laneOffset(laneOffset), state(state) {}
 };
 
-template <template <class Car> class Street>
+template <class ConcreteStreet>
 void assertNeighborDef(
-    const Street<LowLevelCar> &street, typename Street<LowLevelCar>::const_iterator carIt, const NeighborDef def) {
+    const ConcreteStreet &street, typename ConcreteStreet::const_iterator carIt, const NeighborDef def) {
   AssertThat(carIt->getId(), Is().EqualTo(def.carId));
   auto neighbor = (def.state == inFront) ? street.getNextCarInFront(carIt, def.laneOffset)
                                          : street.getNextCarBehind(carIt, def.laneOffset);
@@ -67,8 +67,8 @@ void assertNeighborDef(
   }
 }
 
-template <template <class Car> class Street>
-void checkNeighbors(const Street<LowLevelCar> &street, const std::vector<NeighborDef> &neighborDefinitionsVector) {
+template <class ConcreteStreet>
+void checkNeighbors(const ConcreteStreet &street, const std::vector<NeighborDef> &neighborDefinitionsVector) {
   // create map from vector using the carId as key
   std::map<unsigned, std::vector<NeighborDef>> neighborDefinitionsMap;
   for (const NeighborDef &def : neighborDefinitionsVector) {
