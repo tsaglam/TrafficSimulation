@@ -44,10 +44,11 @@ private:
     // Initialise acceleration computer for use during computation
     AccelerationComputerRfb accelerationComputer(street);
 
-    for (car_iterator carIt = street.allIterable().begin(); accelerationComputer.isNotEnd(carIt); ++carIt) {
-      const double baseAcceleration = accelerationComputer(carIt, 0);
-      carIt->setNextBaseAcceleration(baseAcceleration);
+    car_iterator carIt = street.allIterable().begin();
+    for (int i = 0; i < (int)street.getCarCount() - 4; i += 4) {          // for all blocks of four cars on the street
+      carIt = compute4BaseAccelerationsSIMD(accelerationComputer, carIt); // compute and set base acceleration
     }
+    computeBaseAcceleration(accelerationComputer, carIt); // compute and set base acceleration of all remaining cars
 
     for (car_iterator carIt = street.allIterable().begin(); accelerationComputer.isNotEnd(carIt); ++carIt) {
       LaneChangeValues leftLaneChange;
@@ -75,6 +76,45 @@ private:
 
       computeAndSetDynamics(*carIt, nextAcceleration, carIt->getLane() + laneOffset);
     }
+  }
+
+  /**
+   * Computes and sets the base acceleration from the given begin to accelerationComputer.end() using the acceleration
+   * computer. Returns the iterator of the next car to process (= end).
+   * @param[in]  accelerationComputer  The acceleration computer
+   * @param[in]  begin                 The car to begin from
+   * @return     The iterator of the next car to process (= end)
+   */
+  car_iterator computeBaseAcceleration(AccelerationComputerRfb accelerationComputer, car_iterator begin) {
+    for (car_iterator carIt = begin; accelerationComputer.isNotEnd(carIt); ++carIt) {
+      const double baseAcceleration = accelerationComputer(carIt, 0);
+      carIt->setNextBaseAcceleration(baseAcceleration);
+    }
+    return accelerationComputer.end();
+  }
+
+  /**
+   * Computes four base accelerations from begin to begin + 4 using SIMD, the iterators must exists and be != end.
+   * Returns the iterator of the next car to process (= end).
+   * @param[in]  accelerationComputer  The acceleration computer
+   * @param[in]  begin                 The car to begin from
+   * @return     The iterator of the next car to process (= end)
+   */
+  car_iterator compute4BaseAccelerationsSIMD(AccelerationComputerRfb accelerationComputer, car_iterator begin) {
+    LowLevelStreet<RfbStructure> &street = accelerationComputer.getStreet();
+    std::array<car_iterator, 4> cars, carsInFront;
+    car_iterator carIt = begin;
+    for (unsigned i = 0; i < 4; ++i) {
+      cars[i]        = carIt;
+      carsInFront[i] = street.getNextCarInFront(carIt);
+      carIt++;
+    }
+    std::array<double, 4> accelerations =
+        computeLaneChangeAccelerationSIMD(street.getSpeedLimit(), cars, carsInFront, accelerationComputer.end());
+
+    carIt = begin;
+    for (unsigned i = 0; i < 4; ++i) { (carIt++)->setNextBaseAcceleration(accelerations[i]); }
+    return carIt;
   }
 
   std::array<double, 4> computeLaneChangeAccelerationSIMD(const double speedLimit, std::array<car_iterator, 4> car_it,
