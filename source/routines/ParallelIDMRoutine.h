@@ -34,7 +34,7 @@ private:
   };
 
 private:
-  const unsigned long PARALLEL_THRESHOLD = 100;
+  const unsigned long PARALLEL_THRESHOLD = 50;
   SimulationData<RfbStructure> &data;
   std::vector<unsigned int> carWise;
   std::vector<unsigned int> streetWise;
@@ -71,28 +71,9 @@ public:
     streetWise.clear();
   }
 
-  void performSequential(std::vector<unsigned int> &streetIds) {
-    for (auto streetId : streetIds) {
-      auto &street = data.getStreet(streetId);
-      // Initialise acceleration computer for use during computation
-      AccelerationComputer accelerationComputer(street);
-      // compute all accelerations:
-      for (car_iterator carIt = street.allIterable().begin(); accelerationComputer.isNotEnd(carIt); ++carIt) {
-        const double baseAcceleration = accelerationComputer(carIt, 0);
-        carIt->setNextBaseAcceleration(baseAcceleration);
-      }
-      for (car_iterator carIt = street.allIterable().begin(); accelerationComputer.isNotEnd(carIt); ++carIt) {
-        processLaneDecision(carIt, street);
-      }
-    }
-  }
-
 private:
   void performStreetWise(std::vector<unsigned int> &streetIds) {
-// #ifdef _OPENMP
-//     unsigned int customBlockSize = streetIds.size() / omp_get_max_threads();
-// #endif
-#pragma omp parallel for shared(data) schedule(static) //, customBlockSize)
+#pragma omp parallel for shared(data) schedule(static)
     for (std::size_t i = 0; i < streetIds.size(); i++) {
       // get the right street
       auto &street = data.getStreet(streetIds[i]);
