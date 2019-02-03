@@ -23,8 +23,9 @@ public:
 // #ifdef _OPENMP
 //     unsigned int customBlockSize = streetIds.size() / omp_get_max_threads();
 // #endif
-#pragma omp parallel for shared(this->data) schedule(static) //, customBlockSize)
-    for (unsigned i = 0; i < this->data.getStreets().size(); i++) { this->processStreet(this->data.getStreet(i)); }
+auto &dataRef = this->data;
+#pragma omp parallel for shared(dataRef) schedule(static) //, customBlockSize)
+    for (unsigned i = 0; i < dataRef.getStreets().size(); i++) { this->processStreet(dataRef.getStreet(i)); }
   }
 };
 
