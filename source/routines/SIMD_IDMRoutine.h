@@ -213,30 +213,47 @@ private:
     __m256d vec_inFrontPosition     = _mm256_loadu_pd(&inFrontPosition[0]);
 
     // compute partial results
-    __m256d vec_velocityTargetHeadwayMultiplier = _mm256_mul_pd(vec_currentVelocity, vec_targetHeadway);
+    // current velocity / target velocity
+    __m256d vec_unrestrictedDrivingFactor = _mm256_div_pd(vec_currentVelocity, vec_targetVelocity);
+    // (current velocity / target velocity)^2
+    vec_unrestrictedDrivingFactor = _mm256_mul_pd(vec_unrestrictedDrivingFactor, vec_unrestrictedDrivingFactor);
+    // (current velocity / target velocity)^4
+    vec_unrestrictedDrivingFactor = _mm256_mul_pd(vec_unrestrictedDrivingFactor, vec_unrestrictedDrivingFactor);
+    // 1 - (current velocity / target velocity)^4
+    vec_unrestrictedDrivingFactor = _mm256_sub_pd(vec_ONE, vec_unrestrictedDrivingFactor);
 
-    __m256d vec_nestedFraction = _mm256_sub_pd(vec_currentVelocity, vec_inFrontVelocity);
-    vec_nestedFraction         = _mm256_mul_pd(vec_currentVelocity, vec_nestedFraction);
-    vec_nestedFraction         = _mm256_div_pd(vec_nestedFraction, vec_accelerationDivisor);
+    // in front distance - in front length
+    __m256d vec_distanceDelta = _mm256_sub_pd(vec_inFrontPosition, vec_inFrontLength);
+    // (in front distance - in front length) - own distance
+    vec_distanceDelta = _mm256_sub_pd(vec_distanceDelta, vec_currentPosition);
 
-    __m256d vec_denominatorSum = _mm256_add_pd(vec_minDistance, vec_velocityTargetHeadwayMultiplier);
-    vec_denominatorSum         = _mm256_add_pd(vec_denominatorSum, vec_nestedFraction);
+    // own velocity - in front velocity
+    __m256d vec_velocityDelta = _mm256_sub_pd(vec_currentVelocity, vec_inFrontVelocity);
 
-    __m256d vec_distanceToInFront = _mm256_sub_pd(vec_currentPosition, vec_inFrontPosition);
-    vec_distanceToInFront         = _mm256_sub_pd(vec_distanceToInFront, vec_inFrontLength);
+    // own velocity * velocity delta
+    __m256d vec_fractionInFraction = _mm256_mul_pd(vec_currentVelocity, vec_velocityDelta);
+    // (own velocity * velocity delta) / acceleration divisor
+    vec_fractionInFraction = _mm256_div_pd(vec_fractionInFraction, vec_accelerationDivisor);
 
-    __m256d vec_secondFraction        = _mm256_div_pd(vec_denominatorSum, vec_distanceToInFront);
-    __m256d vec_secondFractionSquared = _mm256_mul_pd(vec_secondFraction, vec_secondFraction);
-    vec_secondFractionSquared         = _mm256_mul_pd(vec_secondFractionSquared, vec_inFrontMultiplier);
+    // velocity * target headway
+    __m256d vec_carInFrontFactorDividend = _mm256_mul_pd(vec_currentVelocity, vec_targetHeadway);
+    // min distance + (velocity * target headway)
+    vec_carInFrontFactorDividend = _mm256_add_pd(vec_minDistance, vec_carInFrontFactorDividend);
+    // min distance + (velocity * target headway) + fraction in fraction
+    vec_carInFrontFactorDividend = _mm256_add_pd(vec_carInFrontFactorDividend, vec_fractionInFraction);
 
-    __m256d vec_firstFraction     = _mm256_div_pd(vec_currentVelocity, vec_targetVelocity);
-    __m256d vec_firstFractionPow4 = _mm256_mul_pd(vec_firstFraction, vec_firstFraction);
-    vec_firstFractionPow4         = _mm256_mul_pd(vec_firstFractionPow4, vec_firstFractionPow4);
+    // car in front dividend / distance delta
+    __m256d vec_carInFrontFactor = _mm256_div_pd(vec_carInFrontFactorDividend, vec_distanceDelta);
+    // (car in front dividend / distance delta)^2
+    vec_carInFrontFactor = _mm256_mul_pd(vec_carInFrontFactor, vec_carInFrontFactor);
+    // set to 0 if there is no car in front
+    vec_carInFrontFactor = _mm256_mul_pd(vec_inFrontMultiplier, vec_carInFrontFactor);
 
     // acceleration from partial results
-    __m256d vec_acceleration = _mm256_sub_pd(vec_ONE, vec_firstFractionPow4);
-    vec_acceleration         = _mm256_sub_pd(vec_acceleration, vec_secondFractionSquared);
-    vec_acceleration         = _mm256_mul_pd(vec_acceleration, vec_maxAcceleration);
+    // (unrestricted driving factor - car in front factor)
+    __m256d vec_acceleration = _mm256_sub_pd(vec_unrestrictedDrivingFactor, vec_carInFrontFactor);
+    // max acceleration * (unrestricted driving factor - car in front factor)
+    vec_acceleration = _mm256_mul_pd(vec_acceleration, vec_maxAcceleration);
 
     // store results in array and return
     std::array<double, arrayLength> accelerations;
