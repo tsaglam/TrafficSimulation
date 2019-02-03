@@ -1,6 +1,7 @@
 #include "BucketList.h"
 #include "CircularNaiveStreetDataStructure.h"
 #include "MergeNSkip.h"
+#include "MergeNSkipLinear.h"
 #include "NaiveStreetDataStructure.h"
 #include "domainmodel/DomainModelTest.h"
 #include "domainmodel/JunctionTest.h"
@@ -246,6 +247,43 @@ int main() {
   RUN(consistencyTest7<MergeNSkip>);
   RUN(consistencyTest8<MergeNSkip>);
   RUN(consistencyTest9<MergeNSkip>);
+
+  // RfbStructure - MergeNSkipLinear
+  std::cout << "\n   MergeNSkipLinear\n";
+  RUN(constructorAndConstMembersTest<MergeNSkipLinear>);
+  RUN(getNextCarIteratorTest1<MergeNSkipLinear>);
+  std::cout << "\n";
+  RUN(allIterableTest1<MergeNSkipLinear>);
+  RUN(allIterableTest2<MergeNSkipLinear>);
+  RUN(allIterableTest3<MergeNSkipLinear>);
+  RUN(allIterableTest4<MergeNSkipLinear>);
+  RUN(allIterableTest5<MergeNSkipLinear>);
+  RUN(allIterableTest6<MergeNSkipLinear>);
+  std::cout << "\n";
+  RUN(getNextCarTest1<MergeNSkipLinear>);
+  RUN(getNextCarTest2<MergeNSkipLinear>);
+  RUN(getNextCarTest3<MergeNSkipLinear>);
+  RUN(getNextCarTest4<MergeNSkipLinear>);
+  RUN(getNextCarTest5<MergeNSkipLinear>);
+  std::cout << "\n";
+  RUN(insertCarTest1<MergeNSkipLinear>);
+  RUN(insertCarTest2<MergeNSkipLinear>);
+  RUN(insertCarTest3<MergeNSkipLinear>);
+  RUN(insertCarTest4<MergeNSkipLinear>);
+  RUN(insertCarTest5<MergeNSkipLinear>);
+  RUN(insertCarTest6<MergeNSkipLinear>);
+  RUN(insertCarTest7<MergeNSkipLinear>);
+  RUN(insertCarTest8<MergeNSkipLinear>);
+  std::cout << "\n";
+  RUN(consistencyTest1<MergeNSkipLinear>);
+  RUN(consistencyTest2<MergeNSkipLinear>);
+  RUN(consistencyTest3<MergeNSkipLinear>);
+  RUN(consistencyTest4<MergeNSkipLinear>);
+  RUN(consistencyTest5<MergeNSkipLinear>);
+  RUN(consistencyTest6<MergeNSkipLinear>);
+  RUN(consistencyTest7<MergeNSkipLinear>);
+  RUN(consistencyTest8<MergeNSkipLinear>);
+  RUN(consistencyTest9<MergeNSkipLinear>);
 
   // Prints the test results and the number of failed tests:
   if (numberOfFailedTests == 0) {

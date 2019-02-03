@@ -10,6 +10,7 @@
 #include "JSONReader.h"
 #include "JSONWriter.h"
 #include "MergeNSkip.h"
+#include "MergeNSkipLinear.h"
 #include "NaiveStreetDataStructure.h"
 #include "NullRoutine.h"
 #include "OptimizationRoutine.h"
