@@ -22,6 +22,28 @@ private:
   using ConcreteRfbStructure = RfbStructure<LowLevelCar>;
 
 public:
+  /**
+   * @brief      Exception for signaling errors.
+   */
+  class Exception : public std::exception {
+
+  public:
+    /**
+     * @brief      Constructs the object.
+     * @param[in]  message   Is the custom exception message which is passed along.
+     */
+    Exception(const std::string message) : fullMessage(message) {}
+
+    /**
+     * @brief      Returns the full exception message.
+     * @return     the custom exception message.
+     */
+    virtual const char *what() const throw() { return fullMessage.c_str(); }
+
+  private:
+    std::string fullMessage;
+  };
+
   template <typename RfbIterator, bool Const>
   class BaseIterator {
   public:
@@ -465,7 +487,37 @@ public:
 
       return iterator(inFrontIt);
     }
-    case iterator::SPECIAL: return iterator(originVehicleIt.inFrontIt);
+    case iterator::SPECIAL: {
+      if (laneOffset == 0) return iterator(originVehicleIt.inFrontIt);
+
+      typename ConcreteRfbStructure::iterator endIt = rfb.allIterable().end();
+      iterator wrappedEndIt                         = iterator(endIt);
+
+      if (originVehicleIt.behindIt == endIt) {
+        // The behindIt of special cars should always be != endIt.
+        // If this turns out to not be the case, the same mechanism as in getNextCarBehind should be implemented here.
+        throw TrafficLightSignaler::Exception("Encountered special car with behindIt == endIt.");
+      } else {
+        // There is a car behind the special car
+        // Use this car to perform a forward search until a car in front of the special car is found.
+
+        iterator wrappedForwardSearchIt;
+        // Search for the next car in front on the correct lane
+        // The getNextCarInFront method of TrafficLightSignaler has to be used, the car in front might be a traffic
+        // light car.
+        if (originVehicleIt.behindIt != endIt)
+          wrappedForwardSearchIt = getNextCarInFront(iterator(originVehicleIt.behindIt), laneOffset);
+        else
+          return wrappedEndIt;
+
+        while (wrappedForwardSearchIt != wrappedEndIt &&
+               wrappedForwardSearchIt->getDistance() <= originVehicleIt->getDistance()) {
+          // As long as wrappedForwardSearchIt is behind originVehicleIt, look for the next car in front
+          wrappedForwardSearchIt = getNextCarInFront(wrappedForwardSearchIt, 0);
+        }
+        return wrappedForwardSearchIt;
+      }
+    }
     default: return iterator();
     }
   }
@@ -491,7 +543,37 @@ public:
 
       return const_iterator(inFrontIt);
     }
-    case const_iterator::SPECIAL: return const_iterator(originVehicleIt.inFrontIt);
+    case const_iterator::SPECIAL: {
+      if (laneOffset == 0) return const_iterator(originVehicleIt.inFrontIt);
+
+      typename ConcreteRfbStructure::const_iterator endIt = rfb.allIterable().end();
+      const_iterator wrappedEndIt                         = const_iterator(endIt);
+
+      if (originVehicleIt.behindIt == endIt) {
+        // The behindIt of special cars should always be != endIt.
+        // If this turns out to not be the case, the same mechanism as in getNextCarBehind should be implemented here.
+        throw TrafficLightSignaler::Exception("Encountered special car with behindIt == endIt.");
+      } else {
+        // There is a car behind the special car
+        // Use this car to perform a forward search until a car in front of the special car is found.
+
+        const_iterator wrappedForwardSearchIt;
+        // Search for the next car in front on the correct lane
+        // The getNextCarInFront method of TrafficLightSignaler has to be used, the car in front might be a traffic
+        // light car.
+        if (originVehicleIt.behindIt != endIt)
+          wrappedForwardSearchIt = getNextCarInFront(const_iterator(originVehicleIt.behindIt), laneOffset);
+        else
+          return wrappedEndIt;
+
+        while (wrappedForwardSearchIt != wrappedEndIt &&
+               wrappedForwardSearchIt->getDistance() <= originVehicleIt->getDistance()) {
+          // As long as wrappedForwardSearchIt is behind originVehicleIt, look for the next car in front
+          wrappedForwardSearchIt = getNextCarInFront(wrappedForwardSearchIt, 0);
+        }
+        return wrappedForwardSearchIt;
+      }
+    }
     default: return const_iterator();
     }
   }
@@ -512,28 +594,90 @@ public:
   iterator getNextCarBehind(iterator originVehicleIt, const int laneOffset = 0) {
     switch (originVehicleIt.state) {
     case iterator::PROXY: return iterator(rfb.getNextCarBehind(originVehicleIt.dest, laneOffset));
-    case iterator::SPECIAL: return iterator(originVehicleIt.behindIt);
+    case iterator::SPECIAL: {
+      if (laneOffset == 0) return iterator(originVehicleIt.behindIt);
+
+      typename ConcreteRfbStructure::iterator endIt = rfb.allIterable().end();
+
+      if (originVehicleIt.inFrontIt == endIt) {
+        // There is no car in front of the special car
+        // Use the car behind (which is never == endIt) to perform a forward search until a car in front of the special
+        // car is found. Then the car behind this car is returned.
+
+        typename ConcreteRfbStructure::iterator candidate = endIt;
+        typename ConcreteRfbStructure::iterator forwardSearchIt =
+            rfb.getNextCarInFront(originVehicleIt.behindIt, laneOffset);
+
+        while (forwardSearchIt != endIt && forwardSearchIt->getDistance() <= originVehicleIt->getDistance()) {
+          // As long as forwardSearchIt is behind of originVehicleIt, look for the next car in front
+          // forwardSearchIt is the new candidate for the return value
+          candidate       = forwardSearchIt;
+          forwardSearchIt = rfb.getNextCarInFront(candidate, 0);
+        }
+        return iterator(candidate);
+      } else {
+        // There is a car in front of the special car
+        // Use this car to perform a backward search until a car behind the special car is found.
+
+        typename ConcreteRfbStructure::iterator backwardSearchIt;
+        // Search for the next car behind on the correct lane
+        if (originVehicleIt.inFrontIt != endIt)
+          backwardSearchIt = rfb.getNextCarBehind(originVehicleIt.inFrontIt, laneOffset);
+        else
+          return iterator(endIt);
+
+        while (backwardSearchIt != endIt && backwardSearchIt->getDistance() >= originVehicleIt->getDistance()) {
+          // As long as backwardSearchIt is in front of originVehicleIt, look for the next car behind
+          backwardSearchIt = rfb.getNextCarBehind(backwardSearchIt, 0);
+        }
+        return iterator(backwardSearchIt);
+      }
+    }
     default: return iterator();
     }
   }
   const_iterator getNextCarBehind(const_iterator originVehicleIt, const int laneOffset = 0) const {
     switch (originVehicleIt.state) {
     case const_iterator::PROXY: return const_iterator(rfb.getNextCarBehind(originVehicleIt.dest, laneOffset));
-    case const_iterator::SPECIAL: return const_iterator(originVehicleIt.behindIt);
-    default: return const_iterator();
+    case const_iterator::SPECIAL: {
+      if (laneOffset == 0) return const_iterator(originVehicleIt.behindIt);
+
+      typename ConcreteRfbStructure::const_iterator endIt = rfb.allIterable().end();
+
+      if (originVehicleIt.inFrontIt == endIt) {
+        // There is no car in front of the special car
+        // Use the car behind (which is never == endIt) to perform a forward search until a car in front of the special
+        // car is found. Then the car behind this car is returned.
+
+        typename ConcreteRfbStructure::const_iterator candidate = endIt;
+        typename ConcreteRfbStructure::const_iterator forwardSearchIt =
+            rfb.getNextCarInFront(originVehicleIt.behindIt, laneOffset);
+
+        while (forwardSearchIt != endIt && forwardSearchIt->getDistance() <= originVehicleIt->getDistance()) {
+          // As long as forwardSearchIt is behind of originVehicleIt, look for the next car in front
+          // forwardSearchIt is the new candidate for the return value
+          candidate       = forwardSearchIt;
+          forwardSearchIt = rfb.getNextCarInFront(candidate, 0);
+        }
+        return const_iterator(candidate);
+      } else {
+        // There is a car in front of the special car
+        // Use this car to perform a backward search until a car behind the special car is found.
+
+        typename ConcreteRfbStructure::const_iterator backwardSearchIt;
+        // Search for the next car behind on the correct lane
+        if (originVehicleIt.inFrontIt != endIt)
+          backwardSearchIt = rfb.getNextCarBehind(originVehicleIt.inFrontIt, laneOffset);
+        else
+          return const_iterator(endIt);
+
+        while (backwardSearchIt != endIt && backwardSearchIt->getDistance() >= originVehicleIt->getDistance()) {
+          // As long as backwardSearchIt is in front of originVehicleIt, look for the next car behind
+          backwardSearchIt = rfb.getNextCarBehind(backwardSearchIt, 0);
+        }
+        return const_iterator(backwardSearchIt);
+      }
     }
-  }
-  iterator getNextNotSpecialCarBehind(iterator originVehicleIt, const int laneOffset = 0) {
-    switch (originVehicleIt.state) {
-    case iterator::PROXY: return iterator(rfb.getNextCarBehind(originVehicleIt.dest, laneOffset));
-    case iterator::SPECIAL: return iterator(originVehicleIt.behindIt);
-    default: return iterator();
-    }
-  }
-  const_iterator getNextNotSpecialCarBehind(const_iterator originVehicleIt, const int laneOffset = 0) const {
-    switch (originVehicleIt.state) {
-    case const_iterator::PROXY: return const_iterator(rfb.getNextCarBehind(originVehicleIt.dest, laneOffset));
-    case const_iterator::SPECIAL: return const_iterator(originVehicleIt.behindIt);
     default: return const_iterator();
     }
   }
