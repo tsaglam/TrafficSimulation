@@ -2,12 +2,14 @@
 #include <iostream>
 
 #include "BucketList.h"
+#include "CircularNaiveStreetDataStructure.h"
 #include "ConsistencyRoutine.h"
 #include "DomainModel.h"
 #include "IDMRoutine.h"
 #include "InitialTrafficLightStrategies.h"
 #include "JSONReader.h"
 #include "JSONWriter.h"
+#include "MergeNSkip.h"
 #include "NaiveStreetDataStructure.h"
 #include "NullRoutine.h"
 #include "OptimizationRoutine.h"
