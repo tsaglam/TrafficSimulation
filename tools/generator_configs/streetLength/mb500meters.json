@@ -5,7 +5,7 @@
       "time_steps": {
         "kind": "static",
         "spec": {
-          "value": 100000
+          "value": 30000
         }
       },
       "optimize_signals": {

@@ -5,7 +5,7 @@
       "time_steps": {
         "kind": "static",
         "spec": {
-          "value": 100000
+          "value": 20000
         }
       },
       "optimize_signals": {
@@ -16,9 +16,9 @@
   "grid": {
     "kind": "complete",
     "spec": {
-      "width": 1000,
-      "height": 1000,
-      "spacing": 10
+      "width": 300,
+      "height": 300,
+      "spacing": 3
     }
   },
   "signal": {
@@ -57,7 +57,7 @@
       "number": {
         "kind": "static",
         "spec": {
-          "value": 500000
+          "value": 100000
         }
       },
       "target_velocity": {
