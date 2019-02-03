@@ -360,20 +360,28 @@ public:
    * @return     The car in front represented by an iterator.
    */
   iterator getNextCarInFront(const iterator currentCarIt, const int laneOffset = 0) {
-    const unsigned int lane = currentCarIt->getLane() + laneOffset;
-    // iterate all cars in front of the current car (on all lanes) return first car on the specified lane
-    for (iterator i = currentCarIt + 1; i != street.end(); ++i) {
-      if (i->getLane() == lane) { return i; }
+    if (laneOffset == 0) {
+      return iterator(street.begin() + currentCarIt.it->nextInFront);
+    } else {
+      const unsigned int lane = currentCarIt->getLane() + laneOffset;
+      // iterate all cars in front of the current car (on all lanes) return first car on the specified lane
+      for (iterator it = currentCarIt + 1; it != street.end(); ++it) {
+        if (it->getLane() == lane) { return iterator(it); }
+      }
+      return iterator(street.end()); // return end iterator if no prev car exists on the given lane
     }
-    return street.end(); // return end iterator if no prev car exists on the given lane
   }
   const_iterator getNextCarInFront(const const_iterator currentCarIt, const int laneOffset = 0) const {
-    const unsigned int lane = currentCarIt->getLane() + laneOffset;
-    // iterate all cars in front of the current car (on all lanes) return first car on the specified lane
-    for (const_iterator i = currentCarIt + 1; i != street.end(); ++i) {
-      if (i->getLane() == lane) { return i; }
+    if (laneOffset == 0) {
+      return const_iterator(street.begin() + currentCarIt.it->nextInFront);
+    } else {
+      const unsigned int lane = currentCarIt->getLane() + laneOffset;
+      // iterate all cars in front of the current car (on all lanes) return first car on the specified lane
+      for (const_iterator it = currentCarIt + 1; it != street.end(); ++it) {
+        if (it->getLane() == lane) { return const_iterator(it); }
+      }
+      return const_iterator(street.end()); // return end iterator if no prev car exists on the given lane
     }
-    return street.end(); // return end iterator if no prev car exists on the given lane
   }
 
   /**
@@ -386,20 +394,28 @@ public:
    * @return     The car behind the current car represented by an iterator.
    */
   iterator getNextCarBehind(const iterator currentCarIt, const int laneOffset = 0) {
-    const unsigned int lane = currentCarIt->getLane() + laneOffset;
-    // iterate all cars behind the current car (on all lanes) return first car on the specified lane
-    for (iterator i = currentCarIt; i != street.begin(); --i) { // reverse iteration
-      if ((i - 1)->getLane() == lane) { return (i - 1); }
+    if (laneOffset == 0) {
+      return iterator(street.begin() + currentCarIt.it->nextBehind);
+    } else {
+      const unsigned int lane = currentCarIt->getLane() + laneOffset;
+      // iterate all cars behind the current car (on all lanes) return first car on the specified lane
+      for (iterator it = currentCarIt; it != street.begin(); --it) { // reverse iteration
+        if ((it - 1)->getLane() == lane) { return iterator(it - 1); }
+      }
+      return iterator(street.end()); // return end iterator if no next car exists on the given lane
     }
-    return street.end(); // return end iterator if no next car exists on the given lane
   }
   const_iterator getNextCarBehind(const const_iterator currentCarIt, const int laneOffset = 0) const {
-    const unsigned int lane = currentCarIt->getLane() + laneOffset;
-    // iterate all cars behind the current car (on all lanes) return first car on the specified lane
-    for (const_iterator i = currentCarIt; i != street.begin(); --i) { // reverse iteration
-      if ((i - 1)->getLane() == lane) { return (i - 1); }
+    if (laneOffset == 0) {
+      return const_iterator(street.begin() + currentCarIt.it->nextBehind);
+    } else {
+      const unsigned int lane = currentCarIt->getLane() + laneOffset;
+      // iterate all cars behind the current car (on all lanes) return first car on the specified lane
+      for (const_iterator it = currentCarIt; it != street.begin(); --it) { // reverse iteration
+        if ((it - 1)->getLane() == lane) { return const_iterator(it - 1); }
+      }
+      return const_iterator(street.end()); // return end iterator if no next car exists on the given lane
     }
-    return street.end(); // return end iterator if no next car exists on the given lane
   }
 
   /**
@@ -430,6 +446,7 @@ public:
   void incorporateInsertedCars() {
     std::sort(street.begin(), street.end()); // restore car order (sorted by distance)
     rBeyondsIndex = 0;
+    buildIndex();
   }
 
   /**
@@ -484,6 +501,29 @@ public:
   void removeBeyonds() {
     street.erase(street.cend() - rBeyondsIndex, street.cend());
     rBeyondsIndex = 0;
+  }
+
+private:
+  void buildIndex() {
+    typename vector_type::iterator endIt = street.end();
+
+    // Prepare the lastCarIts array
+    std::array<typename vector_type::iterator, MAX_LANES> lastCarIts;
+    std::fill_n(lastCarIts.begin(), MAX_LANES, endIt);
+
+    // std::vector<Checkpoint>::iterator checkpointIt = checkpoints.begin();
+
+    typename vector_type::iterator beginIt = street.begin();
+    for (typename vector_type::iterator it = beginIt; it != endIt; ++it) {
+      unsigned int lane = it->vehicle.getLane();
+      if (lastCarIts[lane] != endIt) lastCarIts[lane]->nextInFront = it - beginIt;
+      it->nextBehind   = lastCarIts[lane] - beginIt;
+      lastCarIts[lane] = it;
+    }
+
+    for (typename vector_type::iterator &lastCarIt : lastCarIts) {
+      if (lastCarIt != endIt) lastCarIt->nextInFront = endIt - beginIt;
+    }
   }
 };
 
