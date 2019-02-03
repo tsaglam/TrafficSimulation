@@ -140,8 +140,8 @@ private:
     // fill input arrays
     for (unsigned i = 0; i < arrayLength; ++i) { ONE[i] = 1; }
 
-    for (unsigned i = 0; i < arrayLength - 1; ++i) { // [3] is unused and thus not set
-      if (car_it[i] == end) { continue; }            // skip nonexistent cars
+    for (unsigned i = 0; i < arrayLength; ++i) { // [3] is unused and thus not set
+      if (car_it[i] == end) { continue; }        // skip nonexistent cars
       maxAcceleration[i]     = car_it[i]->getMaxAcceleration();
       currentVelocity[i]     = car_it[i]->getVelocity();
       targetVelocity[i]      = std::min(car_it[i]->getTargetVelocity(), speedLimit);
@@ -156,10 +156,10 @@ private:
         inFrontVelocity[i]   = 1;
         inFrontPosition[i]   = 1;
       } else {
+        inFrontMultiplier[i] = 1;
         inFrontLength[i]     = car_inFront_it[i]->getLength();
         inFrontVelocity[i]   = car_inFront_it[i]->getVelocity();
         inFrontPosition[i]   = car_inFront_it[i]->getDistance();
-        inFrontMultiplier[i] = 1;
       }
     }
 
