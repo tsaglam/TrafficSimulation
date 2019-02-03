@@ -85,8 +85,7 @@ public:
 
   template <bool Const = false>
   class _BeyondsCarIterable {
-    using IteratorType =
-        std::conditional_t<Const, typename vector_type::const_reverse_iterator, typename vector_type::reverse_iterator>;
+    using IteratorType = std::conditional_t<Const, const_reverse_iterator, reverse_iterator>;
     using StreetReference =
         std::conditional_t<Const, CircularNaiveStreetDataStructure const &, CircularNaiveStreetDataStructure &>;
     StreetReference dataStructure;
