@@ -6,7 +6,7 @@
 #include "LowLevelStreet.h"
 #include "RfbStructure.h"
 #include "SimulationData.h"
-#include <iostream>
+#include <thread>
 
 template <template <typename Vehicle> typename RfbStructure>
 class ParallelTrafficLightRoutine {
@@ -37,7 +37,10 @@ public:
   }
 
   void performParallel(const std::vector<std::unique_ptr<Junction>> &junctions) {
-#pragma omp parallel for shared(junctions) schedule(static)
+#ifdef _OPENMP
+    unsigned int customBlockSize = junctions.size() / std::thread::hardware_concurrency();
+#endif
+#pragma omp parallel for shared(junctions) schedule(static, customBlockSize)
     for (std::size_t i = 0; i < junctions.size(); i++) {
       const auto &junction = junctions[i];
       perform(*junction);
