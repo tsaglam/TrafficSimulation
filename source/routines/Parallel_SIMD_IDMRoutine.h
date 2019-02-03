@@ -17,7 +17,7 @@ class Parallel_SIMD_IDMRoutine : public SIMD_IDMRoutine<RfbStructure> {
   using LaneChangeValues        = typename IDMRoutine<RfbStructure>::LaneChangeValues;
 
 public:
-  using SMDI_IDMRoutine<RfbStructure>::SMDI_IDMRoutine;
+  using SIMD_IDMRoutine<RfbStructure>::SIMD_IDMRoutine;
 
   void perform() {
 // #ifdef _OPENMP
