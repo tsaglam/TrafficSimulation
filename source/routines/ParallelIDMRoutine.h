@@ -34,7 +34,7 @@ private:
   };
 
 private:
-  const unsigned long PARALLEL_THRESHOLD = 50;
+  const unsigned long PARALLEL_THRESHOLD = 100;
   SimulationData<RfbStructure> &data;
   std::vector<unsigned int> carWise;
   std::vector<unsigned int> streetWise;
@@ -66,13 +66,12 @@ public:
     performStreetWise(streetWise);
     performCarWise(carWise);
 #endif
-    // performSequential(sequential); TODO
 
     carWise.clear();
     streetWise.clear();
   }
 
-  void performSequential(std::vector<unsigned int> &streetIds) { // TODO Remove me later
+  void performSequential(std::vector<unsigned int> &streetIds) {
     for (auto streetId : streetIds) {
       auto &street = data.getStreet(streetId);
       // Initialise acceleration computer for use during computation
