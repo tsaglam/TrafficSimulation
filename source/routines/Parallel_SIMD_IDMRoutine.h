@@ -11,7 +11,7 @@
 #include "SimulationData.h"
 
 template <template <typename Vehicle> typename RfbStructure>
-class Parallel_SIMD_IDMRoutine : public SMDI_IDMRoutine<RfbStructure> {
+class Parallel_SIMD_IDMRoutine : public SIMD_IDMRoutine<RfbStructure> {
   using car_iterator            = typename LowLevelStreet<RfbStructure>::iterator;
   using AccelerationComputerRfb = AccelerationComputer<RfbStructure>;
   using LaneChangeValues        = typename IDMRoutine<RfbStructure>::LaneChangeValues;
