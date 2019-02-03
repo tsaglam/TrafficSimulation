@@ -12,6 +12,7 @@ function generateTests {
 	outDirectory="${outPath}/${1}"
 
 	eval "mkdir -p ${outDirectory}" # create outDirectory if it does not exist
+	eval "rm -i ${outDirectory}/*"
 
 	for filename in "${inDirectory}"/*.json; do
 		name=$(basename "$filename" .json)
