@@ -162,10 +162,10 @@ public:
 
 private:
   void performStreetWise(std::vector<unsigned int> &streetIds) {
-#ifdef _OPENMP
-    unsigned int customBlockSize = streetIds.size() / omp_get_max_threads();
-#endif
-#pragma omp parallel for shared(data) schedule(static, customBlockSize)
+// #ifdef _OPENMP
+//     unsigned int customBlockSize = streetIds.size() / omp_get_max_threads();
+// #endif
+#pragma omp parallel for shared(data) schedule(static) //, customBlockSize)
     for (std::size_t i = 0; i < streetIds.size(); i++) {
       // get the right street
       auto &street = data.getStreet(streetIds[i]);
