@@ -283,8 +283,14 @@ private:
     // TODO decide when to use SIMD
     std::array<car_iterator, 3> cars        = {carIt, carBehindIt, laneChangeCarBehindIt};
     std::array<car_iterator, 3> carsInFront = {laneChangeCarInFrontIt, carInFrontIt, laneChangeCarInFrontIt};
-    std::array<double, 4> accelerations =
-        computeLaneChangeAccelerationSIMD(street.getSpeedLimit(), cars, carsInFront, accelerationComputer.end());
+    std::array<double, 4> accelerations = {0,0,0,0};
+
+    // compute without SIMD if only one acceleration is computed (because there are no cars behind on both lanes)
+    if (accelerationComputer.isEnd(carBehindIt) && accelerationComputer.isEnd(laneChangeCarBehindIt)) {
+      accelerations[0] = accelerationComputer(cars[0], carsInFront[0]);
+    } else { // use SIMD to compute two or more accelerations
+      accelerations = computeLaneChangeAccelerationSIMD(street.getSpeedLimit(), cars, carsInFront, accelerationComputer.end());
+    }
 
     // If the acceleration after a lane change is smaller equal the base acceleration, don't indicate lane change
     if (accelerations[0] <= carIt->getNextBaseAcceleration()) return LaneChangeValues();
