@@ -42,7 +42,7 @@ public:
   }
 
   /**
-   * @brief      1. Updates cars and restores consitency for every street.
+   * @brief      1. Updates cars and restores consistency for every street.
    */
   void restoreConsistency() {
 #pragma omp parallel for shared(data)
