@@ -3,6 +3,7 @@
 
 #include <vector>
 
+#include "BucketList.h"
 #include "DomainModel.h"
 #include "LowLevelCar.h"
 #include "SimulationData.h"
@@ -37,6 +38,13 @@ public:
 
     // Clear streets, start fresh
     streets.clear();
+
+    // Compute optimal bucket section length as '2 * total street length / total car count'
+    if (domainModel.getVehicles().size() > 0) {
+      unsigned long totalStreetLength = 0;
+      for (const auto &street : domainModel.getStreets()) { totalStreetLength += street->getLength(); }
+      BucketListSectionLength = 2 * totalStreetLength / domainModel.getVehicles().size();
+    }
 
     for (const auto &domainStreet : domainModel.getStreets()) {
       streets.emplace_back(domainStreet->getId(), domainStreet->getLanes(), domainStreet->getLength(),
