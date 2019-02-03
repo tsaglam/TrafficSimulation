@@ -8,36 +8,19 @@
 #include <immintrin.h>
 
 #include "AccelerationComputer.h"
+#include "IDMRoutine.h"
 #include "LowLevelCar.h"
 #include "LowLevelStreet.h"
 #include "SimulationData.h"
 
 template <template <typename Vehicle> typename RfbStructure>
-class SMDI_IDMRoutine {
-private:
-  using car_iterator            = typename LowLevelStreet<RfbStructure>::iterator;
+class SMDI_IDMRoutine : public IDMRoutine<RfbStructure> {
+  using car_iterator = typename LowLevelStreet<RfbStructure>::iterator;
   using AccelerationComputerRfb = AccelerationComputer<RfbStructure>;
-
-private:
-  class LaneChangeValues {
-  public:
-    bool valid;          // if true, the further fields are valid
-    double acceleration; // a in case of a lane change
-    double indicator;    // m_alpha
-
-    LaneChangeValues() : valid(false), acceleration(0.0), indicator(0.0) {}
-    LaneChangeValues(double _acceleration, double _indicator)
-        : valid(true), acceleration(_acceleration), indicator(_indicator) {}
-  };
-
-private:
-  SimulationData<RfbStructure> &data;
+  using LaneChangeValues = typename IDMRoutine<RfbStructure>::LaneChangeValues;
 
 public:
-  SMDI_IDMRoutine(SimulationData<RfbStructure> &_data) : data(_data) {}
-  void perform() {
-    for (auto &street : data.getStreets()) { processStreet(street); }
-  }
+  using IDMRoutine<RfbStructure>::IDMRoutine;
 
 private:
   void processStreet(LowLevelStreet<RfbStructure> &street) {
@@ -110,14 +93,24 @@ private:
       carIt++;
     }
     std::array<double, 4> accelerations =
-        computeLaneChangeAccelerationSIMD(street.getSpeedLimit(), cars, carsInFront, accelerationComputer.end());
+        computeAccelerationSIMD(street.getSpeedLimit(), cars, carsInFront, accelerationComputer.end());
 
     carIt = begin;
     for (unsigned i = 0; i < 4; ++i) { (carIt++)->setNextBaseAcceleration(accelerations[i]); }
     return carIt;
   }
 
-  std::array<double, 4> computeLaneChangeAccelerationSIMD(const double speedLimit, std::array<car_iterator, 4> car_it,
+  /**
+   * Calculates the acceleration using avx SIMD instructions of the four cars. Ignores end iterator cars.
+   *
+   * @param[in]  speedLimit      The speed limit on the current street
+   * @param[in]  car_it          The iterators of the cars whose acceleration should be computed
+   * @param[in]  car_inFront_it  The iterators of the cars in front
+   * @param[in]  end             The end iterator
+   *
+   * @return     The acceleration.
+   */
+  std::array<double, 4> computeAccelerationSIMD(const double speedLimit, std::array<car_iterator, 4> car_it,
       std::array<car_iterator, 4> car_inFront_it, car_iterator end) const {
     // Compute the acceleration of the car on the new lane and its behind neighbors on the old and new lane in case of a
     // lane change using SIMD instructions.
@@ -253,8 +246,7 @@ private:
       std::array<car_iterator, 4> cars        = {carIt, carBehindIt, laneChangeCarBehindIt, accelerationComputer.end()};
       std::array<car_iterator, 4> carsInFront = {
           laneChangeCarInFrontIt, carInFrontIt, laneChangeCarInFrontIt, accelerationComputer.end()};
-      accelerations =
-          computeLaneChangeAccelerationSIMD(street.getSpeedLimit(), cars, carsInFront, accelerationComputer.end());
+      accelerations = computeAccelerationSIMD(street.getSpeedLimit(), cars, carsInFront, accelerationComputer.end());
     }
 
     // If the acceleration after a lane change is smaller equal the base acceleration, don't indicate lane change
@@ -281,27 +273,6 @@ private:
     if (indicator <= 1.0) return LaneChangeValues();
 
     return LaneChangeValues(accelerations[0], indicator);
-  }
-
-  bool computeIsSpace(AccelerationComputerRfb accelerationComputer, car_iterator carIt, car_iterator carBehindIt,
-      car_iterator carInFrontIt) const {
-
-    if (accelerationComputer.isNotEnd(carBehindIt) &&
-        carIt->getDistance() - carIt->getLength() < carBehindIt->getDistance() + carIt->getMinDistance())
-      return false;
-
-    if (accelerationComputer.isNotEnd(carInFrontIt) &&
-        carInFrontIt->getDistance() - carInFrontIt->getLength() < carIt->getDistance() + carIt->getMinDistance())
-      return false;
-
-    return true;
-  }
-
-  void computeAndSetDynamics(LowLevelCar &car, const double nextAcceleration, const unsigned int nextLane) {
-    const double nextVelocity = std::max(car.getVelocity() + nextAcceleration, 0.0);
-    const double nextDistance = car.getDistance() + nextVelocity;
-    car.setNext(nextLane, nextDistance, nextVelocity);
-    car.updateTravelDistance(nextVelocity); // in this step, the car traveled a distance of 'nextVelocity' meters
   }
 };
 
