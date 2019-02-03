@@ -22,7 +22,7 @@ class SMDI_IDMRoutine : public IDMRoutine<RfbStructure> {
 public:
   using IDMRoutine<RfbStructure>::IDMRoutine;
 
-private:
+protected:
   void processStreet(LowLevelStreet<RfbStructure> &street) {
     // Initialise acceleration computer for use during computation
     AccelerationComputerRfb accelerationComputer(street);
@@ -57,7 +57,7 @@ private:
         nextAcceleration = rightLaneChange.acceleration;
       }
 
-      computeAndSetDynamics(*carIt, nextAcceleration, carIt->getLane() + laneOffset);
+      this->computeAndSetDynamics(*carIt, nextAcceleration, carIt->getLane() + laneOffset);
     }
   }
 
@@ -230,7 +230,7 @@ private:
     // Retrieve next car in front of the car in question if a lane change would take place.
     car_iterator laneChangeCarInFrontIt = street.getNextCarInFront(carIt, laneOffset);
 
-    if (!computeIsSpace(accelerationComputer, carIt, laneChangeCarBehindIt, laneChangeCarInFrontIt))
+    if (!this->computeIsSpace(accelerationComputer, carIt, laneChangeCarBehindIt, laneChangeCarInFrontIt))
       return LaneChangeValues();
 
     // Retrieve next car in front of the car in question (no lane change).
