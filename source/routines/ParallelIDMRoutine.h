@@ -5,6 +5,9 @@
 #include <cassert>
 #include <cmath>
 #include <thread>
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 
 #include "LowLevelCar.h"
 #include "LowLevelStreet.h"
@@ -111,7 +114,7 @@ private:
 public:
   ParallelIDMRoutine(SimulationData<RfbStructure> &_data) : data(_data) {}
   void perform() {
-  #ifdef TIMER
+#ifdef TIMER
     IDMRoutine_thresholdSorting_timer.start();
 #endif
     for (auto &street : data.getStreets()) {
@@ -136,7 +139,7 @@ public:
     performCarWise(carWise);
 #endif
     // performSequential(sequential); TODO
-    
+
     carWise.clear();
     streetWise.clear();
   }
@@ -159,10 +162,10 @@ public:
 
 private:
   void performStreetWise(std::vector<unsigned int> &streetIds) {
-// #ifdef _OPENMP
-//     unsigned int customBlockSize = streetIds.size() / std::thread::hardware_concurrency();
-// #endif
-#pragma omp parallel for shared(data) schedule(static) //, customBlockSize)
+#ifdef _OPENMP
+    unsigned int customBlockSize = streetIds.size() / omp_get_max_threads();
+#endif
+#pragma omp parallel for shared(data) schedule(static, customBlockSize)
     for (std::size_t i = 0; i < streetIds.size(); i++) {
       // get the right street
       auto &street = data.getStreet(streetIds[i]);
