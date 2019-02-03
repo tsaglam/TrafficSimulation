@@ -45,7 +45,7 @@ public:
    * @brief      1. Updates cars and restores consistency for every street.
    */
   void restoreConsistency() {
-#pragma omp parallel for shared(data)
+#pragma omp parallel for shared(data) schedule(static)
     for (std::size_t i = 0; i < data.getStreets().size(); i++) {
       auto &street = data.getStreets()[i];
       street.updateCarsAndRestoreConsistency();
@@ -77,7 +77,7 @@ public:
    * @brief      3. Incorperate every new car of every street into its data structure.
    */
   void incorporateCars() {
-#pragma omp parallel for shared(data)
+#pragma omp parallel for shared(data) schedule(static)
     for (std::size_t i = 0; i < data.getStreets().size(); i++) {
       auto &street = data.getStreets()[i];
       street.incorporateInsertedCars();
