@@ -14,6 +14,7 @@
 #include "Optimizer.h"
 #include "ParallelConsistencyRoutine.h"
 #include "ParallelIDMRoutine.h"
+#include "Parallel_SIMD_IDMRoutine.h"
 #include "ParallelTrafficLightRoutine.h"
 #include "Simulator.h"
 #include "Timer.h"
@@ -38,7 +39,7 @@ void printTimes() {
 
 #ifdef AVX
 #include "SIMD_IDMRoutine.h"
-#define IDM SMDI_IDMRoutine
+#define IDM Parallel_SIMD_IDMRoutine
 #else
 #define IDM ParallelIDMRoutine
 #endif
