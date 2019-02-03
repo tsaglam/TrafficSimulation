@@ -5,9 +5,6 @@
 #include <cassert>
 #include <cmath>
 
-#include <iomanip>  // TODO remove
-#include <iostream> // TODO remove
-
 #include <immintrin.h>
 
 #include "LowLevelCar.h"
