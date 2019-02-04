@@ -39,8 +39,8 @@ void printTimes() {
 }
 
 #ifdef AVX
-#include "SIMD_IDMRoutine.h"
 #include "Parallel_SIMD_IDMRoutine.h"
+#include "SIMD_IDMRoutine.h"
 #define IDM SIMD_IDMRoutine
 #else
 #define IDM ParallelIDMRoutine
@@ -56,8 +56,8 @@ void printTimes() {
 using InitialTrafficLights = InitialTrafficLightsWithHeuristicSimulatorAndIteration<false>;
 
 int main_simulate(JSONReader &jsonReader, DomainModel &domainModel, JSONWriter &jsonWriter) {
-  Simulator<RfbStructure, ParallelTrafficLightRoutine, IDM, NullRoutine, ParallelConsistencyRoutine>
-      simulator(domainModel);
+  Simulator<RfbStructure, ParallelTrafficLightRoutine, IDM, NullRoutine, ParallelConsistencyRoutine> simulator(
+      domainModel);
   simulator.performSteps(jsonReader.getTimeSteps());
 
   jsonWriter.writeVehicles(domainModel);
