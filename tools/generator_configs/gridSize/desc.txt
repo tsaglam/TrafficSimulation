@@ -1,6 +1,6 @@
 Skaliere die Anzahl der Kreuzungen und damit der Straßen.
 Straßenlänge konstant. Autos pro Straße konstant.
-Relativ lange Straßen: 1km
+Relativ lange Straßen: 300m
 
 
 ACHTUNG Tests können SEHR lange dauern!
