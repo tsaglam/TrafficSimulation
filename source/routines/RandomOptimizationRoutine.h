@@ -47,7 +47,7 @@ public:
       }
 
       // Shuffle signals (permutation)
-      std::random_shuffle(newSignals.begin(), newSignals.end());
+      std::shuffle(newSignals.begin(), newSignals.end(), rng);
 
       junction->setSignals(std::move(newSignals));
       newSignals.clear();
