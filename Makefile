@@ -52,10 +52,10 @@ DBG_DEPS := $(DBG_OBJS:.o=.d)
 INC_DIRS := $(shell find $(SRC_DIRS) -type d)
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
-CPPFLAGS ?= $(CXXFLAGS) $(INC_FLAGS) $(PARALLEL_FLAGS) -MMD -MP -std=c++17 -O3 -Wall -Wextra
+CPPFLAGS = $(CXXFLAGS) $(INC_FLAGS) $(PARALLEL_FLAGS) -MMD -MP -std=c++17 -O3 -Wall -Wextra
 
-DBG_CPPFLAGS ?= $(CXXFLAGS) $(INC_FLAGS) $(PARALLEL_FLAGS) -MMD -MP -std=c++17 -O0 -fno-omit-frame-pointer -g -fsanitize=address -Wall -Wextra
-TEST_CPPFLAGS ?= $(DBG_CPPFLAGS) --coverage
+DBG_CPPFLAGS = $(CXXFLAGS) $(INC_FLAGS) $(PARALLEL_FLAGS) -MMD -MP -std=c++17 -O0 -fno-omit-frame-pointer -g -fsanitize=address -Wall -Wextra
+TEST_CPPFLAGS = $(DBG_CPPFLAGS) --coverage
 
 # Rules regarding the primary executable
 
