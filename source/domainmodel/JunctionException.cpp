@@ -8,4 +8,4 @@ JunctionException::JunctionException(Junction junction, const std::string messag
   fullMessage = result.str();
 }
 
-const char *JunctionException::what() const throw() { return fullMessage.c_str(); }
+const char *JunctionException::what() const noexcept { return fullMessage.c_str(); }

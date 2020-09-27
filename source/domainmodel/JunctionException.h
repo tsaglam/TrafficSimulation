@@ -18,7 +18,7 @@ public:
    * @brief      Returns the full exception message.
    * @return     the junction ID, the junction coordinates and the custom exception message.
    */
-  virtual const char *what() const throw();
+  virtual const char *what() const noexcept;
 
 private:
   std::string fullMessage;
