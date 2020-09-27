@@ -7,7 +7,7 @@
 #include <utility>
 #include <vector>
 
-#include "json.hpp"
+#include "../../json/single_include/nlohmann/json.hpp"
 
 #include "DomainModel.h"
 #include "DomainModelCommon.h"

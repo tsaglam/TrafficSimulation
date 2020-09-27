@@ -3,7 +3,7 @@
 #include <exception>
 #include <iostream>
 
-#include "json.hpp"
+#include "../../json/single_include/nlohmann/json.hpp"
 
 #include "DomainModel.h"
 
